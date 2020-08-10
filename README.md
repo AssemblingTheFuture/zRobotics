@@ -97,4 +97,7 @@ This library includes the following algorithms:
   - Under construction :nerd_face:
 
 **We hope this can be useful for you. Thank you!**
+
+<Enter>
+    
 ![Z Dynamics](images/icon.png "The Future is ROBOTICS")
