@@ -26,7 +26,7 @@ Feel free to modify, adjust and extend our work to your necessities :smiley:; th
 
 This library includes the following algorithms:
 
-#### MATLAB
+#### [MATLAB](/MATLAB)
 
   - **[Denavit - Hartenberg Parameters](/MATLAB/denavitHartenberg.m)**
 
@@ -34,7 +34,7 @@ This library includes the following algorithms:
         % Returns uRobot's Denavit - Hartenberg parameters as a matrix
         DH = denavitHartenberg(q, L);
     ```
-    where $q \in \mathbb{R}^{n \times 1}$ are the generalized coordinates (set in radians) of the system. Also, $L \in \mathbb{R}^{p \times 1}$ is the length (set in meters) of each rigid body in the kinematic chain
+    where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are the generalized coordinates (set in radians) of the system. Also, <img src="https://render.githubusercontent.com/render/math?math=L \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain
 
 <Enter>
 
@@ -63,7 +63,7 @@ This library includes the following algorithms:
         % Returns robot's inverse kinematics using Dual Quaternions
         qi = inverseKinematicsDQ(q0, L, Qd, KQ, m);
     ```
-    For previous cases, $m \in \mathbb{R}, m \geq 1$ represents the number of reference frames of the system (including inertial one). Moreover, $q_0 \in \mathbb{R}^{n \times 1}$ are the initial conditions of the generalized coordinates; also, $H_d \in \mathbb{R}^{4 \times 4}$ and $Q_d \in \mathbb{R}^{8 \times 1}$ represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, $K \in \mathbb{R}^{6 \times 6}$ and $K_Q \in \mathbb{R}^{8 \times 8}$ are the constant symmetric gain matrices that are used to solve inverse kinematics problem
+    For previous cases, <img src="https://render.githubusercontent.com/render/math?math=m \in \mathbb{R}, m \geq 1"> represents the number of reference frames of the system (including inertial one). Moreover, <img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{R}^{8 \times 1}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
 
 <Enter>
 
@@ -91,7 +91,7 @@ This library includes the following algorithms:
         % Returns instantaneous joints' accelerations «qdd»
         qdd = jointsAccelerationsDQ(q, qd, Wd, DH, m);
     ```
-    Being $\dot{q}, \ddot{q} \in \mathbb{R}^{n \times 1}$ (``` qd, qdd ```) the instantaneous velocity and acceleration of generalized coordinates $q$. Also, $\hat{\omega}, \dot{\hat{\omega}} \in \mathbb{R}^{8 \times 1}$ (``` W, Wd ```) are the instantaneous end - effector velocity and acceleration in dual form. **For the case of the joint's acceleration computation, do not forget to include the gravitational acceleration (in dual form) in order to get a more accurate result**
+    Being <img src="https://render.githubusercontent.com/render/math?math=\dot{q}, \ddot{q} \in \mathbb{R}^{n \times 1}"> (``` qd, qdd ```) the instantaneous velocity and acceleration of generalized coordinates <img src="https://render.githubusercontent.com/render/math?math=q">. Also, <img src="https://render.githubusercontent.com/render/math?math=\hat{\omega}, \dot{\hat{\omega}} \in \mathbb{R}^{8 \times 1}"> (``` W, Wd ```) are the instantaneous end - effector velocity and acceleration in dual form. **For the case of the joint's acceleration computation, do not forget to include the gravitational acceleration (in dual form) in order to get a more accurate result**
 
 #### Python
   - Under construction :nerd_face:
