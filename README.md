@@ -96,5 +96,5 @@ This library includes the following algorithms:
 #### Python
   - Under construction :nerd_face:
 
-**We hope this can be useful for you. Thank you!
+**We hope this can be useful for you. Thank you!**
 ![Z Dynamics](images/icon.png "The Future is ROBOTICS")
