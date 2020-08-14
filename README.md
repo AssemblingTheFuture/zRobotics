@@ -114,6 +114,53 @@ This library includes the following algorithms:
     
     **If you want to know more about these control functions and how you can implement them in your projects, check out our course [Control of Dynamic Systems](https://www.udemy.com/course/control-de-sistemas-dinamicos/?referralCode=74300CF3F21F98714329)** :wink:
 
+<Enter>
+
+- **Robot Creation and Animation (using [Peter Corke's Robotics Toolbox](https://petercorke.com/toolboxes/robotics-toolbox/))**
+    
+    - Create robot's joints positions
+    
+    ```matlab
+        % Returns uRobot's generalized coordinates vector
+        q = [q1
+             q2
+             q3
+             q4];
+    ```
+
+    - Create robot's links or rigid bodies length
+    
+    ```matlab
+        % Returns uRobot's rigid bodies length
+        L = [l1 l2 l3];
+    ```
+
+    - Create robot's links as **objects**
+    
+    ```matlab
+        % Returns uRobot's rigid bodies as objects
+        L1 = Link('d', L(1), 'a', 0, 'alpha', pi/2);
+        L2 = Link('d', 0, 'a', L(2), 'alpha', 0);
+        L3 = Link('d', 0, 'a', 0, 'alpha', pi/2);
+        L4 = Link('d', L(3), 'a', 0, 'alpha', 0);
+    ```
+
+    - Create kinematic chain as an **object**
+    
+    ```matlab
+        % Returns uRobot
+        uRobot = SerialLink([L1, L2, L3, L4], 'name', 'uRobot');
+    ```
+
+    - Plot **uRobot**
+    
+    ```matlab
+        % Returns uRobot plot
+        uRobot.plot(q')
+    ```
+
+    **IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached. In order to use ```uRobot.plot( )```, we have to transpose <img src="https://render.githubusercontent.com/render/math?math=q">, otherwise, we won't be able to see the robot's animation
+
 #### Python
   - Under construction :nerd_face:
 
