@@ -48,7 +48,7 @@ This library includes the following algorithms:
     - [using *Dual Quaternions*](/MATLAB/forwardKinematicsDQ.m)
     ```matlab
         % Returns robot's forward kinematics based on «DH» matrix
-        H = forwardKinematicsDQ(DH, m);
+        DQ = forwardKinematicsDQ(DH, m);
     ```
 <Enter>
 
