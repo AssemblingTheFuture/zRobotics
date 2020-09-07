@@ -1,7 +1,7 @@
-# uRobot 0.1
+# zRobotics 0.1
 A powerful library for robotics analysis :robot:
 
-- [uRobot 0.1](#urobot-01)
+- [zRobotics 0.1](#zrobotics-01)
     - [Introduction](#introduction)
     - [Features](#features)
     - [Library Content](#library-content)
