@@ -243,11 +243,13 @@ This library includes the following algorithms:
         uRobot.plot(q = np.random.rand(1, 4))
     ```
     
-    - Plot robot (with animation and modifying joints' positions). ```delayPerFrame``` in milliseconds 
+    - Plot robot (with animation and modifying joints' positions); ```delayPerFrame``` has to be considered in milliseconds. Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{m \times n}"> are the generalized coordinates (set in radians) of the system; also, <img src="https://render.githubusercontent.com/render/math?math=m \geq 1"> is the number of movements that each joint will perform during the animation
     
     ```python
         uRobot.plot(q = np.array([np.linspace(-np.pi, np.pi, 50) for column in range(4)]).T, delayPerFrame = 100)
     ```
+    
+![uRobot](images/uRobotPython.gif "uRobot 0.1")
     
   - Under construction :nerd_face:
 
