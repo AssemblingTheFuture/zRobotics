@@ -8,6 +8,9 @@ class System:
   def __init__(self, jointsPositions, linksLengths, name = ''):
     """
       Robot's constructor
+      jointsPositions: np.array (two - dimensional)
+      linksLengths: np.array or list (one - dimensional)
+      name: string (optional)
     """
     # Robot's name
     self.name = name
@@ -22,6 +25,10 @@ class System:
   def denavitHartenberg(self, theta = 0, d = 0, a = 0, alpha = 0):
     """
       Denavit - Hartenberg parameters for n - th rigid body
+      theta: rotation on «z» axis
+      d: translation on «z» axis
+      a: translation on «x» axis
+      alpha: rotation on «x» axis
     """
 
     # Denavit - Hartenberg matrix
@@ -30,7 +37,7 @@ class System:
   
   def forwardKinematics(self):
     """
-      Computes forward kinematics to n - th rigid body given joints positions in radians
+      Computes forward kinematics to n - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
     """
 
     # Initial conditions
@@ -47,9 +54,12 @@ class System:
       self.fkHTM = self.fkHTM.dot(mv.rz(link[0]).dot(mv.tz(link[1])).dot(mv.tx(link[2])).dot(mv.rx(link[3])))
       self._frames.append(self.fkHTM)
         
-  def plot(self, q = np.array([[]]), delayPerFrame = 200, repeatAnimation = False, save = False):
+  def plot(self, q = np.array([[]]), delayPerFrame = 200, repeatAnimation = False):
     """
       Plot robot's behavior and reference frames attached to each joint
+      q: np.array (two - dimensional)
+      delayPerFrame: int or float. Represents delay before showing next frame in milliseconds
+      repeatAnimation: boolean
     """
     
     # If «q» is not empty
@@ -59,13 +69,19 @@ class System:
     # Set figure's parameters
     fig = plt.figure()
     ax = fig.gca(projection = '3d')
-    ax.set_xlabel('$x$', color = 'red', fontsize = 16)
-    ax.set_ylabel('$y$', color = 'green', fontsize = 16)
-    ax.set_zlabel('$z$', color = 'blue', fontsize = 16)
 
     # Plot robot and reference frames
     def robot(q):
+      # Clear figure
       plt.cla()
+
+      # Set title and axes text
+      ax.set_title(self.name, fontsize = 16)
+      ax.set_xlabel('$x$', color = 'red', fontsize = 16)
+      ax.set_ylabel('$y$', color = 'green', fontsize = 16)
+      ax.set_zlabel('$z$', color = 'blue', fontsize = 16)
+
+      # Set current joints positions
       self.jointsPositions = q
       self.forwardKinematics()
       
