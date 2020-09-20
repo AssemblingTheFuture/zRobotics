@@ -172,10 +172,10 @@ This library includes the following algorithms:
         import Robot
     ```
     
-    - Create robot's joints positions (**in radians**)
+    - Create robot's joints positions (**in radians**); **two dimensional array is mandatory**
     
     ```python
-        # Set uRobot's (random) generalized coordinates vector (**two - dimensional array is mandatory**)
+        # Set uRobot's (random) generalized coordinates vector
         q = np.random.rand(1, 4)
     ```
     
@@ -243,7 +243,7 @@ This library includes the following algorithms:
         uRobot.plot(q = np.random.rand(1, 4))
     ```
     
-    - Plot robot (with animation and modifying joints' positions); ```delayPerFrame``` has to be considered in milliseconds. Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{m \times n}"> are the generalized coordinates (set in radians) of the system; also, <img src="https://render.githubusercontent.com/render/math?math=m \geq 1"> is the number of movements that each joint will perform during the animation
+    - Plot robot (with animation and modifying joints' positions); ```delayPerFrame``` has to be considered in milliseconds. Moreover, <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{m \times n}"> represents the generalized coordinates (set in radians) of the system; also, <img src="https://render.githubusercontent.com/render/math?math=m \geq 1"> is the number of movements that each joint will perform during the animation
     
     ```python
         uRobot.plot(q = np.array([np.linspace(-np.pi, np.pi, 50) for column in range(4)]).T, delayPerFrame = 100)
