@@ -1,4 +1,5 @@
-# zRobotics 0.1
+# zRobotics 0.1 [![Run on Repl.it](https://repl.it/badge/github/zdynamics/zRobotics)](https://repl.it/github/zdynamics/zRobotics)
+
 A powerful library for robotics analysis :robot:
 
 - [zRobotics 0.1](#zrobotics-01)
