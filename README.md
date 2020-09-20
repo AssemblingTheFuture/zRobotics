@@ -161,7 +161,94 @@ This library includes the following algorithms:
 
     **IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached. In order to use ```uRobot.plot( )```, we have to transpose <img src="https://render.githubusercontent.com/render/math?math=q">, otherwise, we won't be able to see the robot's animation
 
-#### Python
+#### [Python](/Python)
+
+  - **Robot Creation and Animation (using [Matplotlib](http://matplotlib.org/))**
+  
+    - Import necessary libraries
+    
+    ```python
+        import numpy as np
+        import Robot
+    ```
+    
+    - Create robot's joints positions (**in radians**)
+    
+    ```python
+        # Set uRobot's (random) generalized coordinates vector (**two - dimensional array is mandatory**)
+        q = np.random.rand(1, 4)
+    ```
+    
+    - Create links' lengths
+    
+    ```python
+        # Set uRobot's rigid bodies length (preferably in centimeters, but it can be set as meters too)
+        L = [l1, l2, l3]
+    ```
+
+    - Create robot as an object
+    
+    ```python
+        # Create uRobot as an object
+        uRobot = Robot.System(jointsPositions = q, linksLengths = L, name = 'uRobot')
+    ```
+    
+    - Set Denavit - Hartenberg Parameters for each rigid body
+    
+    ```python
+        # Set Denavit - Hartenberg parameters for each uRobot's rigid body
+        B1 = uRobot.denavitHartenberg(d = L[0], alpha = np.pi / 2)
+        B2 = uRobot.denavitHartenberg(a = L[1])
+        B3 = uRobot.denavitHartenberg(alpha = np.pi / 2)
+        B4 = uRobot.denavitHartenberg(d = L[2])
+    ```
+    
+    - Returns joints' positions
+    
+    ```python
+        uRobot.jointsPositions
+    ```
+    
+    - Returns links' lengths
+    
+    ```python
+        uRobot.linksLengths
+    ```
+    
+    - Returns Denavit - Hartenberg matrix
+    
+    ```python
+        uRobot.dhParameters
+    ```
+    
+    - Compute Forward Kinematics (using Homogeneous Transformation Matrices) **after establishing values of** <img src="https://render.githubusercontent.com/render/math?math=q"> and <img src="https://render.githubusercontent.com/render/math?math=L">
+    
+    ```python
+        # Set uRobot's forward kinematics matrix
+        uRobot.forwardKinematics()
+        
+        # Returns forward kinematics as Homogeneous Transformation Matrix
+        uRobot.fkHTM
+    ```
+    
+    - Plot robot (without animation)
+    
+    ```python
+        uRobot.plot()
+    ```
+    
+    - Plot robot (without animation, but modifying joints' positions)
+    
+    ```python
+        uRobot.plot(q = np.random.rand(1, 4))
+    ```
+    
+    - Plot robot (with animation and modifying joints' positions). ```delayPerFrame``` in milliseconds 
+    
+    ```python
+        uRobot.plot(q = np.array([np.linspace(-np.pi, np.pi, 50) for column in range(4)]).T, delayPerFrame = 100)
+    ```
+    
   - Under construction :nerd_face:
 
 **We hope this can be useful for you. Thank you!**
