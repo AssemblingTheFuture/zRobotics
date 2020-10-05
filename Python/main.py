@@ -1,3 +1,4 @@
+import Movements as mv
 import numpy as np
 import Robot
 
@@ -15,16 +16,25 @@ B3 = uRobot.denavitHartenberg(alpha = np.pi / 2)
 B4 = uRobot.denavitHartenberg(d = L[2])
 
 """
-  4. Plot robot (uncomment any of these)
+  4. Compute robot's forward kinematics
+"""
+uRobot.forwardKinematics()
+
+"""
+  5. Plot robot (uncomment any of these)
 """
 # uRobot.plot()
 
 """
-  4.1 Plot robot with new joints' positions (this also modifies them in the object)
+  5.1 Plot robot with new joints' positions (this also modifies them in the object)
 """
 # uRobot.plot(np.random.rand(1, 4))
 
 """
-  4.2 Plot robot animation, iterating joints' positions (this also modifies them in the object). «delayPerFrame» in milliseconds
+  5.2 Plot robot animation, iterating joints' positions (this also modifies them in the object). «delayPerFrame» in milliseconds
 """ 
 # uRobot.plot(q = np.array([np.linspace(-np.pi, np.pi, 50) for column in range(4)]).T, delayPerFrame = 100)
+
+"""
+  6. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary. This is OPTIONAL)
+""" 

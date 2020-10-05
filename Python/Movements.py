@@ -131,3 +131,15 @@ def dqRz(z = 0):
                    [0],
                    [0],
                    [0]])
+
+def axisAngle(H):
+  """
+    This function computes the axis - angle vector «X» using the Homogeneous Transformation Matrix «H» of a reference frame
+  """
+  theta = np.arccos((np.trace(H[0 : 2, 0 : 2]) - 1)/2)
+  n = (1/(2 * np.sin(theta))) * np.array([[H[2, 1] - H[1, 2]],
+                                          [H[0, 2] - H[2, 0]],
+                                          [H[1 ,0] - H[0, 1]]])
+  x = np.array([H[0 : 2, 3],
+                [theta * n]])
+  return x

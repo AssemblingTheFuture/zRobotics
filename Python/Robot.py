@@ -47,7 +47,6 @@ class System:
     for joint in range(len(self.jointsPositions)):
       self.dhParameters[joint + 1][0] = self.jointsPositions[joint]
     
-
     # Computes forward kinematics, from inertial frame to n - th one
     self.fkHTM = np.identity(4)
     for link in self.dhParameters:
