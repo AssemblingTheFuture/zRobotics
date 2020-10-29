@@ -1,4 +1,4 @@
-function [qd] = jointsVelocitiesDQ(q, W, DH, m)
+function [qd] = jointsVelocitiesDQ(q, W, DH, xi, m)
 % This function computes the joints' velocities (see instructions inside)
 %{
     This function computes the joints' velocities using the generalized
@@ -9,7 +9,7 @@ function [qd] = jointsVelocitiesDQ(q, W, DH, m)
     Q = forwardKinematicsDQ(DH, m);
     r = positionDQ(Q);
     s = quaternionsCrossOperator(r(5 : 8));
-    J = velocityJacobianMatrixDQ(DH, q);
+    J = velocityJacobianMatrixDQ(DH, q, xi);
     M = [eye(4) zeros(4)
          s eye(4)];
     qd = pinv(J) * M * W;

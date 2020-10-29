@@ -1,4 +1,4 @@
-function [qdd] = jointsAccelerationsDQ(q, qd, Wd, DH, m)
+function [qdd] = jointsAccelerationsDQ(q, qd, Wd, DH, xi, m)
 % This function computes the joints' accelerations (see instructions inside)
 %{
     This function computes the joints' accelerations using the generalized
@@ -12,9 +12,9 @@ function [qdd] = jointsAccelerationsDQ(q, qd, Wd, DH, m)
     s = quaternionsCrossOperator(r(5 : 8));
     M = [eye(4) zeros(4)
          s eye(4)];
-    J = velocityJacobianMatrixDQ(DH, q);
-    K = accelerationMatrixDQ(DH, q, qd);
-    W = endEffectorVelocityDQ(q, qd, DH, m);
+    J = velocityJacobianMatrixDQ(DH, q, xi);
+    K = accelerationMatrixDQ(DH, q, qd, xi);
+    W = endEffectorVelocityDQ(q, qd, DH, xi,m);
     w = W(1 : 4);
     x = [zeros(4, 1)
          (quaternionsCrossOperator(w)) * (quaternionsCrossOperator(w) * r(5 : 8))];
