@@ -1,4 +1,4 @@
-function [J] = jacobianMatrixDQ(DH, q)
+function [J] = jacobianMatrixDQ(DH, q, xi)
 % This function computes robot's Jacobian matrix using Dual Quaternions (see instructions inside)
 %{
     This function computes robot's Jacobian matrix using the generalized
@@ -9,6 +9,6 @@ function [J] = jacobianMatrixDQ(DH, q)
     J = zeros(8, n);
     for j = 1 : n
         Q = forwardKinematicsDQ(DH, j);
-        J(:, j) = 0.5 * leftDualOperator(Q) * rightDualOperator(F) * rightDualOperator(dualConjugate(Q)) * [0 0 0 1 0 0 0 0]';
+        J(:, j) = 0.5 * leftDualOperator(Q) * rightDualOperator(F) * rightDualOperator(dualConjugate(Q)) * xi(:, j);
     end
 end

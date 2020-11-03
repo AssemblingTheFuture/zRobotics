@@ -1,4 +1,4 @@
-function [qi] = inverseKinematicsDQ(q0, L, Qd, K, m)
+function [q] = inverseKinematicsDQ(q0, L, Qd, K, m, xi, type)
 % This function computes robot's inverse kinematics using Dual Quaternions (see instructions inside)
 %{
     This function computes robot's inverse kinematics using the generalized
@@ -15,9 +15,14 @@ function [qi] = inverseKinematicsDQ(q0, L, Qd, K, m)
         if (abs(e) <= 1e-3)
             break
         else
-            qi(:, i + 1) = solver(pinv(jacobianMatrixDQ(DH, qi(:, i))) * K * e, qi(:, i), 3/1000);
-%             qi(:, i + 1) = qi(:, i) + (pinv(jacobianMatrixDQ(DH, qi(:, i))) * K * e);
+            switch type
+                case {'C', 'c'}
+                    qi(:, i + 1) = solver(pinv(jacobianMatrixDQ(DH, qi(:, i), xi)) * K * e, qi(:, i), 3/1000);
+                case {'D', 'd'}
+                    qi(:, i + 1) = qi(:, i) + (pinv(jacobianMatrixDQ(DH, qi(:, i), xi)) * K * e);
+            end
         end
         i = i + 1;
     end
+    q = qi(:, end);
 end
