@@ -10,15 +10,12 @@ L = [600, 300, 200]
 uRobot = Robot.System(jointsPositions = q, linksLengths = L, name = 'uRobot')
 
 # 3. Set rigid bodies' Denavit - Hartenberg parameters
-B1 = uRobot.denavitHartenberg(d = L[0], alpha = np.pi / 2)
-B2 = uRobot.denavitHartenberg(a = L[1])
-B3 = uRobot.denavitHartenberg(alpha = np.pi / 2)
-B4 = uRobot.denavitHartenberg(d = L[2])
+uRobot.denavitHartenberg()
 
 """
   4. Compute robot's forward kinematics
 """
-uRobot.forwardKinematics()
+uRobot.forwardKinematics(q, L, m = 5)
 
 """
   5. Plot robot (uncomment any of these)
@@ -38,3 +35,4 @@ uRobot.forwardKinematics()
 """
   6. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary. This is OPTIONAL)
 """ 
+

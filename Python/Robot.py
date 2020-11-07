@@ -1,3 +1,4 @@
+import DenavitHartenberg as dh
 import numpy as np
 import matplotlib.pyplot as plt
 import Movements as mv
@@ -19,10 +20,19 @@ class System:
     self.jointsPositions = jointsPositions
     self.linksLengths = linksLengths
 
-    # Initial conditions
-    self.dhParameters = [[0, 0, 0, 0]]
+  def _checkValues(self, q, L):
+    """
+      Checks if generalized coordinates vector and lengths list are not empty
+    """
+    # If «q» is not empty
+    if q.size != 0:
+      self.jointsPositions = q
+    
+    # If «L» is not empty
+    if L:
+      self.linksLengths = L
 
-  def denavitHartenberg(self, theta = 0, d = 0, a = 0, alpha = 0):
+  def denavitHartenberg(self, q = np.array([[]]), L = []):
     """
       Denavit - Hartenberg parameters for n - th rigid body
       theta: rotation on «z» axis
@@ -31,29 +41,33 @@ class System:
       alpha: rotation on «x» axis
     """
 
-    # Denavit - Hartenberg matrix
-    self.dhParameters.append([theta, d, a, alpha])
-    return [theta, d, a, alpha]
-  
-  def forwardKinematics(self):
-    """
-      Computes forward kinematics to n - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
-    """
+    # Checks if arrays are not empty
+    self._checkValues(q, L)
 
+    # Denavit - Hartenberg matrix
+    self.dhParameters = dh.matrix(self.jointsPositions, self.linksLengths)
+  
+  def forwardKinematics(self, q, L, m = 0):
+    """
+      Computes forward kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
+    """
     # Initial conditions
     self._frames = []
-
+    
     # Modifies joint position in Denavit - Hartenberg Matrix
-    for joint in range(len(self.jointsPositions)):
-      self.dhParameters[joint + 1][0] = self.jointsPositions[joint]
+    self.denavitHartenberg(q, L)
     
     # Computes forward kinematics, from inertial frame to n - th one
     self.fkHTM = np.identity(4)
-    for link in self.dhParameters:
-      self.fkHTM = self.fkHTM.dot(mv.rz(link[0]).dot(mv.tz(link[1])).dot(mv.tx(link[2])).dot(mv.rx(link[3])))
+    i = 0
+    for frames in self.dhParameters:
+      self.fkHTM = self.fkHTM.dot(mv.rz(frames[0]).dot(mv.tz(frames[1])).dot(mv.tx(frames[2])).dot(mv.rx(frames[3])))
       self._frames.append(self.fkHTM)
+      i += 1
+      if i == m:
+        break
         
-  def plot(self, q = np.array([[]]), delayPerFrame = 200, repeatAnimation = False):
+  def plot(self, q = np.array([[]]), L = [], delayPerFrame = 200, repeatAnimation = False):
     """
       Plot robot's behavior and reference frames attached to each joint
       q: np.array (two - dimensional)
@@ -61,9 +75,8 @@ class System:
       repeatAnimation: boolean
     """
     
-    # If «q» is not empty
-    if q.size != 0:
-      self.jointsPositions = q
+    # Checks if arrays are not empty
+    self._checkValues(q, L)
 
     # Set figure's parameters
     fig = plt.figure()
@@ -82,7 +95,15 @@ class System:
 
       # Set current joints positions
       self.jointsPositions = q
-      self.forwardKinematics()
+
+      # Number of reference frames
+      m = self.jointsPositions.shape[0] + 1
+
+      # Number of generalized coordinates
+      n = self.jointsPositions.shape[0]
+
+      # Computes forward kinematics given current joints' positions
+      self.forwardKinematics(self.jointsPositions.reshape((1, n)), self.linksLengths, m)
       
       # Inertial frame
       ax.plot(xs = [0, 1], ys = [0, 0], zs = [0, 0], color = 'red', linestyle = 'dashed', marker = 'o')
