@@ -27,7 +27,9 @@ Feel free to modify, adjust and extend our work to your necessities :smiley:; th
 
 This library includes the following algorithms:
 
-#### [Python](/Python) [![Run on Repl.it](https://repl.it/badge/github/zdynamics/zRobotics)](https://repl.it/github/zdynamics/zRobotics)
+#### [Python](/Python)
+
+[![Run on Repl.it](https://repl.it/badge/github/zdynamics/zRobotics)](https://repl.it/github/zdynamics/zRobotics)
 
 - **Geometric Properties**
 
