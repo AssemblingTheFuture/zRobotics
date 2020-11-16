@@ -1,8 +1,8 @@
-# zRobotics 0.1 [![Run on Repl.it](https://repl.it/badge/github/zdynamics/zRobotics)](https://repl.it/github/zdynamics/zRobotics)
+# zRobotics 0.1
 
 A powerful library for robotics analysis :robot:
 
-- [zRobotics 0.1 ![Run on Repl.it](https://repl.it/github/zdynamics/zRobotics)](#zrobotics-01-)
+- [zRobotics 0.1](#zrobotics-01)
     - [Introduction](#introduction)
     - [Features](#features)
     - [Library Content](#library-content)
@@ -27,7 +27,7 @@ Feel free to modify, adjust and extend our work to your necessities :smiley:; th
 
 This library includes the following algorithms:
 
-#### [Python](/Python)
+#### [Python](/Python) [![Run on Repl.it](https://repl.it/badge/github/zdynamics/zRobotics)](https://repl.it/github/zdynamics/zRobotics)
 
 - **Geometric Properties**
 
