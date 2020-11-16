@@ -2,6 +2,7 @@ import DenavitHartenberg as dh
 import Kinematics as k
 import Movements as mv
 import numpy as np
+import Plot as plot
 import Robot
 
 """
@@ -69,5 +70,5 @@ qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), x
 """
   7.1 Plot robot with new joints' positions (this also modifies them in the object)
 """
-# uRobot.plot(q = qHTM, repeatAnimation = True, delayPerFrame = 1)
-# uRobot.plot(q = qDQ, repeatAnimation = True, delayPerFrame = 1)
+# plot.animation(uRobot, q = qHTM, repeatAnimation = False, delayPerFrame = 1)
+# plot.animation(uRobot, q = qDQ, repeatAnimation = False, delayPerFrame = 1)
