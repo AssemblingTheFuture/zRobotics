@@ -2,12 +2,12 @@
 
 A powerful library for robotics analysis :robot:
 
-- [zRobotics 0.1](#zrobotics-01)
+- [zRobotics 0.1 ![Run on Repl.it](https://repl.it/github/zdynamics/zRobotics)](#zrobotics-01-)
     - [Introduction](#introduction)
     - [Features](#features)
     - [Library Content](#library-content)
-      - [MATLAB](#matlab)
       - [Python](#python)
+      - [MATLAB](#matlab)
 
 ### Introduction
 
@@ -27,6 +27,137 @@ Feel free to modify, adjust and extend our work to your necessities :smiley:; th
 
 This library includes the following algorithms:
 
+#### [Python](/Python)
+
+- **Geometric Properties**
+
+    ```python
+        # Sets robot's generalized coordinates (two - dimensional array) and links' lengths (list)
+        q = np.random.rand(4, 1)
+        L = [0.3, 0.4, 0.2]
+    ```
+
+    Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are set in radians. Also, <img src="https://render.githubusercontent.com/render/math?math=L \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain
+
+<Enter>
+
+- **[Robot Creation](/Python/Robot.py)**
+
+    ```python
+        # Returns uRobot's as an object
+        uRobot = Robot.System(jointsPositions = q, linksLengths = L, name = 'uRobot')
+    ```
+
+  - **Robot's properties**
+
+    ```python
+        # Returns uRobot's properties
+        uRobot.jointsPositions  # two - dimensional array
+        uRobot.linksLengths     # list
+        uRobot.name             # string
+    ```
+
+<Enter>
+
+---
+
+- **Denavit - Hartenberg Parameters**
+
+    - ***Robot's configuration***: first of all, it is mandatory to modify [Denavit - Hartenberg Parameters' file](/Python/DenavitHartenberg.py) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
+
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
+    |:---:|:---:|:---:|:---:|
+    | 0 | 0 | 0 | 0 |
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_1">|<img src="https://render.githubusercontent.com/render/math?math=L_1">|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_2">|0|<img src="https://render.githubusercontent.com/render/math?math=L_2">|0|
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_4">|<img src="https://render.githubusercontent.com/render/math?math=L_3">|0|0|
+
+    Therefore,
+
+    ```python
+        import numpy as np
+
+        def matrix(robot):
+            """
+            Denavit - Hartenberg parameters for n - th rigid body
+            theta: rotation on «z» axis
+            d: translation on «z» axis
+            a: translation on «x» axis
+            alpha: rotation on «x» axis
+            """
+            return np.array([[0, 0, 0, 0],
+                            [robot.jointsPositions[0, 0], robot.linksLengths[0], 0, np.pi / 2],
+                            [robot.jointsPositions[1, 0], 0, robot.linksLengths[1], 0],
+                            [robot.jointsPositions[2, 0], 0, 0, np.pi / 2],
+                            [robot.jointsPositions[3, 0], robot.linksLengths[2], 0, 0]])
+    ```
+
+    - *Function call*
+    ```python
+        # Returns uRobot's Denavit - Hartenberg parameters as a matrix
+        DH = dh.matrix(uRobot)
+    ```
+    Where <img src="https://render.githubusercontent.com/render/math?math=DH \in \mathbb{R}^{m \times 4}"> is the Denavit - Hartenberg matrix for the kinematic chain
+
+<Enter>
+
+---
+
+- **[Forward Kinematics](/Python/Kinematics.py)**
+
+  - Using *Homogeneous Transformation Matrices*
+    ```python
+        # Returns robot's forward kinematics for each individual frame (framesHTM) and for end - effector (fkHTM)
+        framesHTM, fkHTM = k.forwardHTM(uRobot, m = 5)
+    ```
+
+  - Using *Dual Quaternions*
+    ```python
+        # Returns robot's forward kinematics for each individual frame (framesDQ) and for end - effector (fkDQ)
+        framesDQ, fkDQ = k.forwardDQ(uRobot, m = 5)
+    ```
+
+<Enter>
+
+---
+
+- **[Inverse Kinematics (*Error Feedback*)](/Python/Kinematics.py)**
+  - Using *Homogeneous Transformation Matrices*
+    ```python
+        # Returns robot's inverse kinematics using HTM
+        qHTM = k.inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM, K = np.eye(6), m = 5)
+    ```
+  - using *Dual Quaternions*
+    ```python
+        # Returns robot's inverse kinematics using Dual Quaternions
+        qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
+    ```
+    For previous cases, <img src="https://render.githubusercontent.com/render/math?math=m \in \mathbb{R}, m \geq 1"> represents the number of reference frames of the system (including inertial one). Moreover, <img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{R}^{8 \times 1}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
+
+<Enter>
+
+**IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached
+
+<Enter>
+
+---
+
+- **[Robot Animation](/Python/Plot.py)**
+
+    ```python
+        # Plot robot with new joints' positions (this also modifies them in the object)
+        plot.animation(uRobot, q = qHTM, repeatAnimation = False, delayPerFrame = 1)
+    ```
+    
+![uRobot](images/uRobotPython.gif "uRobot 0.1")
+    
+  - Under construction... :nerd_face:
+
+<Enter>
+
+---
+
 #### [MATLAB](/MATLAB)
 
   - **[Denavit - Hartenberg Parameters](/MATLAB/denavitHartenberg.m)**
@@ -38,6 +169,8 @@ This library includes the following algorithms:
     Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are the generalized coordinates (set in radians) of the system. Also, <img src="https://render.githubusercontent.com/render/math?math=L \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain
 
 <Enter>
+
+---
 
   - **Forward Kinematics**
 
@@ -53,6 +186,8 @@ This library includes the following algorithms:
     ```
 <Enter>
 
+---
+
   - **Inverse Kinematics (*Error Feedback*)**
     - [using *Homogeneous Transformation Matrices*](/MATLAB/inverseKinematics.m)
     ```matlab
@@ -67,6 +202,8 @@ This library includes the following algorithms:
     For previous cases, <img src="https://render.githubusercontent.com/render/math?math=m \in \mathbb{R}, m \geq 1"> represents the number of reference frames of the system (including inertial one). Moreover, <img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{R}^{8 \times 1}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
 
 <Enter>
+
+---
 
   - **Differential Kinematics**
     - [End - effector Velocity](/MATLAB/endEffectorVelocityDQ.m)
@@ -96,6 +233,8 @@ This library includes the following algorithms:
 
 <Enter>
 
+---
+
   - **Dynamic System Solver and Simulation**
     - [Numerical Solver](/MATLAB/solver.m)
     ```matlab
@@ -116,6 +255,8 @@ This library includes the following algorithms:
     **If you want to know more about these control functions and how you can implement them in your projects, check out our course [Control of Dynamic Systems](https://www.udemy.com/course/control-de-sistemas-dinamicos/?referralCode=74300CF3F21F98714329)** :wink:
 
 <Enter>
+
+---
 
 - **Robot Creation and Animation (using [Peter Corke's Robotics Toolbox](https://petercorke.com/toolboxes/robotics-toolbox/))**
     
@@ -162,97 +303,7 @@ This library includes the following algorithms:
 
     **IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached. In order to use ```uRobot.plot( )```, we have to transpose <img src="https://render.githubusercontent.com/render/math?math=q">, otherwise, we won't be able to see the robot's animation
 
-#### [Python](/Python)
-
-  - **Robot Creation and Animation (using [Matplotlib](http://matplotlib.org/))**
-  
-    - Import necessary libraries
-    
-    ```python
-        import numpy as np
-        import Robot
-    ```
-    
-    - Create robot's joints positions (**in radians**); **two dimensional array is mandatory**
-    
-    ```python
-        # Set uRobot's (random) generalized coordinates vector
-        q = np.random.rand(1, 4)
-    ```
-    
-    - Create links' lengths
-    
-    ```python
-        # Set uRobot's rigid bodies length (preferably in centimeters, but it can be set as meters too)
-        L = [l1, l2, l3]
-    ```
-
-    - Create robot as an object
-    
-    ```python
-        # Create uRobot as an object
-        uRobot = Robot.System(jointsPositions = q, linksLengths = L, name = 'uRobot')
-    ```
-    
-    - Set Denavit - Hartenberg Parameters for each rigid body
-    
-    ```python
-        # Set Denavit - Hartenberg parameters for each uRobot's rigid body
-        B1 = uRobot.denavitHartenberg(d = L[0], alpha = np.pi / 2)
-        B2 = uRobot.denavitHartenberg(a = L[1])
-        B3 = uRobot.denavitHartenberg(alpha = np.pi / 2)
-        B4 = uRobot.denavitHartenberg(d = L[2])
-    ```
-    
-    - Returns joints' positions
-    
-    ```python
-        uRobot.jointsPositions
-    ```
-    
-    - Returns links' lengths
-    
-    ```python
-        uRobot.linksLengths
-    ```
-    
-    - Returns Denavit - Hartenberg matrix
-    
-    ```python
-        uRobot.dhParameters
-    ```
-    
-    - Compute Forward Kinematics (using Homogeneous Transformation Matrices) **after establishing values of** <img src="https://render.githubusercontent.com/render/math?math=q"> and <img src="https://render.githubusercontent.com/render/math?math=L">
-    
-    ```python
-        # Set uRobot's forward kinematics matrix
-        uRobot.forwardKinematics()
-        
-        # Returns forward kinematics as Homogeneous Transformation Matrix
-        uRobot.fkHTM
-    ```
-    
-    - Plot robot (without animation)
-    
-    ```python
-        uRobot.plot()
-    ```
-    
-    - Plot robot (without animation, but modifying joints' positions)
-    
-    ```python
-        uRobot.plot(q = np.random.rand(1, 4))
-    ```
-    
-    - Plot robot (with animation and modifying joints' positions); ```delayPerFrame``` has to be considered in milliseconds. Moreover, <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{m \times n}"> represents the generalized coordinates (set in radians) of the system; also, <img src="https://render.githubusercontent.com/render/math?math=m \geq 1"> is the number of movements that each joint will perform during the animation
-    
-    ```python
-        uRobot.plot(q = np.array([np.linspace(-np.pi, np.pi, 50) for column in range(4)]).T, delayPerFrame = 100)
-    ```
-    
-![uRobot](images/uRobotPython.gif "uRobot 0.1")
-    
-  - Under construction :nerd_face:
+---
 
 **We hope this can be useful for you. Thank you!**
 
