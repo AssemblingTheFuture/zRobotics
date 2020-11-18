@@ -29,8 +29,6 @@ This library includes the following algorithms:
 
 #### [Python](/Python)
 
-[![Run on Repl.it](https://repl.it/badge/github/zdynamics/zRobotics)](https://repl.it/github/zdynamics/zRobotics)
-
 - **Geometric Properties**
 
     ```python
@@ -152,8 +150,27 @@ This library includes the following algorithms:
         plot.animation(uRobot, q = qHTM, repeatAnimation = False, delayPerFrame = 1)
     ```
     
-![uRobot](images/uRobotPython.gif "uRobot 0.1")
+![uRobot Animation](images/uRobotPython.gif "uRobot Animation")
     
+<Enter>
+
+---
+
+- **[Plot system's function](/Python/Plot.py)**
+
+    ```python
+        # Plot any robot's behavior, such as joints' positions, dynamics, control functions, etc.
+        plot.graph(function = qHTM, title = "Joints' Positions (using HTM)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qHTM", transparent = True)
+        plot.graph(function = qDQ, title = "Joints' Positions (using DQ)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qDQ", transparent = False)
+    ```
+![Joints' positions using HTM](images/qHTM.png "Joints' positions using HTM")
+
+![Joints' positions using DQ](images/qDQ.png "Joints' positions using DQ")
+
+<Enter>
+
+---
+
   - Under construction... :nerd_face:
 
 <Enter>
