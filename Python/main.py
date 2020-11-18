@@ -64,11 +64,15 @@ qHTM = k.inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM, K = np.eye(6)
 qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
 
 """
-  7. Plot robot (uncomment any of these)
-"""
-
-"""
-  7.1 Plot robot with new joints' positions (this also modifies them in the object)
+  7. Animate robot with joints' positions (this also modifies them in the object). Uncomment any of these:
 """
 # plot.animation(uRobot, q = qHTM, repeatAnimation = False, delayPerFrame = 1)
 # plot.animation(uRobot, q = qDQ, repeatAnimation = False, delayPerFrame = 1)
+
+"""
+  8. Plot any robot's behavior (joint's positions, end - effector, dynamics, etc)
+"""
+plot.graph(function = qHTM, title = "Joints' Positions (using HTM)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qHTM", transparent = True)
+plot.graph(function = qDQ, title = "Joints' Positions (using DQ)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qDQ", transparent = True)
+
+# END
