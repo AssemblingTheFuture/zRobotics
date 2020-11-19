@@ -37,12 +37,14 @@ X = mv.axisAngle(fkHTM)
 """ 
 
 """
-  6.1 Set desired pose representation (mandatory)
+  6.1 Set desired pose representation (mandatory). We will use «fkHTM» and «fkDQ» as desired pose representations
 """ 
 
 """
   6.2 Computes robot's Jacobian Matrix (using Homogeneous Transformation Matrices or Dual Quaternions)
 """
+
+# Screw vectors stored in a matrix
 xi = np.array([[0, 0, 0, 0],
                [0, 0, 0, 0],
                [0, 0, 0, 0],
@@ -70,9 +72,31 @@ qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), x
 # plot.animation(uRobot, q = qDQ, repeatAnimation = False, delayPerFrame = 1)
 
 """
-  8. Plot any robot's behavior (joint's positions, end - effector, dynamics, etc)
+  7.1 Plot any robot's behavior (joint's positions, end - effector, dynamics, etc)
 """
 plot.graph(function = qHTM, title = "Joints' Positions (using HTM)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qHTM", transparent = True)
 plot.graph(function = qDQ, title = "Joints' Positions (using DQ)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qDQ", transparent = True)
 
+"""
+  8. Differential Kinematics
+"""
+
+"""
+  8.1 Computes robot's Inertial Velocity Jacobian Matrix (using Dual Quaternions, Homogeneous Transformation Matrix does not need a different Jacobian)
+"""
+Jvdq = k.jacobianVDQ(uRobot, n = 4, xi = xi)
+
+"""
+  8.2 Computes Instantaneous Inertial Velocity to m - th frame
+"""
+Vhtm = k.velocityHTM(uRobot, m = 5, qd = np.random.rand(4, 1))
+Vdq = k.velocityDQ(uRobot, m = 5, n = 4, qd = np.random.rand(4, 1), xi = xi)
+
+"""
+  8.3 Computes Instantaneous Joints' Velocities given m - th frame one
+"""
+qdHTM = k.jointsVelocitiesHTM(uRobot, m = 5, Vhtm = Vhtm)
+qdDQ = k.jointsVelocitiesDQ(uRobot, m = 5, n = 4, Vdq = Vdq, xi = xi)
+
+print("Z")
 # END

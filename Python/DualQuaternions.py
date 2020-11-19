@@ -137,11 +137,29 @@ def rightOperator(Q):
     return np.append(a, b, axis = 0)
 
 def crossOperator(q):
+    '''
+        Cross operator for quaternions' real part multiplication
+        q: np.array (two - dimensional)
+    '''
     return np.array([[0, float(-q[3]), float(+q[2])],
                      [float(+q[3]), 0, float(-q[1])],
                      [float(-q[2]), float(+q[1]), 0]])
 
+def crossOperatorExtension(q):
+    '''
+        Cross operator extension for quaternions' multiplication
+        q: np.array (two - dimensional)
+    '''
+    return np.array([[0, 0, 0, 0],
+                     [0, 0, float(-q[3]), float(+q[2])],
+                     [0, float(+q[3]), 0, float(-q[1])],
+                     [0, float(-q[2]), float(+q[1]), 0]])
+
 def conjugate(Q):
+    '''
+        Conjugate operator for Dual Quaternions
+        Q: np.array (two - dimensional)
+    '''
     return np.array([[+ float(Q[0, 0])],
                      [- float(Q[1, 0])],
                      [- float(Q[2, 0])],
@@ -150,3 +168,20 @@ def conjugate(Q):
                      [- float(Q[5, 0])],
                      [- float(Q[6, 0])],
                      [- float(Q[7, 0])]])
+    
+def toR3(Q):
+    '''
+        Transformation from Dual Quaternion to Euclidian Space Coordinates
+        Q: np.array (two - dimensional)
+    '''
+    z = np.array([[0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 2, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 2, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 2, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 2]])
+    qr = np.append(Q[0 : 4, 0].reshape((4, 1)), np.zeros((4, 1)), axis = 0)
+    r = z.dot(leftOperator(Q)).dot(conjugate(qr))
+    return r[4 : 8, 0]
