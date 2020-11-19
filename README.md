@@ -29,6 +29,8 @@ This library includes the following algorithms:
 
 #### [Python](/Python)
 
+Please take a look at [main.py](/Python/main.py) to know more about this implementation :man_technologist:
+
 - **Geometric Properties**
 
     ```python
@@ -138,6 +140,42 @@ This library includes the following algorithms:
 <Enter>
 
 **IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached
+
+<Enter>
+
+---
+
+- **[Differential Kinematics](/Python/Kinematics.py)**
+
+  - Using *Homogeneous Transformation Matrices*
+    ```python
+        # Computes Instantaneous Inertial Velocity to m - th frame, given joints' velocities «qd»
+        Vhtm = k.velocityHTM(uRobot, m = 5, qd = np.random.rand(4, 1))
+    ```
+
+  - Using *Dual Quaternions*
+    ```python
+        # Computes Instantaneous Inertial Velocity to m - th frame (in dual form), given number of joints «n»,joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
+        Vdq = k.velocityDQ(uRobot, m = 5, n = 4, qd = np.random.rand(4, 1), xi = xi)
+    ```
+
+<Enter>
+
+---
+
+- **[Inverse Differential Kinematics](/Python/Kinematics.py)**
+
+  - Using *Homogeneous Transformation Matrices*
+    ```python
+        # Computes Instantaneous Joints' Velocities given m - th frame one
+        qdHTM = k.jointsVelocitiesHTM(uRobot, m = 5, Vhtm = Vhtm)
+    ```
+
+  - Using *Dual Quaternions*
+    ```python
+        # Computes Instantaneous Joints' Velocities given m - th frame one (in dual form), number of joints «n» and Screw vectors of each joint stored in a matrix «xi»
+        qdDQ = k.jointsVelocitiesDQ(uRobot, m = 5, n = 4, Vdq = Vdq, xi = xi)
+    ```
 
 <Enter>
 
