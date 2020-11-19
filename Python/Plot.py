@@ -20,7 +20,7 @@ def graph(function, title = r'', labels = r'', complement = r'', xlabel = r'', y
   plt.xlabel(xlabel)
   plt.ylabel(ylabel)
   plt.grid(True)
-  plt.legend()
+  plt.legend(loc = 'best')
   if save == True:
     if os.path.isfile('./' + name + '.png'):
       os.remove('./' + name + '.png')
