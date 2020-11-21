@@ -54,6 +54,9 @@ xi = np.array([[0, 0, 0, 0],
                [0, 0, 0, 0],
                [0, 0, 0, 0]])
 
+# Time derivative of screw vectors stored in a matrix
+xid = np.zeros((8, 4))
+
 Jhtm = k.jacobianHTM(uRobot, m = 5)
 
 Jdq = k.jacobianDQ(uRobot, m = 5, xi = xi)
@@ -75,7 +78,7 @@ qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), x
   7.1 Plot any robot's behavior (joint's positions, end - effector, dynamics, etc)
 """
 plot.graph(function = qHTM, title = "Joints' Positions (using HTM)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qHTM", transparent = True)
-plot.graph(function = qDQ, title = "Joints' Positions (using DQ)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qDQ", transparent = True)
+plot.graph(function = qDQ, title = "Joints' Positions (using DQ)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qDQ", transparent = False)
 
 """
   8. Differential Kinematics
@@ -97,6 +100,26 @@ Vdq = k.velocityDQ(uRobot, m = 5, n = 4, qd = np.random.rand(4, 1), xi = xi)
 """
 qdHTM = k.jointsVelocitiesHTM(uRobot, m = 5, Vhtm = Vhtm)
 qdDQ = k.jointsVelocitiesDQ(uRobot, m = 5, n = 4, Vdq = Vdq, xi = xi)
+
+"""
+  8.4 Computes Instantaneous Relative Inertial Velocity to n - th frame attached to each joint
+"""
+Wi = k.relativeVelocityDQ(uRobot, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
+
+"""
+  8.5 Computes robot's Inertial Acceleration Jacobian Matrix (using Dual Quaternions)
+"""
+Kadq = k.jacobianADQ(uRobot, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi, xid = xid)
+
+"""
+  8.6 Computes Instantaneous Inertial Acceleration to m - th frame
+"""
+Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, qdd = np.random.rand(4, 1), xi = xi, xid = xid)
+
+"""
+  8.7 Computes Instantaneous Joints' Accelerations given m - th frame one
+"""
+qddDQ = k.jointsAccelerationsDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, Adq = Adq, xi = xi, xid = xid)
 
 print("Z")
 # END

@@ -7,6 +7,7 @@ import numpy as np
 """
   Kinematics Section
 """
+
 def forwardHTM(robot, m = 0):
     """
       Using Homogeneous Transformation Matrices, this function computes forward kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
@@ -172,8 +173,24 @@ def jacobianVDQ(robot, n, xi):
   J = np.zeros((8, n))
   for j in range(n):
     framesQ, fkQ = forwardDQ(robot, j + 1)
-    J[:, j] = dq.rightOperator(fkQ).dot(dq.leftOperator(dq.conjugate(fkQ))).dot(xi[:, j])
+    J[:, j] = dq.leftOperator(fkQ).dot(dq.rightOperator(dq.conjugate(fkQ))).dot(xi[:, j])
   return J
+
+def jacobianADQ(robot, n, W0, qd, xi, xid):
+  """
+    Using Dual Quaternions, this function computes Inertial Acceleration Jacobian matrix to n - th joint, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    n: int
+    W0: np.array (two - dimensional)
+    qd: np.array (two - dimensional)
+    xi: np.array (two - dimensional)
+  """
+  K = np.zeros((8, n))
+  W = relativeVelocityDQ(robot, n = n, W0 = W0, qd = qd, xi = xi)
+  for j in range(n):
+    framesQ, fkQ = forwardDQ(robot, j + 1)
+    K[:, j] = dq.leftOperator(fkQ).dot(dq.rightOperator(dq.conjugate(fkQ))).dot((dq.dualCrossOperator(W[:, j + 1]).dot(xi[:, j])) + xid[:, j])
+  return K
 
 def velocityDQ(robot, m, n, qd, xi):
   """
@@ -191,6 +208,23 @@ def velocityDQ(robot, m, n, qd, xi):
   Vdq = M.dot(Jvdq).dot(qd)
   return Vdq
 
+def relativeVelocityDQ(robot, n, W0, qd, xi):
+  """
+    Using Dual Quaternions, this function computes Instantaneous Relative Inertial Velocity to m - th frame, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    n: int
+    W0: np.array (two - dimensional)
+    qd: np.array (two - dimensional)
+    xi: np.array (two - dimensional)
+  """
+  W = np.append(W0, np.zeros((8, n)), axis = 1)
+  for j in range(n):
+    framesQi, fkQi = forwardDQ(robot, j + 1)
+    framesQ, fkQ = forwardDQ(robot, j)
+    Q = dq.leftOperator(fkQi).dot(dq.conjugate(fkQ))
+    W[:, j + 1] = (dq.leftOperator(dq.conjugate(Q)).dot(dq.rightOperator(Q)).dot(W[:, j])) + (dq.leftOperator(dq.conjugate(Q)).dot(dq.rightOperator(Q)).dot(xi[:, j] * qd[j, :]))
+  return W
+
 def jointsVelocitiesDQ(robot, m, n, Vdq, xi):
   """
     Using Dual Quaternions, this function computes Instantaneous Joints' Velocities to n - th joint, given m - th frame velocity in meters/second. Robot's kinematic parameters have to be set before using this function
@@ -206,3 +240,71 @@ def jointsVelocitiesDQ(robot, m, n, Vdq, xi):
   Jvdq = jacobianVDQ(robot, n, xi)
   qd = np.linalg.pinv(Jvdq).dot(M).dot(Vdq)
   return qd
+
+def accelerationDQ(robot, m, n, W0, qd, qdd, xi, xid):
+  """
+    Using Dual Quaternions, this function computes Instantaneous Inertial Acceleration to m - th frame, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
+    n: int
+    W0: np.array (two - dimensional)
+    qd: np.array (two - dimensional)
+    qdd: np.array (two - dimensional)
+    xi: np.array (two - dimensional)
+    xid: np.array (two - dimensional)
+  """
+  
+  # Forward Kinematics
+  framesDQ, fkDQ = forwardDQ(robot, m)
+  r = dq.toR3(fkDQ)
+  
+  # Jacobian Matrices
+  J = jacobianVDQ(robot, n = n, xi = xi)
+  K = jacobianADQ(robot, n = n, W0 = W0, qd = qd, xi = xi, xid = xid)
+  
+  # Velocity in Dual form
+  V = velocityDQ(robot, m = m, n = n, qd = qd, xi = xi)
+  
+  # Coriollis
+  C = np.append(np.zeros((4, 1)), dq.crossOperatorExtension(V[0 : 4, :]).dot(dq.crossOperatorExtension(V[0 : 4, :]).dot(r))).reshape((8, 1))
+  
+  # Position matrix
+  M = np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-dq.crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+  
+  # Acceleration in Dual form
+  Adq = M.dot((J.dot(qdd)) + (K.dot(qd)) + C)
+  return Adq
+
+def jointsAccelerationsDQ(robot, m, n, W0, qd, Adq, xi, xid):
+  """
+    Using Dual Quaternions, this function computes Instantaneous Joints' Accelerations to n - th joint, given end - frame acceleration in Dual form. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
+    n: int
+    W0: np.array (two - dimensional)
+    qd: np.array (two - dimensional)
+    Adq: np.array (two - dimensional)
+    xi: np.array (two - dimensional)
+    xid: np.array (two - dimensional)
+  """
+  
+  # Forward Kinematics
+  framesDQ, fkDQ = forwardDQ(robot, m)
+  r = dq.toR3(fkDQ)
+  
+  # Jacobian Matrices
+  J = jacobianVDQ(robot, n = n, xi = xi)
+  K = jacobianADQ(robot, n = n, W0 = W0, qd = qd, xi = xi, xid = xid)
+  
+  # Velocity in Dual form
+  V = velocityDQ(robot, m = m, n = n, qd = qd, xi = xi)
+  
+  # Coriollis
+  C = np.append(np.zeros((4, 1)), dq.crossOperatorExtension(V[0 : 4, :]).dot(dq.crossOperatorExtension(V[0 : 4, :]).dot(r))).reshape((8, 1))
+  
+  # Position matrix
+  M = np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(dq.crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+  
+  # Acceleration in Dual form
+  qdd = np.linalg.pinv(J).dot((M.dot(Adq)) - (K.dot(qd)) - C)
+  return qdd

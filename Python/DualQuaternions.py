@@ -145,6 +145,17 @@ def crossOperator(q):
                      [float(+q[3]), 0, float(-q[1])],
                      [float(-q[2]), float(+q[1]), 0]])
 
+def dualCrossOperator(Q):
+    '''
+        Cross operator for Dual Quaternions multiplication
+        Q: np.array (two - dimensional)
+    '''
+    Qr = crossOperatorExtension(Q[0 : 4])
+    Qd = crossOperatorExtension(Q[4 : 8])
+    a = np.append(Qr, np.zeros((4, 4)), axis = 1)
+    b = np.append(Qd, Qr, axis = 1)
+    return np.append(a, b, axis = 0)
+
 def crossOperatorExtension(q):
     '''
         Cross operator extension for quaternions' multiplication
