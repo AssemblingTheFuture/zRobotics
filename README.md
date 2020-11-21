@@ -147,16 +147,22 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
 - **[Differential Kinematics](/Python/Kinematics.py)**
 
-  - Using *Homogeneous Transformation Matrices*
+  - Instantaneous m - th frame velocity <img src="https://render.githubusercontent.com/render/math?math=\dot{x} \in \mathbb{R}^{6 \times 1}"> using *Homogeneous Transformation Matrices*
     ```python
         # Computes Instantaneous Inertial Velocity to m - th frame, given joints' velocities «qd»
         Vhtm = k.velocityHTM(uRobot, m = 5, qd = np.random.rand(4, 1))
     ```
 
-  - Using *Dual Quaternions*
+  - Instantaneous m - th frame velocity <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
     ```python
         # Computes Instantaneous Inertial Velocity to m - th frame (in dual form), given number of joints «n»,joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
         Vdq = k.velocityDQ(uRobot, m = 5, n = 4, qd = np.random.rand(4, 1), xi = xi)
+    ```
+
+  - Instantaneous m - th frame acceleration <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+    ```python
+        # Computes Instantaneous Inertial Acceleration to m - th frame (in dual form), given number of joints «n», dual velocity of inertial frame «W0», joints' velocities and accelerations «qd» and «qdd»; and Screw vectors of each joint stored in a matrix «xi», including its time derivative «xid»
+        Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, qdd = np.random.rand(4, 1), xi = xi, xid = xid)
     ```
 
 <Enter>
@@ -165,16 +171,22 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
 - **[Inverse Differential Kinematics](/Python/Kinematics.py)**
 
-  - Using *Homogeneous Transformation Matrices*
+  - Instantaneous joints' velocities <img src="https://render.githubusercontent.com/render/math?math=\dot{q} \in \mathbb{R}^{n \times 1}"> using *Homogeneous Transformation Matrices*
     ```python
         # Computes Instantaneous Joints' Velocities given m - th frame one
         qdHTM = k.jointsVelocitiesHTM(uRobot, m = 5, Vhtm = Vhtm)
     ```
 
-  - Using *Dual Quaternions*
+  - Instantaneous joints' velocities <img src="https://render.githubusercontent.com/render/math?math=\dot{q} \in \mathbb{R}^{n \times 1}"> using *Dual Quaternions*
     ```python
         # Computes Instantaneous Joints' Velocities given m - th frame one (in dual form), number of joints «n» and Screw vectors of each joint stored in a matrix «xi»
         qdDQ = k.jointsVelocitiesDQ(uRobot, m = 5, n = 4, Vdq = Vdq, xi = xi)
+    ```
+
+  - Instantaneous joints' accelerations <img src="https://render.githubusercontent.com/render/math?math=\ddot{q} \in \mathbb{R}^{n \times 1}"> using *Dual Quaternions*
+    ```python
+        # Computes Instantaneous Joints' Accelerations given m - th frame one (in dual form), number of joints «n», joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi», including its time derivative «xid»
+        qddDQ = k.jointsAccelerationsDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, Adq = Adq, xi = xi, xid = xid)
     ```
 
 <Enter>
