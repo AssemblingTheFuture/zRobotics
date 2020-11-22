@@ -120,6 +120,8 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         framesDQ, fkDQ = k.forwardDQ(uRobot, m = 5)
     ```
 
+Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=fk_{DQ} \in \mathbb{R}^{8 \times 1}"> represent the robot's forward kinematics using Homogeneous Transformation Matrices and Dual Quaternions respectively. On the other hand, <img src="https://render.githubusercontent.com/render/math?math=frames_{HTM} \in \mathbb{R}^{m \times (4 \times 4)}"> and <img src="https://render.githubusercontent.com/render/math?math=frames_{DQ} \in \mathbb{R}^{m \times (8 \times 1)}"> are lists that store the pose representation for each reference frame
+
 <Enter>
 
 ---
@@ -147,23 +149,25 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
 - **[Differential Kinematics](/Python/Kinematics.py)**
 
-  - Instantaneous m - th frame velocity <img src="https://render.githubusercontent.com/render/math?math=\dot{x} \in \mathbb{R}^{6 \times 1}"> using *Homogeneous Transformation Matrices*
+  - Instantaneous m - th frame velocity <img src="https://render.githubusercontent.com/render/math?math=\dot{x}_{n/0}^{0} \in \mathbb{R}^{6 \times 1}"> using *Homogeneous Transformation Matrices*
     ```python
         # Computes Instantaneous Inertial Velocity to m - th frame, given joints' velocities «qd»
         Vhtm = k.velocityHTM(uRobot, m = 5, qd = np.random.rand(4, 1))
     ```
 
-  - Instantaneous m - th frame velocity <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+  - Instantaneous m - th frame velocity <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
     ```python
         # Computes Instantaneous Inertial Velocity to m - th frame (in dual form), given number of joints «n»,joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
         Vdq = k.velocityDQ(uRobot, m = 5, n = 4, qd = np.random.rand(4, 1), xi = xi)
     ```
 
-  - Instantaneous m - th frame acceleration <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+  - Instantaneous m - th frame acceleration <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
     ```python
         # Computes Instantaneous Inertial Acceleration to m - th frame (in dual form), given number of joints «n», dual velocity of inertial frame «W0», joints' velocities and accelerations «qd» and «qdd»; and Screw vectors of each joint stored in a matrix «xi», including its time derivative «xid»
         Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, qdd = np.random.rand(4, 1), xi = xi, xid = xid)
     ```
+
+In this case <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0}"> represent the m - th rigid body's velocity and acceleration in dual form, this is <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0} = \begin{bmatrix} \omega_{n/0}^{0} & v_{n/0}^{0}\end{bmatrix}^{T}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0} = \begin{bmatrix} \dot{\omega}_{n/0}^{0} & \dot{v}_{n/0}^{0}\end{bmatrix}^{T}">
 
 <Enter>
 
