@@ -167,7 +167,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
         Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, qdd = np.random.rand(4, 1), xi = xi, xid = xid)
     ```
 
-In this case <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0}"> represent the m - th rigid body's velocity and acceleration in dual form, this is <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0} = \begin{bmatrix} \omega_{n/0}^{0} & v_{n/0}^{0}\end{bmatrix}^{T}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0} = \begin{bmatrix} \dot{\omega}_{n/0}^{0} & \dot{v}_{n/0}^{0}\end{bmatrix}^{T}">
+In this case <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0}"> represent the m - th rigid body's velocity and acceleration in dual form, this is <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0} = \begin{bmatrix} \omega_{n/0}^{0} \ \ v_{n/0}^{0}\end{bmatrix}^{T}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0} = \begin{bmatrix} \dot{\omega}_{n/0}^{0} \ \ \dot{v}_{n/0}^{0}\end{bmatrix}^{T}">
 
 <Enter>
 
