@@ -7,11 +7,12 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
 
 class System:
-  def __init__(self, jointsPositions, linksLengths, name = ''):
+  def __init__(self, jointsPositions, linksLengths, centersOfMass, name = ''):
     """
       Robot's constructor
       jointsPositions: np.array (two - dimensional)
-      linksLengths: np.array or list (one - dimensional)
+      linksLengths: list (one - dimensional)
+      centersOfMass: list (one - dimensional)
       name: string (optional)
     """
     # Robot's name
@@ -20,3 +21,4 @@ class System:
     # Kinematic Parameters
     self.jointsPositions = jointsPositions
     self.linksLengths = linksLengths
+    self.centersOfMass = centersOfMass

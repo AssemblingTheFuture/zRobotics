@@ -12,4 +12,18 @@ def matrix(robot):
                      [robot.jointsPositions[0, 0], robot.linksLengths[0], 0, np.pi / 2],
                      [robot.jointsPositions[1, 0], 0, robot.linksLengths[1], 0],
                      [robot.jointsPositions[2, 0], 0, 0, np.pi / 2],
-                     [robot.jointsPositions[3, 0], robot.linksLengths[2], 0, 0]])
+                     [robot.jointsPositions[3, 0], robot.linksLengths[3], 0, 0]])
+
+def centersOfMass(robot):
+  """
+    Denavit - Hartenberg parameters for n - th center of mass
+    theta: rotation on «z» axis
+    d: translation on «z» axis
+    a: translation on «x» axis
+    alpha: rotation on «x» axis
+  """
+  return np.array([[0, 0, 0, 0],
+                   [robot.jointsPositions[0, 0], robot.centersOfMass[0], 0, np.pi / 2],
+                   [robot.jointsPositions[1, 0], 0, robot.centersOfMass[1], 0],
+                   [robot.jointsPositions[2, 0], 0, 0, np.pi / 2],
+                   [robot.jointsPositions[3, 0], robot.centersOfMass[3], 0, 0]])

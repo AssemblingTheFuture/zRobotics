@@ -33,6 +33,37 @@ def forwardHTM(robot, m = 0):
         i += 1
     return framesHTM, fkHTM
 
+def forwardCOMHTM(robot, m = 0):
+  """
+    Using Homogeneous Transformation Matrices, this function computes forward kinematics to m - th center of mass, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
+  """
+  framesHTM, fkHTM = forwardHTM(robot, m = m)
+    
+  # Initial conditions
+  framesCOMHTM = [np.identity(4)]
+    
+  # Gets Denavit - Hartenberg Matrix
+  comDH = dh.centersOfMass(robot)
+  
+  i = 1
+  for frame in comDH[1 : , :]:
+    if i > m:
+      break
+    else:
+      # Center of Mass Homogeneous Transformation Matrix
+      COM = mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3]))
+      
+      # Rigid body's Homogeneous Transformation Matrix
+      B = np.linalg.pinv(framesHTM[i - 1]).dot(framesHTM[i])
+      
+      # Forward kinematics to Center of Mass
+      fkCOMHTM = framesHTM[i].dot(np.linalg.inv(B)).dot(COM)
+      framesCOMHTM.append(fkCOMHTM)
+      i += 1
+  return framesCOMHTM, fkCOMHTM
+
 def forwardDQ(robot, m = 0):
     """
       Using Dual Quaternions, this function computes forward kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
@@ -57,6 +88,37 @@ def forwardDQ(robot, m = 0):
         framesDQ.append(fkDQ)
         i += 1
     return framesDQ, fkDQ
+
+def forwardCOMDQ(robot, m = 0):
+  """
+    Using Dual Quaternions, this function computes forward kinematics to m - th center of mass, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
+  """
+  framesDQ, fkDQ = forwardDQ(robot, m = m)
+    
+  # Initial conditions
+  framesCOMDQ = [np.array([[1], [0], [0], [0], [0], [0], [0], [0]])]
+    
+  # Gets Denavit - Hartenberg Matrix
+  comDH = dh.centersOfMass(robot)
+  
+  i = 1
+  for frame in comDH[1 : , :]:
+    if i > m:
+      break
+    else:
+      # Center of Mass Homogeneous Transformation Matrix
+      COM = dq.leftOperator(dq.Rz(frame[0])).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
+      
+      # Rigid body's Dual Quaternion
+      B = dq.leftOperator(dq.conjugate(framesDQ[i - 1])).dot(framesDQ[i])
+      
+      # Forward kinematics to Center of Mass
+      fkCOMDQ = dq.leftOperator(framesDQ[i]).dot(dq.rightOperator(COM)).dot(dq.conjugate(B))
+      framesCOMDQ.append(fkCOMDQ)
+      i += 1
+  return framesCOMDQ, fkCOMDQ
 
 def jacobianHTM(robot, m):
     """

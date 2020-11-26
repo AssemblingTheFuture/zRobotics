@@ -11,12 +11,13 @@ if __name__ == '__main__':
     1. Creates robot's generalized coordinates (as two dimensional array) and links' lengths
   """
   q = np.random.rand(4, 1)
-  L = [0.3, 0.4, 0.2]
+  L = [0.3, 0.5, 0.4]
+  Lcom = [0.15, 0.25, 0.2]
 
   """
     2. Creates robot as an object
   """
-  uRobot = Robot.System(jointsPositions = q, linksLengths = L, name = 'uRobot')
+  uRobot = Robot.System(jointsPositions = q, linksLengths = L, centersOfMass = Lcom, name = 'uRobot')
 
   """
     3. Gets robots' Denavit - Hartenberg parameters
@@ -28,6 +29,12 @@ if __name__ == '__main__':
   """
   framesHTM, fkHTM = k.forwardHTM(uRobot, m = 5)
   framesDQ, fkDQ = k.forwardDQ(uRobot, m = 5)
+  
+  """
+    4.1 Computes robot's forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
+  """
+  framesCOMHTM, fkCOMHTM = k.forwardCOMHTM(uRobot, m = 5)
+  framesCOMDQ, fkCOMDQ = k.forwardCOMDQ(uRobot, m = 5)
 
   """
     5. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary; this is OPTIONAL)
@@ -72,8 +79,8 @@ if __name__ == '__main__':
   """
     7. Animate robot with joints' positions without multiprocessing (this also modifies them in the object). You can uncomment any of these:
   """
-  # plot.animation(uRobot, q = qHTM, repeatAnimation = False, delayPerFrame = 1)
-  # plot.animation(uRobot, q = qDQ, repeatAnimation = False, delayPerFrame = 1)
+  # plot.animation(uRobot, q = qHTM, plotBodies = True, plotFrames = False, plotCOMs = True, delayPerFrame = 1, repeatAnimation = False)
+  # plot.animation(uRobot, q = qDQ, plotBodies = True, plotFrames = True, plotCOMs = False, delayPerFrame = 1, repeatAnimation = False)
 
   """
     7.1 Plot and Animate robot's behavior (joint's positions, end - effector, dynamics, etc) using multiprocessing
