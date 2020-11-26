@@ -56,6 +56,7 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         # Returns uRobot's properties
         uRobot.jointsPositions  # two - dimensional array
         uRobot.linksLengths     # list
+        uRobot.centersOfMass     # list
         uRobot.name             # string
     ```
 
@@ -100,7 +101,45 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         # Returns uRobot's Denavit - Hartenberg parameters as a matrix
         DH = dh.matrix(uRobot)
     ```
-    Where <img src="https://render.githubusercontent.com/render/math?math=DH \in \mathbb{R}^{m \times 4}"> is the Denavit - Hartenberg matrix for the kinematic chain
+    Where <img src="https://render.githubusercontent.com/render/math?math=DH \in \mathbb{R}^{m \times 4}"> is the Denavit - Hartenberg matrix for the kinematic chain.
+
+    <Enter>
+    ---
+
+    - ***Centers of Mass***: some calculations in robotics needs to be performed with respect to the Center of Mass, so it is mandatory to modify [Denavit - Hartenberg Parameters' file](/Python/DenavitHartenberg.py) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
+
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
+    |:---:|:---:|:---:|:---:|
+    | 0 | 0 | 0 | 0 |
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_1">|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{1}}">|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_2">|0|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{2}}">|0|
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+    |<img src="https://render.githubusercontent.com/render/math?math=\theta_4">|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{3}}">|0|0|
+
+    Therefore,
+
+    ```python
+    def centersOfMass(robot):
+        """
+            Denavit - Hartenberg parameters for n - th center of mass
+            theta: rotation on «z» axis
+            d: translation on «z» axis
+            a: translation on «x» axis
+            alpha: rotation on «x» axis
+        """
+        return np.array([[0, 0, 0, 0],
+                   [robot.jointsPositions[0, 0], robot.centersOfMass[0], 0, np.pi / 2],
+                   [robot.jointsPositions[1, 0], 0, robot.centersOfMass[1], 0],
+                   [robot.jointsPositions[2, 0], 0, 0, np.pi / 2],
+                   [robot.jointsPositions[3, 0], robot.centersOfMass[3], 0, 0]])
+    ```
+
+    - *Function call*
+    ```python
+        # Returns uRobot's Denavit - Hartenberg parameters of Center of Mass as a matrix
+        comDH = dh.centersOfMass(uRobot)
+    ```
+    Where <img src="https://render.githubusercontent.com/render/math?math=DH_{com} \in \mathbb{R}^{m \times 4}"> is the Denavit - Hartenberg matrix for the kinematic chain.
 
 <Enter>
 
@@ -124,6 +163,23 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
 <Enter>
 
+- **[Forward Kinematics to Center of Mass](/Python/Kinematics.py)**
+
+  - Using *Homogeneous Transformation Matrices*
+    ```python
+        # Returns robot's forward kinematics for each individual Center of Mass (framesCOMHTM) and for end - effector's one (fkCOMHTM)
+        framesCOMHTM, fkCOMHTM = k.forwardCOMHTM(uRobot, m = 5)
+    ```
+  - Using *Dual Quaternions*
+    ```python
+        # Returns robot's forward kinematics for each individual Center of Mass (framesCOMDQ) and for end - effector's one (fkCOMDQ)
+        framesCOMDQ, fkCOMDQ = k.forwardCOMDQ(uRobot, m = 5)
+    ```
+
+    In this case, <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} \in \mathbb{R}^{8 \times 1}"> are defined as <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} = H_{i/0}^{0} (H_{i/i-1}^{i - 1})^{-1} H_{com_{i}/i-1}^{i - 1}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} = Q_{i/0}^{0} (Q_{i/i-1}^{i - 1})^{*} Q_{com_{i}/i-1}^{i - 1}"> respectively
+
+<Enter>
+
 ---
 
 - **[Inverse Kinematics (*Error Feedback*)](/Python/Kinematics.py)**
@@ -132,7 +188,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
         # Returns robot's inverse kinematics using HTM
         qHTM = k.inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM, K = np.eye(6), m = 5)
     ```
-  - using *Dual Quaternions*
+  - Using *Dual Quaternions*
     ```python
         # Returns robot's inverse kinematics using Dual Quaternions
         qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
@@ -201,11 +257,15 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
     ```python
         # Plot robot with new joints' positions (this also modifies them in the object)
-        plot.animation(uRobot, q = qHTM, repeatAnimation = False, delayPerFrame = 1)
+        plot.animation(uRobot, q = qHTM, plotBodies = True, plotFrames = True, plotCOMs = True, delayPerFrame = 1, repeatAnimation = False)
     ```
     
 ![uRobot Animation](images/uRobotPython.gif "uRobot Animation")
-    
+
+<Enter>
+
+**IMPORTANT NOTE:** Nowadays, Python animation is not optimized for multibody's animation, so this will be quite slow if you want to see all the reference frames, rigid bodies and Centers of Mass. We encourage you to use the options ```plotBodies```, ```plotFrames``` and ```plotCOMs``` based on what you need to see only :wink:
+
 <Enter>
 
 ---
