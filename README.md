@@ -127,10 +127,10 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
             alpha: rotation on «x» axis
         """
         return np.array([[0, 0, 0, 0],
-                   [robot.jointsPositions[0, 0], robot.centersOfMass[0], 0, np.pi / 2],
-                   [robot.jointsPositions[1, 0], 0, robot.centersOfMass[1], 0],
-                   [robot.jointsPositions[2, 0], 0, 0, np.pi / 2],
-                   [robot.jointsPositions[3, 0], robot.centersOfMass[3], 0, 0]])
+                         [robot.jointsPositions[0, 0], robot.centersOfMass[0], 0, np.pi / 2],
+                         [robot.jointsPositions[1, 0], 0, robot.centersOfMass[1], 0],
+                         [robot.jointsPositions[2, 0], 0, 0, np.pi / 2],
+                         [robot.jointsPositions[3, 0], robot.centersOfMass[3], 0, 0]])
     ```
 
     - *Function call*
