@@ -56,7 +56,7 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         # Returns uRobot's properties
         uRobot.jointsPositions  # two - dimensional array
         uRobot.linksLengths     # list
-        uRobot.centersOfMass     # list
+        uRobot.centersOfMass    # list
         uRobot.name             # string
     ```
 
