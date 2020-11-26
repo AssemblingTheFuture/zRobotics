@@ -12,7 +12,7 @@ def matrix(robot):
                      [robot.jointsPositions[0, 0], robot.linksLengths[0], 0, np.pi / 2],
                      [robot.jointsPositions[1, 0], 0, robot.linksLengths[1], 0],
                      [robot.jointsPositions[2, 0], 0, 0, np.pi / 2],
-                     [robot.jointsPositions[3, 0], robot.linksLengths[3], 0, 0]])
+                     [robot.jointsPositions[3, 0], robot.linksLengths[2], 0, 0]])
 
 def centersOfMass(robot):
   """
@@ -26,4 +26,4 @@ def centersOfMass(robot):
                    [robot.jointsPositions[0, 0], robot.centersOfMass[0], 0, np.pi / 2],
                    [robot.jointsPositions[1, 0], 0, robot.centersOfMass[1], 0],
                    [robot.jointsPositions[2, 0], 0, 0, np.pi / 2],
-                   [robot.jointsPositions[3, 0], robot.centersOfMass[3], 0, 0]])
+                   [robot.jointsPositions[3, 0], robot.centersOfMass[2], 0, 0]])
