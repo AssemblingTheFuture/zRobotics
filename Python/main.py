@@ -107,7 +107,7 @@ if __name__ == '__main__':
   """
     8.1 Computes robot's Inertial Velocity Jacobian Matrix (using Dual Quaternions, Homogeneous Transformation Matrix does not need a different Jacobian)
   """
-  Jvdq = k.jacobianVDQ(uRobot, n = 4, xi = xi)
+  Jvdq = k.jacobianVDQ(uRobot, m = 5, n = 4, xi = xi)
 
   """
     8.2 Computes Instantaneous Inertial Velocity to m - th frame
@@ -124,7 +124,7 @@ if __name__ == '__main__':
   """
     8.4 Computes Instantaneous Relative Inertial Velocity to n - th frame attached to each joint
   """
-  Wi = k.relativeVelocityDQ(uRobot, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
+  Wi = k.relativeVelocityDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
 
   """
     8.5 Computes Instantaneous Inertial Velocity to p - th Center of Masss
@@ -134,7 +134,7 @@ if __name__ == '__main__':
   """
     8.5 Computes robot's Inertial Acceleration Jacobian Matrix (using Dual Quaternions)
   """
-  Kadq = k.jacobianADQ(uRobot, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi, xid = xid)
+  Kadq = k.jacobianADQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi, xid = xid)
 
   """
     8.6 Computes Instantaneous Inertial Acceleration to m - th frame

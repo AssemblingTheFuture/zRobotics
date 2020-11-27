@@ -130,12 +130,25 @@ def jacobianHTM(robot, m):
     framesHTM, fkHTM = forwardHTM(robot, m)
     J = np.zeros((6, n))
     for j in range(n):
-      framesH, fkH = forwardHTM(robot, j)
-      z = fkH[0 : 3, 2]
-      r = fkHTM[0 : 3, 3] - fkH[0 : 3, 3]
+      z = framesHTM[j][0 : 3, 2]
+      r = fkHTM[0 : 3, 3] - framesHTM[j][0 : 3, 3]
       J[0 : 3, j] = np.cross(z, r)
       J[3 : 6, j] = z
     return J
+
+def jacobianDQ(robot, m, xi):
+  """
+    Using Dual Quaternions, this function computes Jacobian matrix to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
+    xi: np.array (two - dimensional)
+  """
+  n = robot.jointsPositions.shape[0]
+  framesDQ, fkDQ = forwardDQ(robot, m)
+  J = np.zeros((8, n))
+  for j in range(n):
+    J[:, j] = 0.5 * dq.leftOperator(framesDQ[j]).dot(dq.rightOperator(fkDQ)).dot(dq.rightOperator(dq.conjugate(framesDQ[j]))).dot(xi[:, j])
+  return J
 
 def inverseHTM(robot, q0, Hd, K, m):
     """
@@ -158,21 +171,6 @@ def inverseHTM(robot, q0, Hd, K, m):
       J = jacobianHTM(robot, m)
       q = np.append(q, dy.solver(f = (np.linalg.pinv(J)).dot(K).dot(e), F = q[:, j - 1].reshape(q0.shape), dt = 3/1000), axis = 1)
     return q
-
-def jacobianDQ(robot, m, xi):
-    """
-      Using Dual Quaternions, this function computes Jacobian matrix to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
-      robot: object (robot.jointsPositions, robot.linksLengths)
-      m: int
-      xi: np.array (two - dimensional)
-    """
-    n = robot.jointsPositions.shape[0]
-    framesDQ, fkDQ = forwardDQ(robot, m)
-    J = np.zeros((8, n))
-    for j in range(n):
-      framesQ, fkQ = forwardDQ(robot, j)
-      J[:, j] = 0.5 * dq.leftOperator(fkQ).dot(dq.rightOperator(fkDQ)).dot(dq.rightOperator(dq.conjugate(fkQ))).dot(xi[:, j])
-    return J
   
 def inverseDQ(robot, q0, Qd, K, xi, m):
     """
@@ -225,33 +223,35 @@ def jointsVelocitiesHTM(robot, m, Vhtm):
   qd = np.linalg.pinv(Jhtm).dot(Vhtm)
   return qd
 
-def jacobianVDQ(robot, n, xi):
+def jacobianVDQ(robot, m, n, xi):
   """
-    Using Dual Quaternions, this function computes Inertial Velocity Jacobian matrix to n - th joint, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
+    Using Dual Quaternions, this function computes Inertial Velocity Jacobian matrix to n - th joint, given number of frames actuated by joints and joints positions in radians. Robot's kinematic parameters have to be set before using this function
     robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
     n: int
     xi: np.array (two - dimensional)
   """
+  framesDQ, fkDQ = forwardDQ(robot, m)
   J = np.zeros((8, n))
   for j in range(n):
-    framesQ, fkQ = forwardDQ(robot, j + 1)
-    J[:, j] = dq.leftOperator(fkQ).dot(dq.rightOperator(dq.conjugate(fkQ))).dot(xi[:, j])
+    J[:, j] = dq.leftOperator(framesDQ[j + 1]).dot(dq.rightOperator(dq.conjugate(framesDQ[j + 1]))).dot(xi[:, j])
   return J
 
-def jacobianADQ(robot, n, W0, qd, xi, xid):
+def jacobianADQ(robot, m, n, W0, qd, xi, xid):
   """
     Using Dual Quaternions, this function computes Inertial Acceleration Jacobian matrix to n - th joint, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
     robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
     n: int
     W0: np.array (two - dimensional)
     qd: np.array (two - dimensional)
     xi: np.array (two - dimensional)
   """
+  framesQ, fkQ = forwardDQ(robot, m)
   K = np.zeros((8, n))
-  W = relativeVelocityDQ(robot, n = n, W0 = W0, qd = qd, xi = xi)
+  W = relativeVelocityDQ(robot, m = m, n = n, W0 = W0, qd = qd, xi = xi)
   for j in range(n):
-    framesQ, fkQ = forwardDQ(robot, j + 1)
-    K[:, j] = dq.leftOperator(fkQ).dot(dq.rightOperator(dq.conjugate(fkQ))).dot((dq.dualCrossOperator(W[:, j + 1]).dot(xi[:, j])) + xid[:, j])
+    K[:, j] = dq.leftOperator(framesQ[j + 1]).dot(dq.rightOperator(dq.conjugate(framesQ[j + 1]))).dot((dq.dualCrossOperator(W[:, j + 1]).dot(xi[:, j])) + xid[:, j])
   return K
 
 def velocityDQ(robot, m, n, qd, xi):
@@ -266,11 +266,11 @@ def velocityDQ(robot, m, n, qd, xi):
   framesDQ, fkDQ = forwardDQ(robot, m)
   r = dq.toR3(fkDQ)
   M = np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-dq.crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
-  Jvdq = jacobianVDQ(robot, n, xi)
+  Jvdq = jacobianVDQ(robot, m, n, xi)
   Vdq = M.dot(Jvdq).dot(qd)
   return Vdq
 
-def relativeVelocityDQ(robot, n, W0, qd, xi):
+def relativeVelocityDQ(robot, m, n, W0, qd, xi):
   """
     Using Dual Quaternions, this function computes Instantaneous Relative Inertial Velocity to m - th frame, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function
     robot: object (robot.jointsPositions, robot.linksLengths)
@@ -279,11 +279,10 @@ def relativeVelocityDQ(robot, n, W0, qd, xi):
     qd: np.array (two - dimensional)
     xi: np.array (two - dimensional)
   """
+  framesQ, fkQ = forwardDQ(robot, m)
   W = np.append(W0, np.zeros((8, n)), axis = 1)
   for j in range(n):
-    framesQi, fkQi = forwardDQ(robot, j + 1)
-    framesQ, fkQ = forwardDQ(robot, j)
-    Q = dq.leftOperator(fkQi).dot(dq.conjugate(fkQ))
+    Q = dq.leftOperator(framesQ[j + 1]).dot(dq.conjugate(framesQ[j]))
     W[:, j + 1] = (dq.leftOperator(dq.conjugate(Q)).dot(dq.rightOperator(Q)).dot(W[:, j])) + (dq.leftOperator(dq.conjugate(Q)).dot(dq.rightOperator(Q)).dot(xi[:, j] * qd[j, :]))
   return W
 
@@ -299,7 +298,7 @@ def jointsVelocitiesDQ(robot, m, n, Vdq, xi):
   framesDQ, fkDQ = forwardDQ(robot, m)
   r = dq.toR3(fkDQ)
   M = np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(dq.crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
-  Jvdq = jacobianVDQ(robot, n, xi)
+  Jvdq = jacobianVDQ(robot, m, n, xi)
   qd = np.linalg.pinv(Jvdq).dot(M).dot(Vdq)
   return qd
 
@@ -339,8 +338,8 @@ def accelerationDQ(robot, m, n, W0, qd, qdd, xi, xid):
   r = dq.toR3(fkDQ)
   
   # Jacobian Matrices
-  J = jacobianVDQ(robot, n = n, xi = xi)
-  K = jacobianADQ(robot, n = n, W0 = W0, qd = qd, xi = xi, xid = xid)
+  J = jacobianVDQ(robot, m = m, n = n, xi = xi)
+  K = jacobianADQ(robot, m = m, n = n, W0 = W0, qd = qd, xi = xi, xid = xid)
   
   # Velocity in Dual form
   V = velocityDQ(robot, m = m, n = n, qd = qd, xi = xi)
@@ -373,8 +372,8 @@ def jointsAccelerationsDQ(robot, m, n, W0, qd, Adq, xi, xid):
   r = dq.toR3(fkDQ)
   
   # Jacobian Matrices
-  J = jacobianVDQ(robot, n = n, xi = xi)
-  K = jacobianADQ(robot, n = n, W0 = W0, qd = qd, xi = xi, xid = xid)
+  J = jacobianVDQ(robot, m = m, n = n, xi = xi)
+  K = jacobianADQ(robot, m = m, n = n, W0 = W0, qd = qd, xi = xi, xid = xid)
   
   # Velocity in Dual form
   V = velocityDQ(robot, m = m, n = n, qd = qd, xi = xi)
