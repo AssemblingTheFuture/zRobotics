@@ -303,6 +303,24 @@ def jointsVelocitiesDQ(robot, m, n, Vdq, xi):
   qd = np.linalg.pinv(Jvdq).dot(M).dot(Vdq)
   return qd
 
+def velocityPropagationDQ(robot, m, COMs, W0, qd, xi):
+  """
+    Using Dual Quaternions, this function computes Instantaneous Relative Inertial Velocity to p - th Center of Mass, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
+    W0: np.array (two - dimensional)
+    qd: np.array (two - dimensional)
+    xi: np.array (two - dimensional)
+  """
+  framesCOMDQ, fkCOMDQ = forwardCOMDQ(robot, m = m)
+  framesDQ, fkDQ = forwardDQ(robot, m = m)
+  Wcom = np.append(W0, np.zeros((8, COMs)), axis = 1)
+  for j in range(COMs):
+    fkQcomi_i = dq.leftOperator(dq.conjugate(framesDQ[j])).dot(framesCOMDQ[j + 1])
+    fkQcomi_com = dq.leftOperator(dq.conjugate(framesCOMDQ[j])).dot(framesCOMDQ[j + 1])
+    Wcom[:, j + 1] = (dq.leftOperator(dq.conjugate(fkQcomi_com)).dot(dq.rightOperator(fkQcomi_com)).dot(Wcom[:, j])) + (dq.leftOperator(dq.conjugate(fkQcomi_i)).dot(dq.rightOperator(fkQcomi_i)).dot(xi[:, j] * qd[j, :]))
+  return Wcom
+
 def accelerationDQ(robot, m, n, W0, qd, qdd, xi, xid):
   """
     Using Dual Quaternions, this function computes Instantaneous Inertial Acceleration to m - th frame, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function

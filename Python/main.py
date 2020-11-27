@@ -127,6 +127,11 @@ if __name__ == '__main__':
   Wi = k.relativeVelocityDQ(uRobot, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
 
   """
+    8.5 Computes Instantaneous Inertial Velocity to p - th Center of Masss
+  """
+  Wcom = k.velocityPropagationDQ(uRobot, m = 5, COMs = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
+
+  """
     8.5 Computes robot's Inertial Acceleration Jacobian Matrix (using Dual Quaternions)
   """
   Kadq = k.jacobianADQ(uRobot, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi, xid = xid)
