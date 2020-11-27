@@ -219,7 +219,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
   - Instantaneous velocity to i - th frame <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{i/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
     ```python
         # Computes Instantaneous velocity to i - th frame (in dual form), given number of joints «n», initial velocity (in dual form) «W0» joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
-        Wi = k.relativeVelocityDQ(uRobot, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
+        Wi = k.relativeVelocityDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
     ```
 
   - Instantaneous velocity to m - th Center of Mass <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{com_{i}/0}^{com_{i}} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
