@@ -204,25 +204,37 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
 - **[Differential Kinematics](/Python/Kinematics.py)**
 
-  - Instantaneous m - th frame velocity <img src="https://render.githubusercontent.com/render/math?math=\dot{x}_{n/0}^{0} \in \mathbb{R}^{6 \times 1}"> using *Homogeneous Transformation Matrices*
+  - Instantaneous velocity to end - effector <img src="https://render.githubusercontent.com/render/math?math=\dot{x}_{m/0}^{0} \in \mathbb{R}^{6 \times 1}"> using *Homogeneous Transformation Matrices*
     ```python
         # Computes Instantaneous Inertial Velocity to m - th frame, given joints' velocities «qd»
         Vhtm = k.velocityHTM(uRobot, m = 5, qd = np.random.rand(4, 1))
     ```
 
-  - Instantaneous m - th frame velocity <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+  - Instantaneous velocity to end - effector <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{m/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
     ```python
         # Computes Instantaneous Inertial Velocity to m - th frame (in dual form), given number of joints «n»,joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
         Vdq = k.velocityDQ(uRobot, m = 5, n = 4, qd = np.random.rand(4, 1), xi = xi)
     ```
 
-  - Instantaneous m - th frame acceleration <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+  - Instantaneous velocity to i - th frame <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{i/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+    ```python
+        # Computes Instantaneous velocity to i - th frame (in dual form), given number of joints «n», initial velocity (in dual form) «W0» joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
+        Wi = k.relativeVelocityDQ(uRobot, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
+    ```
+
+  - Instantaneous velocity to m - th Center of Mass <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{com_{i}/0}^{com_{i}} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+    ```python
+        # Computes Instantaneous velocity to m - th Center of Mass (in dual form), given number of frames «m», number of centers of mass «COMs», initial velocity (in dual form) «W0» joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
+        Wcom = k.velocityPropagationDQ(uRobot, m = 5, COMs = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
+    ```
+
+  - Instantaneous acceleration to end - effector <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{m/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
     ```python
         # Computes Instantaneous Inertial Acceleration to m - th frame (in dual form), given number of joints «n», dual velocity of inertial frame «W0», joints' velocities and accelerations «qd» and «qdd»; and Screw vectors of each joint stored in a matrix «xi», including its time derivative «xid»
         Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, qdd = np.random.rand(4, 1), xi = xi, xid = xid)
     ```
 
-In this case <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0}"> represent the m - th rigid body's velocity and acceleration in dual form, this is <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{n/0}^{0} = \begin{bmatrix} \omega_{n/0}^{0} \ \ v_{n/0}^{0}\end{bmatrix}^{T}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{n/0}^{0} = \begin{bmatrix} \dot{\omega}_{n/0}^{0} \ \ \dot{v}_{n/0}^{0}\end{bmatrix}^{T}">
+In this case <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{y/x}^{z}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{y/x}^{z}"> represent the frame's velocity and acceleration in dual form, this is <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{y/x}^{z} = \begin{bmatrix} \omega_{y/x}^{z} \ \ v_{y/x}^{z}\end{bmatrix}^{T}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{y/x}^{z} = \begin{bmatrix} \dot{\omega}_{y/x}^{z} \ \ \dot{v}_{y/x}^{z}\end{bmatrix}^{T}">
 
 <Enter>
 
