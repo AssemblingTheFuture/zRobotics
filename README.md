@@ -216,7 +216,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
         Vdq = k.velocityDQ(uRobot, m = 5, n = 4, qd = np.random.rand(4, 1), xi = xi)
     ```
 
-  - Instantaneous velocity to i - th frame <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{i/0}^{0} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+  - Instantaneous relative velocity to i - th frame <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{i/0}^{i} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
     ```python
         # Computes Instantaneous velocity to i - th frame (in dual form), given number of joints «n», initial velocity (in dual form) «W0» joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
         Wi = k.relativeVelocityDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
@@ -224,7 +224,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
   - Instantaneous velocity to m - th Center of Mass <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{com_{i}/0}^{com_{i}} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
     ```python
-        # Computes Instantaneous velocity to m - th Center of Mass (in dual form), given number of frames «m», number of centers of mass «COMs», initial velocity (in dual form) «W0» joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
+        # Computes Instantaneous velocity to m - th Center of Mass (in dual form), given number of frames «m», number of centers of mass «COMs», initial velocity (in dual form) «W0», joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
         Wcom = k.velocityPropagationDQ(uRobot, m = 5, COMs = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
     ```
 
@@ -232,6 +232,12 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
     ```python
         # Computes Instantaneous Inertial Acceleration to m - th frame (in dual form), given number of joints «n», dual velocity of inertial frame «W0», joints' velocities and accelerations «qd» and «qdd»; and Screw vectors of each joint stored in a matrix «xi», including its time derivative «xid»
         Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, qdd = np.random.rand(4, 1), xi = xi, xid = xid)
+    ```
+
+  - Instantaneous acceleration to m - th Center of Mass <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{com_{i}/0}^{com_{i}} \in \mathbb{R}^{8 \times 1}"> using *Dual Quaternions*
+    ```python
+        # Computes Instantaneous acceleration to m - th Center of Mass (in dual form), given number of frames «m», number of centers of mass «COMs», initial velocity and acceleration (in dual form) «W0» and «A0», joints' velocities and accelerations «qd» and «qdd» and Screw vectors of each joint stored in a matrix «xi» and its time derivative «xid»
+        Acom = k.accelerationPropagationDQ(uRobot, m = 5, COMs = 4, W0 = np.zeros((8, 1)), A0 = np.append(np.zeros((7, 1)), np.array([[-9.80665]]), axis = 0), qd = np.random.rand(4, 1), qdd = np.random.rand(4, 1), xi = xi, xid = xid)
     ```
 
 In this case <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{y/x}^{z}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{y/x}^{z}"> represent the frame's velocity and acceleration in dual form, this is <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{y/x}^{z} = \begin{bmatrix} \omega_{y/x}^{z} \ \ v_{y/x}^{z}\end{bmatrix}^{T}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{y/x}^{z} = \begin{bmatrix} \dot{\omega}_{y/x}^{z} \ \ \dot{v}_{y/x}^{z}\end{bmatrix}^{T}">
