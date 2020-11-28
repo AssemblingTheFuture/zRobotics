@@ -17,7 +17,7 @@ A powerful library for robotics analysis :robot:
 
 ### Features
 
-You can control how the robot behaves; also, you'll be able to see its end - effector displacement in a 3D animation. To achieve this, all the algorithms were developed to be simulated with [Peter Corke's Robotics Toolbox](https://petercorke.com/toolboxes/robotics-toolbox/), however, **the programming logic used in these algorithms will allow you to adapt it to almost any embedded system!**
+You can control how the robot behaves; also, you'll be able to see its end - effector displacement in a 3D animation. To achieve this, all the algorithms were developed based on [Peter Corke's Robotics Toolbox](https://petercorke.com/toolboxes/robotics-toolbox/) and Dual Quaternions algebra, however, **the logic used to develop these algorithms will allow you to adapt it to almost any embedded system!**
 
 ![uRobot](images/uRobot-animation.gif "uRobot 0.1")
 
@@ -29,7 +29,30 @@ This library includes the following algorithms:
 
 #### [Python](/Python)
 
-Please take a look at [main.py](/Python/main.py) to know more about this implementation :man_technologist:
+- **How to import our libraries** :man_technologist:
+    ```python
+        import DenavitHartenberg as dh
+        import DualQuaternions as dq
+        import Dynamics as dy
+        import Kinematics as k
+        import Movements as mv
+        import Plot as plot
+        import Robot
+    ```
+    - Libraries' brief descriptions (click on each name to go the *.py* file):
+      1. [```DenavitHartenberg```](/Python/DenavitHartenberg.py): it returns Denavit - Hartenberg parameters of your system. **We encourage you to change this according to your necessites** :wink:
+      2. [```DualQuaternions```](/Python/DualQuaternions.py): computes multiple algorithms by means of Dual Quaternion algebra
+      3. [ ```Dynamics```](/Python/Dynamics.py): it has numerical integration and dynamic systems algorithms (**under construction :construction:**)
+      4. [```Kinematics```](/Python/Kinematics.py): based on Dual Quaternions algebra and Homogeneous Transformation Matrices, it solves the most common problem of kinematics, from forward kinematics to differential kinematics (**under construction :construction:**)
+      5. [```Movements```](/Python/DualQuaternions.py): it returns the translational and rotational movements representation using Homogeneous Transformation Matrices or Dual Quaternions
+      6. [```Plot```](/Python/DualQuaternions.py): this allows to plot graphs or animations of your robot's behavior
+      7. [```Robot```](/Python/DualQuaternions.py): to facilitate algorithms implementation and usage, this creates your robot as an object :robot:
+
+Please take a look at [main.py](/Python/main.py) to know more about this implementation. **Feel free to  [contact us](mailto:contact@zdynamics.org) if you have any comment, suggestion or question** :smile:
+
+<Enter>
+
+---
 
 - **Geometric Properties**
 
@@ -281,7 +304,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 <Enter>
 
-**IMPORTANT NOTE:** Nowadays, Python animation is not optimized for multibody's animation, so this will be quite slow if you want to see all the reference frames, rigid bodies and Centers of Mass. We encourage you to use the options ```plotBodies```, ```plotFrames``` and ```plotCOMs``` based on what you need to see only :wink:
+**IMPORTANT NOTE:** Nowadays, Python animation is not optimized for multibody's one, so this will be quite slow if you want to see all the reference frames, rigid bodies and Centers of Mass. We encourage you to use the options ```plotBodies```, ```plotFrames``` and ```plotCOMs``` based on what you need to see only :wink:
 
 <Enter>
 
