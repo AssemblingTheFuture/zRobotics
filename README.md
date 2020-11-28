@@ -39,7 +39,7 @@ This library includes the following algorithms:
         import Plot as plot
         import Robot
     ```
-    - Libraries' brief descriptions (click on each name to go the *.py* file):
+    - Libraries' brief descriptions:
       1. [```DenavitHartenberg```](/Python/DenavitHartenberg.py): it returns Denavit - Hartenberg parameters of your system. **We encourage you to change this according to your necessites** :wink:
       2. [```DualQuaternions```](/Python/DualQuaternions.py): computes multiple algorithms by means of Dual Quaternion algebra
       3. [ ```Dynamics```](/Python/Dynamics.py): it has numerical integration and dynamic systems algorithms (**under construction :construction:**)
