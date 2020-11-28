@@ -132,17 +132,22 @@ if __name__ == '__main__':
   Wcom = k.velocityPropagationDQ(uRobot, m = 5, COMs = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
 
   """
-    8.5 Computes robot's Inertial Acceleration Jacobian Matrix (using Dual Quaternions)
+    8.6 Computes robot's Inertial Acceleration Jacobian Matrix (using Dual Quaternions)
   """
   Kadq = k.jacobianADQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi, xid = xid)
 
   """
-    8.6 Computes Instantaneous Inertial Acceleration to m - th frame
+    8.7 Computes Instantaneous Inertial Acceleration to m - th frame
   """
-  Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, qdd = np.random.rand(4, 1), xi = xi, xid = xid)
+  Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), qdd = np.random.rand(4, 1), xi = xi, xid = xid)
+  
+  """
+    8.8 Computes Instantaneous Inertial Acceleration to p - th Center of Masss
+  """
+  Acom = k.accelerationPropagationDQ(uRobot, m = 5, COMs = 4, W0 = np.zeros((8, 1)), A0 = np.append(np.zeros((7, 1)), np.array([[-9.80665]]), axis = 0), qd = np.random.rand(4, 1), qdd = np.random.rand(4, 1), xi = xi, xid = xid)
 
   """
-    8.7 Computes Instantaneous Joints' Accelerations given m - th frame one
+    8.9 Computes Instantaneous Joints' Accelerations given m - th frame one
   """
   qddDQ = k.jointsAccelerationsDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, Adq = Adq, xi = xi, xid = xid)
 

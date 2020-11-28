@@ -307,6 +307,7 @@ def velocityPropagationDQ(robot, m, COMs, W0, qd, xi):
     Using Dual Quaternions, this function computes Instantaneous Relative Inertial Velocity to p - th Center of Mass, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function
     robot: object (robot.jointsPositions, robot.linksLengths)
     m: int
+    COMs: int
     W0: np.array (two - dimensional)
     qd: np.array (two - dimensional)
     xi: np.array (two - dimensional)
@@ -387,3 +388,33 @@ def jointsAccelerationsDQ(robot, m, n, W0, qd, Adq, xi, xid):
   # Acceleration in Dual form
   qdd = np.linalg.pinv(J).dot((M.dot(Adq)) - (K.dot(qd)) - C)
   return qdd
+
+def accelerationPropagationDQ(robot, m, COMs, W0, A0, qd, qdd, xi, xid):
+  """
+    Using Dual Quaternions, this function computes Instantaneous Relative Inertial Acceleration to p - th Center of Mass, given joints velocities in radians/second and joints accelerations in radians/second^2. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    m: int
+    COMs: int
+    W0: np.array (two - dimensional)
+    A0: np.array (two - dimensional)
+    qd: np.array (two - dimensional)
+    qdd: np.array (two - dimensional)
+    xi: np.array (two - dimensional)
+    xid: np.array (two - dimensional)
+  """
+  framesCOMDQ, fkCOMDQ = forwardCOMDQ(robot, m = m)
+  framesDQ, fkDQ = forwardDQ(robot, m = m)
+  Acom = np.append(A0, np.zeros((8, COMs)), axis = 1)
+  Wcom = velocityPropagationDQ(robot, m = m, COMs = COMs, W0 = W0, qd = qd, xi = xi)
+  for j in range(COMs):
+    fkQi_comi = dq.leftOperator(dq.conjugate(framesCOMDQ[j + 1])).dot(framesDQ[j + 1])
+    fkQcomi_i = dq.leftOperator(dq.conjugate(framesDQ[j])).dot(framesCOMDQ[j + 1])
+    fkQcomi_com = dq.leftOperator(dq.conjugate(framesCOMDQ[j])).dot(framesCOMDQ[j + 1])
+    a = dq.leftOperator(fkQi_comi).dot(dq.rightOperator(dq.conjugate(fkQi_comi))).dot(xi[:, j] * qd[j, :])
+    b = dq.dualCrossOperator(Wcom[:, j]).dot(a)
+    c = Acom[:, j] + b
+    d = dq.leftOperator(dq.conjugate(fkQcomi_com)).dot(dq.rightOperator(fkQcomi_com)).dot(c)
+    e = (xid[:, j] * qd[j, :]) + (xi[:, j] * qdd[j, :])
+    f = dq.leftOperator(dq.conjugate(fkQcomi_i)).dot(dq.rightOperator(fkQcomi_i)).dot(e)
+    Acom[:, j + 1] = d + f
+  return Acom
