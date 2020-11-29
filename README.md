@@ -1,4 +1,4 @@
-# zRobotics 0.1
+# zRobotics 0.1 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A powerful library for robotics analysis :robot:
 
