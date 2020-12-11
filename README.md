@@ -44,9 +44,9 @@ This library includes the following algorithms:
       2. [```DualQuaternions```](/Python/DualQuaternions.py): computes multiple algorithms by means of Dual Quaternion algebra
       3. [ ```Dynamics```](/Python/Dynamics.py): it has numerical integration and dynamic systems algorithms (**under construction :construction:**)
       4. [```Kinematics```](/Python/Kinematics.py): based on Dual Quaternions algebra and Homogeneous Transformation Matrices, it solves the most common problem of kinematics, from forward kinematics to differential kinematics (**under construction :construction:**)
-      5. [```Movements```](/Python/DualQuaternions.py): it returns the translational and rotational movements representation using Homogeneous Transformation Matrices or Dual Quaternions
-      6. [```Plot```](/Python/DualQuaternions.py): this allows to plot graphs or animations of your robot's behavior
-      7. [```Robot```](/Python/DualQuaternions.py): to facilitate algorithms implementation and usage, this creates your robot as an object :robot:
+      5. [```Movements```](/Python/Movements.py): it returns the translational and rotational movements representation using Homogeneous Transformation Matrices or Dual Quaternions
+      6. [```Plot```](/Python/Plot.py): this allows to plot graphs or animations of your robot's behavior
+      7. [```Robot```](/Python/Robot.py): to facilitate algorithms implementation and usage, this creates your robot as an object :robot:
 
 Please take a look at [main.py](/Python/main.py) to know more about this implementation. **Feel free to  [contact us](mailto:contact@zdynamics.org) if you have any comment, suggestion or question** :smile:
 
