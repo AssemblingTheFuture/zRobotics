@@ -2,7 +2,7 @@
 
 A powerful library for robotics analysis :robot:
 
-- [zRobotics 0.1](#zrobotics-01)
+- [zRobotics 0.1 ![License: MIT](https://opensource.org/licenses/MIT) [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)](#zrobotics-01--)
     - [Introduction](#introduction)
     - [Features](#features)
     - [Library Content](#library-content)
@@ -94,10 +94,10 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
     |<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
     |:---:|:---:|:---:|:---:|
     | 0 | 0 | 0 | 0 |
-    |<img src="https://render.githubusercontent.com/render/math?math=\theta_1">|<img src="https://render.githubusercontent.com/render/math?math=L_1">|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
-    |<img src="https://render.githubusercontent.com/render/math?math=\theta_2">|0|<img src="https://render.githubusercontent.com/render/math?math=L_2">|0|
-    |<img src="https://render.githubusercontent.com/render/math?math=\theta_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
-    |<img src="https://render.githubusercontent.com/render/math?math=\theta_4">|<img src="https://render.githubusercontent.com/render/math?math=L_3">|0|0|
+    |<img src="https://render.githubusercontent.com/render/math?math=q_1">|<img src="https://render.githubusercontent.com/render/math?math=L_1">|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+    |<img src="https://render.githubusercontent.com/render/math?math=q_2">|0|<img src="https://render.githubusercontent.com/render/math?math=L_2">|0|
+    |<img src="https://render.githubusercontent.com/render/math?math=q_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+    |<img src="https://render.githubusercontent.com/render/math?math=q_4">|<img src="https://render.githubusercontent.com/render/math?math=L_3">|0|0|
 
     Therefore,
 
