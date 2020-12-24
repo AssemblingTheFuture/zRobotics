@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
 
 class System:
-  def __init__(self, jointsPositions, linksLengths, centersOfMass, dhParameters = np.array([[0, 0, 0, 0]]), dhParametersCOM = np.array([[0, 0, 0, 0]]), xi = [], xid = [], name = ''):
+  def __init__(self, jointsPositions, linksLengths, centersOfMass, dhParameters = [], dhParametersCOM = [], xi = [], xid = [], name = ''):
     """
       Robot's constructor
       jointsPositions: np.array (two - dimensional)

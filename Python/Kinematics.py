@@ -19,7 +19,7 @@ def forwardHTM(robot, m = 0):
     framesHTM = []
     
     # Gets Denavit - Hartenberg Matrix
-    if (robot.dhParameters == np.array([[0, 0, 0, 0]])).all:
+    if not robot.dhParameters:
       DH = dh.matrix(robot)
     else:
       DH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions]))
@@ -48,7 +48,7 @@ def forwardCOMHTM(robot, m = 0):
   framesCOMHTM = [np.identity(4)]
     
   # Gets Denavit - Hartenberg Matrix
-  if (robot.dhParameters == np.array([[0, 0, 0, 0]])).all:
+  if not robot.dhParametersCOM:
     comDH = dh.centersOfMass(robot)
   else:
     comDH = np.array(robot.dhParametersCOM([float(q) for q in robot.jointsPositions]))
@@ -81,7 +81,7 @@ def forwardDQ(robot, m = 0):
     framesDQ = []
     
     # Gets Denavit - Hartenberg Matrix
-    if (robot.dhParameters == np.array([[0, 0, 0, 0]])).all:
+    if not robot.dhParameters:
       DH = dh.matrix(robot)
     else:
       DH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions]))
@@ -110,7 +110,7 @@ def forwardCOMDQ(robot, m = 0):
   framesCOMDQ = [np.array([[1], [0], [0], [0], [0], [0], [0], [0]])]
     
   # Gets Denavit - Hartenberg Matrix
-  if (robot.dhParameters == np.array([[0, 0, 0, 0]])).all:
+  if not robot.dhParametersCOM:
     comDH = dh.centersOfMass(robot)
   else:
     comDH = np.array(robot.dhParametersCOM([float(q) for q in robot.jointsPositions]))
