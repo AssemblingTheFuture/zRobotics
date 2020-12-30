@@ -139,3 +139,106 @@ def animation(robot, q, plotBodies = True, plotFrames = False, plotCOMs = False,
     # Plot or animate robot
     ani = FuncAnimation(fig, system, frames = q.T, interval = delayPerFrame, repeat = repeatAnimation)
     plt.show()
+    
+def plotRobot(robot, plotBodies = True, plotFrames = False, plotCOMs = False):
+  """
+    Plots robot and reference frames attached to each joint and/or Center of Mass
+    robot: object
+    plotBodies: boolean
+    plotFrames: boolean
+    plotCOMs: boolean
+  """
+
+  # Set figure's parameters
+  fig = plt.figure()
+  ax = fig.gca(projection = '3d')
+
+  # Variable to increment or decrement robot dimensions and to scale its plot
+  if any(link < 1 for link in robot.linksLengths):
+    a = 10
+  elif any(link > 100 for link in robot.linksLengths):
+    a = 0.01
+  else:
+    a = 1
+        
+  # Figure limits
+  limit = a * np.sqrt(sum([link ** 2 for link in robot.linksLengths]))
+
+  # Number of reference frames
+  m = robot.jointsPositions.shape[0] + 1
+
+  # Number of generalized coordinates
+  n = robot.jointsPositions[0]
+    
+  # Set title and axes text
+  ax.set_title(robot.name, fontsize = 16)
+  ax.set_xlabel('$x$', color = 'red', fontsize = 16)
+  ax.set_ylabel('$y$', color = 'green', fontsize = 16)
+  ax.set_zlabel('$z$', color = 'blue', fontsize = 16)
+      
+  # Inertial frame
+  ax.plot(xs = [0, 1], ys = [0, 0], zs = [0, 0], color = 'red', linestyle = 'dashed', marker = 'o')
+  ax.plot(xs = [0, 0], ys = [0, 1], zs = [0, 0], color = 'green', linestyle = 'dashed', marker = 'o')
+  ax.plot(xs = [0, 0], ys = [0, 0], zs = [0, 1], color = 'blue', linestyle = 'dashed', marker = 'o')
+      
+  # Sets figure limits
+  ax.set_xlim(-limit, limit)
+  ax.set_ylim(-limit, limit)
+  ax.set_zlim(-limit, limit)
+
+  ax.margins(0)
+  
+  # Computes forward kinematics given current joints' positions
+  framesHTM, fkHTM = k.forwardHTM(robot, m = m)
+      
+  # Computes forward kinematics to COMs given current joints' positions
+  framesCOMHTM, fkCOMHTM = k.forwardCOMHTM(robot, m = 5)
+
+  for frame in range(1, len(framesHTM)):
+    """
+      Rigid Body
+    """
+    if plotBodies:
+      ba = a * framesHTM[frame - 1][: -1, 3]
+      bb = a * framesHTM[frame + 0][: -1, 3]
+      ax.plot(xs = [ba[0], bb[0]], ys = [ba[1], bb[1]], zs = [ba[2], bb[2]], color = 'brown', linewidth = 4.5, marker = 'o')
+        
+    """
+      Joints' frames
+    """
+    if plotFrames:
+      # x - axis
+      xa = bb
+      xb = xa + framesHTM[frame][: -1, 0]
+      ax.plot(xs = [xa[0], xb[0]], ys = [xa[1], xb[1]], zs = [xa[2], xb[2]], color = 'red', linestyle = 'dashed', marker = '2')
+      
+      # y - axis
+      ya = bb
+      yb = ya + framesHTM[frame][: -1, 1]
+      ax.plot(xs = [ya[0], yb[0]], ys = [ya[1], yb[1]], zs = [ya[2], yb[2]], color = 'green', linestyle = 'dashed', marker = '2')
+        
+      # z - axis
+      za = bb
+      zb = za + framesHTM[frame][: -1, 2]
+      ax.plot(xs = [za[0], zb[0]], ys = [za[1], zb[1]], zs = [za[2], zb[2]], color = 'blue', linestyle = 'dashed', marker = '2')
+        
+    """
+      Centers of Mass' frames
+    """
+    if plotCOMs:        
+      # x - axis
+      xCOMa = a * framesCOMHTM[frame][: -1, 3]
+      xCOMb = xCOMa + framesHTM[frame][: -1, 0]
+      ax.plot(xs = [xCOMa[0], xCOMb[0]], ys = [xCOMa[1], xCOMb[1]], zs = [xCOMa[2], xCOMb[2]], color = 'red', linestyle = ':')
+       
+      # y - axis
+      yCOMa = a * framesCOMHTM[frame][: -1, 3]
+      yCOMb = yCOMa + framesHTM[frame][: -1, 1]
+      ax.plot(xs = [yCOMa[0], yCOMb[0]], ys = [yCOMa[1], yCOMb[1]], zs = [yCOMa[2], yCOMb[2]], color = 'green', linestyle = ':')
+        
+      # z - axis
+      zCOMa = a * framesCOMHTM[frame][: -1, 3]
+      zCOMb = zCOMa + framesHTM[frame][: -1, 2]
+      ax.plot(xs = [zCOMa[0], zCOMb[0]], ys = [zCOMa[1], zCOMb[1]], zs = [zCOMa[2], zCOMb[2]], color = 'blue', linestyle = ':')
+        
+  return fig

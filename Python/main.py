@@ -81,7 +81,7 @@ if __name__ == '__main__':
   """
   # plot.animation(uRobot, q = qHTM, plotBodies = True, plotFrames = False, plotCOMs = True, delayPerFrame = 1, repeatAnimation = False)
   # plot.animation(uRobot, q = qDQ, plotBodies = True, plotFrames = True, plotCOMs = False, delayPerFrame = 1, repeatAnimation = False)
-
+  
   """
     7.1 Plot and Animate robot's behavior (joint's positions, end - effector, dynamics, etc) using multiprocessing
   """
