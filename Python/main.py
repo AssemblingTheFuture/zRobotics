@@ -83,7 +83,7 @@ if __name__ == '__main__':
     6.4 Computes a path to be followed by means of defining the points to be reached in specific intervals of time
   """
   
-  X = dy.path(X = np.random.rand(2, 7), steps = np.append(np.array([0]), np.array([random.randrange(1, 10, 1) for i in range(6)])), plot = True)
+  X = dy.path(P = np.random.rand(2, 7), steps = np.append(np.array([0]), np.array([random.randrange(1, 10, 1) for i in range(6)])), plot = True)
   
   """
     7. Animate robot with joints' positions without multiprocessing (this also modifies them in the object). You can uncomment any of these:
