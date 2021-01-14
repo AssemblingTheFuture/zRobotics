@@ -1,9 +1,11 @@
 import DenavitHartenberg as dh
+import Dynamics as dy
 import Kinematics as k
 import Movements as mv
 import multiprocessing as mp
 import numpy as np
 import Plot as plot
+import random
 import Robot
 
 if __name__ == '__main__':
@@ -76,6 +78,13 @@ if __name__ == '__main__':
   qHTM = k.inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM, K = np.eye(6), m = 5)
   qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
 
+  
+  """
+    6.4 Computes a path to be followed by means of defining the points to be reached in specific intervals of time
+  """
+  
+  X = dy.path(X = np.random.rand(2, 7), steps = np.append(np.array([0]), np.array([random.randrange(1, 10, 1) for i in range(6)])), plot = True)
+  
   """
     7. Animate robot with joints' positions without multiprocessing (this also modifies them in the object). You can uncomment any of these:
   """
