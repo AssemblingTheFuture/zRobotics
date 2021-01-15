@@ -206,12 +206,23 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
     If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time, it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=X\left(t\right) = \sum_{i = 0}^{p} A_it^{i}">, where <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{6, 8 \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each part of the desired end - effector's pose
 
+  -  Using *Homogeneous Transformation Matrices*
     ```python
-        # Returns robot's path to be followed based on the type of parameter given. If desired pose is set on HTM form, it will return an Axis - Angle vector. If desired pose is set on Dual Quaternion form, it will return a Dual Quaternion
-        X = dy.path(P = np.random.rand(6, 7), steps = np.append(np.array([0]), np.array([random.randrange(1, 10, 1) for i in range(6)])), plot = True)
+        # Returns robot's path to be followed in Dual Quaternion form
+        Xhtm = dy.path(P = poseHTM, steps = time, plot = True)
     ```
+    
+    ![Trajectory Planning using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning using Homogeneous Transformation Matrices")
 
-    Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{p \times (4 \times 4)}"> <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{H}^{p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*
+  - Using *Dual Quaternions*
+    ```python
+        # Returns robot's path to be followed in Dual Quaternion form
+        Xdq = dy.path(P = poseDQ, steps = time, plot = True)
+    ```
+    
+    ![Trajectory Planning using Dual Quaternions](images/pathDQ.png "Trajectory Planning using Dual Quaternions")
+
+    Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{p \times (4 \times 4)}"> <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{H}^{p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
 
 <Enter>
 
