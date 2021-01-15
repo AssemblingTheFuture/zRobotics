@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from Movements import *
 import numpy as np
 import random
 
@@ -38,7 +39,19 @@ def path(P, steps, h = 0.003, plot = False):
             X += A[i, :] * (t ** i)
         return X
     
-    m, n = P.shape
+    """
+        Check if «P» is a Homogeneous Transformation Matrix or Dual Quaternion
+    """
+    try:
+        m, n = P.shape
+    except:
+        n = len(P)
+        Z = []
+        for matrix in P:
+            Z.append(axisAngle(matrix))
+        P = np.array(Z).reshape((6, n))
+        m, n = P.shape
+            
     t = np.cumsum(steps)
     pose = lambda t : [t ** i for i in range(n)]
     

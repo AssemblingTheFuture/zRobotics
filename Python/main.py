@@ -48,11 +48,29 @@ if __name__ == '__main__':
   """ 
 
   """
-    6.1 Set desired pose representation (mandatory). We will use «fkHTM» and «fkDQ» as desired pose representations
+    6.1 Set desired pose representation (mandatory). We will set random joints positions to set random «fkHTM» and «fkDQ» as desired pose representations
   """ 
+  points = 4
+  time = np.array([0, 1, 3.5, 2.2])
+  randomPoseHTM = []
+  randomPoseDQ = []
+  for i in range(points):
+    uRobot.jointsPositions = np.random.rand(4, 1)
+    randomframesHTM, randomfkHTM = k.forwardHTM(uRobot, m = 5)
+    randomframesDQ, randomfkDQ = k.forwardDQ(uRobot, m = 5)
+    randomPoseHTM.append(randomfkHTM)
+    randomPoseDQ.append(randomfkDQ)
+  randomPoseDQ = np.array(randomPoseDQ).reshape((8, points))
 
   """
-    6.2 Computes robot's Jacobian Matrix (using Homogeneous Transformation Matrices or Dual Quaternions)
+    6.2 Computes the path to be followed by means of defining the points to be reached in specific intervals of time
+  """
+  
+  Xhtm = dy.path(P = randomPoseHTM, steps = time, plot = True)
+  Xdq = dy.path(P = randomPoseDQ, steps = time, plot = True)
+
+  """
+    6.3 Computes robot's Jacobian Matrix (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
 
   # Screw vectors stored in a matrix
@@ -73,17 +91,10 @@ if __name__ == '__main__':
   Jdq = k.jacobianDQ(uRobot, m = 5, xi = xi)
 
   """ 
-    6.3 Computes robot's Inverse Kinematics (using Homogeneous Transformation Matrices or Dual Quaternions)
+    6.4 Computes robot's Inverse Kinematics (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
   qHTM = k.inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM, K = np.eye(6), m = 5)
   qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
-
-  
-  """
-    6.4 Computes a path to be followed by means of defining the points to be reached in specific intervals of time
-  """
-  
-  X = dy.path(P = np.random.rand(2, 7), steps = np.append(np.array([0]), np.array([random.randrange(1, 10, 1) for i in range(6)])), plot = True)
   
   """
     7. Animate robot with joints' positions without multiprocessing (this also modifies them in the object). You can uncomment any of these:
