@@ -162,7 +162,7 @@ def jacobianDQ(robot, m, xi):
     J[:, j] = 0.5 * dq.leftOperator(framesDQ[j]).dot(dq.rightOperator(fkDQ)).dot(dq.rightOperator(dq.conjugate(framesDQ[j]))).dot(xi[:, j])
   return J
 
-def inverseHTM(robot, q0, Hd, K, m):
+def inverseHTM(robot, q0, Hd, K, m, path = False):
     """
       Using Homogeneous Transformation Matrices, this function computes Inverse Kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
       robot: object (robot.jointsPositions, robot.linksLengths)
@@ -174,38 +174,37 @@ def inverseHTM(robot, q0, Hd, K, m):
     Xd = mv.axisAngle(Hd)
     q = q0.reshape(q0.shape)
     for j in range(1, 15000):
-      robot.jointsPositions = q[:, j - 1].reshape(q0.shape)
+      robot.jointsPositions = q[:, -1].reshape(q0.shape)
       framesH, fkH = forwardHTM(robot, m)
       X = mv.axisAngle(fkH)
       e = Xd - X
       if all(value <= 0.001 for value in abs(e)):
         break
       J = jacobianHTM(robot, m)
-      q = np.append(q, dy.solver(f = (np.linalg.pinv(J)).dot(K).dot(e), F = q[:, j - 1].reshape(q0.shape), dt = 3/1000), axis = 1)
+      q = np.append(q, dy.solver(f = (np.linalg.pinv(J)).dot(K).dot(e), F = q[:, -1].reshape(q0.shape), dt = 3/1000), axis = 1)
     return q
   
 def inverseDQ(robot, q0, Qd, K, xi, m):
-    """
-      Using Dual Quaternions, this function computes Inverse Kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
-      robot: object (robot.jointsPositions, robot.linksLengths)
-      q0: np.array (two - dimensional)
-      Qd: np.array (two - dimensional)
-      K: np.array (two - dimensional)
-      xi: np.array (two - dimensional)
-      m: int
-    """
-    i = 0
-    q = q0.reshape(q0.shape)
-    for j in range(1, 15000):
-      robot.jointsPositions = q[:, j - 1].reshape(q0.shape)
-      framesDQ, Q = forwardDQ(robot, m)
-      e = Qd - Q
-      if all(value <= 0.001 for value in abs(e)):
-        break
-      J = jacobianDQ(robot, m, xi)
-      q = np.append(q, dy.solver(f = (np.linalg.pinv(J)).dot(K).dot(e), F = q[:, j - 1].reshape(q0.shape), dt = 3/1000), axis = 1)
-    return q
-
+  """
+    Using Dual Quaternions, this function computes Inverse Kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
+    robot: object (robot.jointsPositions, robot.linksLengths)
+    q0: np.array (two - dimensional)
+    Qd: np.array (two - dimensional)
+    K: np.array (two - dimensional)
+    xi: np.array (two - dimensional)
+    m: int
+  """
+  i = 0
+  q = q0.reshape(q0.shape)
+  for j in range(1, 15000):
+    robot.jointsPositions = q[:, -1].reshape(q0.shape)
+    framesDQ, Q = forwardDQ(robot, m)
+    e = Qd - Q
+    if all(value <= 0.001 for value in abs(e)):
+      break
+    J = jacobianDQ(robot, m, xi)
+    q = np.append(q, dy.solver(f = (np.linalg.pinv(J)).dot(K).dot(e), F = q[:, -1].reshape(q0.shape), dt = 3/1000), axis = 1)
+  return q
 
 """
   Differential Kinematics Section
