@@ -204,7 +204,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
 - **[Trajectory Planning](/Python/Dynamics.py)**
 
-    If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time, it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=X\left(t\right) = \sum_{i = 0}^{p} A_it^{i}">, where <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{6, 8 \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each part of the desired end - effector's pose
+    If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time (all in task space), it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=q\left(t\right) = \sum_{i = 0}^{p} A_it^{i}"> and the inverse kinematics to each individual point. Hence, <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{n \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each joint position and the to get the desired end - effector's pose
 
   -  Using *Homogeneous Transformation Matrices*
     ```python
@@ -223,6 +223,22 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
     ![Trajectory Planning for Joints using Dual Quaternions](images/pathDQ.png "Trajectory Planning for Joints using Dual Quaternions")
 
     Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{n \times p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
+
+- **[Task Space Path](/Python/Plot.py)**
+
+  -  End - effector's Pose:
+    ```python
+        # Returns 2D & 3D plot of the task space's path by means of joints' one and the number of reference frames that will be computed
+        plot.path3D(robot = uRobot, q = qDQ, m = 5)
+    ```
+
+    ![3D Task Space Position](images/path3D.png "3D Task Space Position")
+    
+    ![Task Space Orientation in «X»](images/xOrientation.png "Task Space Orientation in «X»")
+
+    ![Task Space Orientation in «Y»](images/yOrientation.png "Task Space Orientation in «Y»")
+
+    ![Task Space Orientation in «Z»](images/zOrientation.png "Task Space Orientation in «Z»")
 
 <Enter>
 
