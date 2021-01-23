@@ -212,7 +212,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
         Xhtm = dy.path(P = poseHTM, steps = time, plot = True)
     ```
     
-    ![Trajectory Planning using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning using Homogeneous Transformation Matrices")
+    ![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
 
   - Using *Dual Quaternions*
     ```python
@@ -220,7 +220,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
         Xdq = dy.path(P = poseDQ, steps = time, plot = True)
     ```
     
-    ![Trajectory Planning using Dual Quaternions](images/pathDQ.png "Trajectory Planning using Dual Quaternions")
+    ![Trajectory Planning for Joints using Dual Quaternions](images/pathDQ.png "Trajectory Planning for Joints using Dual Quaternions")
 
     Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{p \times (4 \times 4)}"> or <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{H}^{p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
 
