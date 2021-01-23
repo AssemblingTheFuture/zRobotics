@@ -209,7 +209,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
   -  Using *Homogeneous Transformation Matrices*
     ```python
         # Returns joints' path to be followed by means of Inverse Kinematics using Homogeneous Transformation Matrices
-        qHTM = dy.path(P = jointsHTM, steps = time, title = r"Path Planning for Joints' Positions (HTM)", variable = r'$\theta_', plot = True)
+        qHTM = dy.path(P = jointsHTM, steps = time)
     ```
     
     ![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
@@ -217,7 +217,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
   - Using *Dual Quaternions*
     ```python
         # Returns joints' path to be followed by means of Inverse Kinematics using Dual Quaternions
-        qDQ = dy.path(P = jointsDQ, steps = time, title = r"Path Planning for Joints' Positions (DQ)", variable = r'$\theta_', plot = True)
+        qDQ = dy.path(P = jointsDQ, steps = time)
     ```
     
     ![Trajectory Planning for Joints using Dual Quaternions](images/pathDQ.png "Trajectory Planning for Joints using Dual Quaternions")
