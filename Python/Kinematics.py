@@ -2,6 +2,7 @@ import DenavitHartenberg as dh
 import DualQuaternions as dq
 import Dynamics as dy
 import Movements as mv
+import multiprocessing
 import numpy as np
 
 """
@@ -162,7 +163,7 @@ def jacobianDQ(robot, m, xi):
     J[:, j] = 0.5 * dq.leftOperator(framesDQ[j]).dot(dq.rightOperator(fkDQ)).dot(dq.rightOperator(dq.conjugate(framesDQ[j]))).dot(xi[:, j])
   return J
 
-def inverseHTM(robot, q0, Hd, K, m, path = False):
+def inverseHTM(robot, q0, Hd, K, m):
     """
       Using Homogeneous Transformation Matrices, this function computes Inverse Kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
       robot: object (robot.jointsPositions, robot.linksLengths)
@@ -171,7 +172,16 @@ def inverseHTM(robot, q0, Hd, K, m, path = False):
       K: np.array (two - dimensional)
       m: int
     """
-    Xd = mv.axisAngle(Hd)
+    r, s = Hd.shape
+    # Check if this is an Homogeneous Transformation Matrix
+    if r == 4:
+      # Convert it into an Axis - Angle Vector 
+      Xd = mv.axisAngle(Hd)
+    # Check if this is an Axis - Angle Vector
+    elif r == 6:
+      # Store it as the desired Axis - Angle Vector
+      Xd = Hd
+    
     q = q0.reshape(q0.shape)
     for j in range(1, 15000):
       robot.jointsPositions = q[:, -1].reshape(q0.shape)
@@ -183,7 +193,7 @@ def inverseHTM(robot, q0, Hd, K, m, path = False):
       J = jacobianHTM(robot, m)
       q = np.append(q, dy.solver(f = (np.linalg.pinv(J)).dot(K).dot(e), F = q[:, -1].reshape(q0.shape), dt = 3/1000), axis = 1)
     return q
-  
+    
 def inverseDQ(robot, q0, Qd, K, xi, m):
   """
     Using Dual Quaternions, this function computes Inverse Kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function

@@ -1,8 +1,7 @@
+from Kinematics import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from Movements import *
 import numpy as np
-import random
 
 def solver(f, F, dt):
     """
@@ -21,7 +20,7 @@ def solver(f, F, dt):
             F[i, j] = F[i, j] + ((1 / 6) * (k1 + (2 * k2) + (2 * k3) + k4) * dt)
     return F
 
-def path(P, steps, h = 0.003, plot = False):
+def path(P, steps, title = r"", variable = r"", h = 0.003, plot = False):
     """
         This function solves numerically the n - th grade equation X(t) = SUM(Ai * (t ** i))
         P: np.array (two - dimensional)
@@ -36,43 +35,39 @@ def path(P, steps, h = 0.003, plot = False):
         """
         X = 0
         for i in range(n):
-            X += A[i, :] * (t ** i)
+            X += (A[i, :] * (t ** i))
         return X
     
     """
-        Check if «P» is a Homogeneous Transformation Matrix or Dual Quaternion
+        Check «P» dimensions
     """
-    try:
-        m, n = P.shape
-    except:
-        n = len(P)
-        Z = []
-        for matrix in P:
-            Z.append(axisAngle(matrix))
-        P = np.array(Z).reshape((6, n))
-        m, n = P.shape
-            
+    m, n = P.shape
+    
     t = np.cumsum(steps)
-    pose = lambda t : [t ** i for i in range(n)]
+    pose = lambda t, n : [0 if np.isnan(t ** i) else t ** i for i in range(n)]
     
     """
         To find each Ai, it's necessary to solve M * v = B
     """
     Z = []
     for row in range(m):
-        B = []
-        M = []
+        B = np.zeros((1 * n, 1))
+        M = np.zeros((1 * n, 6))
         for column in range(n):
-            M.append(pose(t[column]))
-            B.append(P[row, column])
-        Z.append(equation(A = np.linalg.pinv(np.array(M)).dot(np.array(B).reshape((len(B), 1))), t = np.linspace(t[0], t[-1], int(t[-1] / h)), n = n))
-
+            M[column, :] = np.array(pose(t[column], 6))
+            B[column, :] = P[row, column]
+        Z.append(equation(A = np.linalg.pinv(M).dot(B), t = np.linspace(t[0], t[-1], int(t[-1] / h)), n = 6))
+    
+    Z = np.array(Z)
+    
     if plot:
-        i = 0
-        for function in Z:
-            plt.plot(function)
-            plt.scatter(x = t / h, y = P[i, :], c = "red")
-            i += 1
+        for function in range(Z.shape[0]):
+            plt.plot(Z[function, :], label = variable + str(function + 1) + r"$")
+            plt.scatter(x = t / h, y = P[function, :], c = "red")
+        plt.title(title)
+        plt.xlabel(r"Time [miliseconds]")
+        plt.ylabel(r"Amplitude")
+        plt.legend(loc = "best")
         plt.grid()
         plt.show()
     return Z
