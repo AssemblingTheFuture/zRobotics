@@ -50,8 +50,7 @@ if __name__ == '__main__':
   """
     6.1 Computes robot's Jacobian Matrix (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
-
-  # Screw vectors stored in a matrix
+  # Screw vectors stored in a matrix (mandatory)
   xi = np.array([[0, 0, 0, 0],
                 [0, 0, 0, 0],
                 [0, 0, 0, 0],
@@ -61,11 +60,11 @@ if __name__ == '__main__':
                 [0, 0, 0, 0],
                 [0, 0, 0, 0]])
 
-  # Time derivative of screw vectors stored in a matrix
+  # Time derivative of screw vectors stored in a matrix (mandatory)
   xid = np.zeros((8, 4))
 
+  # Jacobian Matrices (optional)
   Jhtm = k.jacobianHTM(uRobot, m = 5)
-
   Jdq = k.jacobianDQ(uRobot, m = 5, xi = xi)
   
   """ 
@@ -75,7 +74,7 @@ if __name__ == '__main__':
   qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
   
   """
-    6.2 Path planning by means of randomizing joints positions. These will be computed to create the path to be followed
+    6.2 Path planning in Joints' Space, by means of randomizing joints positions. These will be computed to create the path to be followed
   """ 
   
   # 1. Set number of points
@@ -103,8 +102,13 @@ if __name__ == '__main__':
     jointsDQ = np.append(jointsDQ, k.inverseDQ(uRobot, q0 = jointsDQ[:, -1].reshape((m, 1)), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)[:, -1].reshape((m, 1)), axis = 1)
   
   # 5. Compute paths for each joints' computation
-  qHTM = dy.path(P = jointsHTM, steps = time, title = r"Path Planning for Joints' Positions (HTM)", variable = r'$\theta_', plot = True)
-  qDQ = dy.path(P = jointsDQ, steps = time, title = r"Path Planning for Joints' Positions (DQ)", variable = r'$\theta_', plot = True)
+  qHTM = dy.path(P = jointsHTM, steps = time)
+  qDQ = dy.path(P = jointsDQ, steps = time)
+  
+  """
+    6.3 Compute path in Task Space based on path in Joints' Space (this is also in section 7)
+  """
+  # plot.path3D(robot = uRobot, q = qHTM, m = 5)
   
   """
     7. Animate robot with joints' positions without multiprocessing (this also modifies them in the object). You can uncomment any of these:
@@ -118,8 +122,9 @@ if __name__ == '__main__':
   
   processes = [mp.Process(target = plot.animation, args = (uRobot, qHTM)),
                mp.Process(target = plot.animation, args = (uRobot, qDQ)),
-               mp.Process(target = plot.graph, args = (qHTM, r'Joints Positions (using HTM)', r'$\theta_', r'(k)$', r'Samples $k$ [3 $\frac{ms}{sample}$]', r'Amplitude [$rad$]', True, "qHTM", True)),
-               mp.Process(target = plot.graph, args = (qDQ, r'Joints Positions (using DQ)', r'$\theta_', r'(k)$', r'Samples $k$ [3 $\frac{ms}{sample}$]', r'Amplitude [$rad$]', True, "qDQ", False))]
+               mp.Process(target = plot.path, args = (qHTM, jointsHTM, time, r"Path Planning for Joints' Positions (HTM)", r'$\theta_')),
+               mp.Process(target = plot.path, args = (qDQ, jointsDQ, time, r"Path Planning for Joints' Positions (DQ)", r'$\theta_')),
+               mp.Process(target = plot.path3D, args = (uRobot, qHTM, 5))]
   
   for process in processes:
     process.start()

@@ -1,4 +1,3 @@
-from Kinematics import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -20,7 +19,7 @@ def solver(f, F, dt):
             F[i, j] = F[i, j] + ((1 / 6) * (k1 + (2 * k2) + (2 * k3) + k4) * dt)
     return F
 
-def path(P, steps, title = r"", variable = r"", h = 0.003, plot = False):
+def path(P, steps, h = 0.003):
     """
         This function solves numerically the n - th grade equation X(t) = SUM(Ai * (t ** i))
         P: np.array (two - dimensional)
@@ -57,17 +56,4 @@ def path(P, steps, title = r"", variable = r"", h = 0.003, plot = False):
             M[column, :] = np.array(pose(t[column], 6))
             B[column, :] = P[row, column]
         Z.append(equation(A = np.linalg.pinv(M).dot(B), t = np.linspace(t[0], t[-1], int(t[-1] / h)), n = 6))
-    
-    Z = np.array(Z)
-    
-    if plot:
-        for function in range(Z.shape[0]):
-            plt.plot(Z[function, :], label = variable + str(function + 1) + r"$")
-            plt.scatter(x = t / h, y = P[function, :], c = "red")
-        plt.title(title)
-        plt.xlabel(r"Time [miliseconds]")
-        plt.ylabel(r"Amplitude")
-        plt.legend(loc = "best")
-        plt.grid()
-        plt.show()
-    return Z
+    return np.array(Z)
