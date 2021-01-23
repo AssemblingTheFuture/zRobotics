@@ -208,21 +208,21 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
   -  Using *Homogeneous Transformation Matrices*
     ```python
-        # Returns robot's path to be followed in Dual Quaternion form
-        Xhtm = dy.path(P = poseHTM, steps = time, plot = True)
+        # Returns joints' path to be followed by means of Inverse Kinematics using Homogeneous Transformation Matrices
+        qHTM = dy.path(P = jointsHTM, steps = time, title = r"Path Planning for Joints' Positions (HTM)", variable = r'$\theta_', plot = True)
     ```
     
     ![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
 
   - Using *Dual Quaternions*
     ```python
-        # Returns robot's path to be followed in Dual Quaternion form
-        Xdq = dy.path(P = poseDQ, steps = time, plot = True)
+        # Returns joints' path to be followed by means of Inverse Kinematics using Dual Quaternions
+        qDQ = dy.path(P = jointsDQ, steps = time, title = r"Path Planning for Joints' Positions (DQ)", variable = r'$\theta_', plot = True)
     ```
     
     ![Trajectory Planning for Joints using Dual Quaternions](images/pathDQ.png "Trajectory Planning for Joints using Dual Quaternions")
 
-    Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{p \times (4 \times 4)}"> or <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{H}^{p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
+    Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{n \times p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
 
 <Enter>
 
