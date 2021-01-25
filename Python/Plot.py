@@ -241,7 +241,9 @@ def animation(robot, q, plotBodies = True, plotFrames = False, plotCOMs = False,
       
     # Plot or animate robot
     ani = FuncAnimation(fig, system, frames = q.T, interval = delayPerFrame, repeat = repeatAnimation)
+    
     if GUI:
+      system(q = q.T)
       return fig
     else:
       plt.show()
