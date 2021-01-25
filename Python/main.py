@@ -124,7 +124,8 @@ if __name__ == '__main__':
                mp.Process(target = plot.animation, args = (uRobot, qDQ)),
                mp.Process(target = plot.path, args = (qHTM, jointsHTM, time, r"Path Planning for Joints' Positions (HTM)", r'$\theta_')),
                mp.Process(target = plot.path, args = (qDQ, jointsDQ, time, r"Path Planning for Joints' Positions (DQ)", r'$\theta_')),
-               mp.Process(target = plot.path3D, args = (uRobot, qHTM, 5))]
+               mp.Process(target = plot.path3D, args = (uRobot, qHTM, 5)),
+               mp.Process(target = plot.path3D, args = (uRobot, qDQ, 5))]
   
   for process in processes:
     process.start()
