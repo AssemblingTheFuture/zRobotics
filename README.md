@@ -175,6 +175,12 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         framesHTM, fkHTM = k.forwardHTM(uRobot, m = 5)
     ```
 
+  - Using *Homogeneous Transformation Matrices* (**symbolic**)
+    ```python
+        # Returns robot's forward kinematics for each individual frame (framesHTM) and for end - effector (fkHTM)
+        symbolicFramesHTM, symbolicfkHTM = k.forwardHTM(uRobot, m = 5, symbolic = True)
+    ```  
+
   - Using *Dual Quaternions*
     ```python
         # Returns robot's forward kinematics for each individual frame (framesDQ) and for end - effector (fkDQ)
