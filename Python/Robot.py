@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import Movements as mv
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
+from sympy import *
 
 class System:
   def __init__(self, jointsPositions, linksLengths, centersOfMass, dhParameters = [], dhParametersCOM = [], xi = [], xid = [], name = ''):
@@ -30,3 +31,10 @@ class System:
     # Denavit - Hartenberg Parameters
     self.dhParameters = dhParameters
     self.dhParametersCOM = dhParametersCOM
+    
+    # Symbolic parameters
+    self.symbolicJointsPositions = np.array([[Symbol(f"q{i + 1}"),] for i in range(jointsPositions.shape[0])])
+    self.symbolicLinksLengths = [Symbol(f"l{i + 1}") for i in range(len(linksLengths))]
+    self.symbolicCentersOfMass = [Symbol(f"lcom{i + 1}") for i in range(len(linksLengths))]
+    
+    

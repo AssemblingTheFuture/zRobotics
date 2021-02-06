@@ -4,12 +4,13 @@ import Dynamics as dy
 import Movements as mv
 import multiprocessing
 import numpy as np
+from sympy import *
 
 """
   Kinematics Section
 """
 
-def forwardHTM(robot, m = 0):
+def forwardHTM(robot, m = 0, symbolic = False):
     """
       Using Homogeneous Transformation Matrices, this function computes forward kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
       robot: object (robot.jointsPositions, robot.linksLengths)
@@ -26,13 +27,13 @@ def forwardHTM(robot, m = 0):
       DH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions]))
     
     # Computes forward kinematics, from inertial frame to m - th one
-    fkHTM = np.identity(4)
+    fkHTM = np.identity(4) if not symbolic else eye(4)
     i = 0
-    for frame in DH:
+    for frame in DH if not symbolic else dh.symbolicMatrix(robot):
       if i > m:
         break
       else:
-        fkHTM = fkHTM.dot(mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3])))
+        fkHTM = fkHTM.dot(mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3]))) if not symbolic else simplify(nsimplify(fkHTM * mv.symbolicRz(frame[0]) * mv.symbolicTz(frame[1]) * mv.symbolicTx(frame[2]) * mv.symbolicRx(frame[3]), tolerance = 1e-10, rational = True))
         framesHTM.append(fkHTM)
         i += 1
     return framesHTM, fkHTM

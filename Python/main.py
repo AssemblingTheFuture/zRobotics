@@ -25,6 +25,7 @@ if __name__ == '__main__':
     3. Gets robots' Denavit - Hartenberg parameters
   """
   DH = dh.matrix(uRobot)
+  symbolicDH = dh.symbolicMatrix(uRobot)
 
   """
     4. Computes robot's forward kinematics (using Homogeneous Transformation Matrices or Dual Quaternions)
@@ -33,7 +34,12 @@ if __name__ == '__main__':
   framesDQ, fkDQ = k.forwardDQ(uRobot, m = 5)
   
   """
-    4.1 Computes robot's forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
+    4.1 Computes robot's symbolic forward kinematics (using Homogeneous Transformation Matrices or Dual Quaternions)
+  """
+  symbolicFramesHTM, symbolicfkHTM = k.forwardHTM(uRobot, m = 5, symbolic = True)
+  
+  """
+    4.2 Computes robot's forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
   framesCOMHTM, fkCOMHTM = k.forwardCOMHTM(uRobot, m = 5)
   framesCOMDQ, fkCOMDQ = k.forwardCOMDQ(uRobot, m = 5)
