@@ -124,6 +124,12 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         # Returns uRobot's Denavit - Hartenberg parameters as a matrix
         DH = dh.matrix(uRobot)
     ```
+
+    - *Function call* (**symbolic**)
+    ```python
+        # Returns uRobot's Denavit - Hartenberg parameters as a symbolic matrix
+        DH = dh.symbolicMatrix(uRobot)
+    ```
     Where <img src="https://render.githubusercontent.com/render/math?math=DH \in \mathbb{R}^{m \times 4}"> is the Denavit - Hartenberg matrix for the kinematic chain.
 
     <Enter>
@@ -161,6 +167,12 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         # Returns uRobot's Denavit - Hartenberg parameters of Center of Mass as a matrix
         comDH = dh.centersOfMass(uRobot)
     ```
+
+    - *Function call* (**symbolic**)
+    ```python
+        # Returns uRobot's Denavit - Hartenberg parameters of Center of Mass as a symbolic matrix
+        comDH = dh.symbolicCentersOfMass(uRobot)
+    ```
     Where <img src="https://render.githubusercontent.com/render/math?math=DH_{com} \in \mathbb{R}^{m \times 4}"> is the Denavit - Hartenberg matrix for the kinematic chain.
 
 <Enter>
@@ -177,7 +189,7 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
   - Using *Homogeneous Transformation Matrices* (**symbolic**)
     ```python
-        # Returns robot's forward kinematics for each individual frame (framesHTM) and for end - effector (fkHTM)
+        # Returns robot's symbolic forward kinematics for each individual frame (framesHTM) and for end - effector (fkHTM)
         symbolicFramesHTM, symbolicfkHTM = k.forwardHTM(uRobot, m = 5, symbolic = True)
     ```  
 
@@ -198,6 +210,13 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
         # Returns robot's forward kinematics for each individual Center of Mass (framesCOMHTM) and for end - effector's one (fkCOMHTM)
         framesCOMHTM, fkCOMHTM = k.forwardCOMHTM(uRobot, m = 5)
     ```
+
+  - Using *Homogeneous Transformation Matrices* (**symbolic**)
+    ```python
+        # Returns robot's symbolic forward kinematics for each individual Center of Mass (symbolicFramesCOMHTM) and for end - effector's one (symbolicfkCOMHTM)
+        symbolicFramesCOMHTM, symbolicfkCOMHTM = k.forwardCOMHTM(uRobot, m = 5, symbolic = True)
+    ```
+
   - Using *Dual Quaternions*
     ```python
         # Returns robot's forward kinematics for each individual Center of Mass (framesCOMDQ) and for end - effector's one (fkCOMDQ)
