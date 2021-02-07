@@ -120,3 +120,15 @@ def axisAngle(H):
                                           [H[1 ,0] - H[0, 1]]])
   x = np.append(H[0 : 3, 3], theta * n)
   return x.reshape((6, 1))
+
+def symbolicAxisAngle(H):
+  """
+    This function computes the axis - angle vector «X» using the Homogeneous Transformation Matrix of a reference frame
+    H: np.array (two - dimensional)
+  """
+  theta = simplify(acos((H[0 : 3, 0 : 3].trace() - 1) / 2))
+  n = (1 / (2 * sin(theta))) * Matrix([[H[2, 1] - H[1, 2]],
+                                       [H[0, 2] - H[2, 0]],
+                                       [H[1 ,0] - H[0, 1]]])
+  X = H[0 : 3, 3].row_insert(3, simplify(theta * n))
+  return X

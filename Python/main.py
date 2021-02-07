@@ -7,6 +7,7 @@ import numpy as np
 import Plot as plot
 import random
 import Robot
+from sympy import *
 
 if __name__ == '__main__':
   """
@@ -45,9 +46,15 @@ if __name__ == '__main__':
   framesCOMDQ, fkCOMDQ = k.forwardCOMDQ(uRobot, m = 5)
 
   """
+    4.3 Computes robot's symbolic forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
+  """
+  symbolicFramesCOMHTM, symbolicfkCOMHTM = k.forwardCOMHTM(uRobot, m = 5, symbolic = True)
+
+  """
     5. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary; this is OPTIONAL)
   """ 
   X = mv.axisAngle(fkHTM)
+  symbolicX = mv.symbolicAxisAngle(symbolicfkHTM)
 
   """
     6. Compute Inverse Kinematics

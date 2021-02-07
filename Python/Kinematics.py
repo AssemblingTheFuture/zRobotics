@@ -38,16 +38,16 @@ def forwardHTM(robot, m = 0, symbolic = False):
         i += 1
     return framesHTM, fkHTM
 
-def forwardCOMHTM(robot, m = 0):
+def forwardCOMHTM(robot, m = 0, symbolic = False):
   """
     Using Homogeneous Transformation Matrices, this function computes forward kinematics to m - th center of mass, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
     robot: object (robot.jointsPositions, robot.linksLengths)
     m: int
   """
-  framesHTM, fkHTM = forwardHTM(robot, m = m)
+  framesHTM, fkHTM = forwardHTM(robot, m = m) if not symbolic else forwardHTM(robot, m = m, symbolic = symbolic)
     
   # Initial conditions
-  framesCOMHTM = [np.identity(4)]
+  framesCOMHTM = [np.identity(4) if not symbolic else eye(4)]
     
   # Gets Denavit - Hartenberg Matrix
   if not robot.dhParametersCOM:
@@ -56,18 +56,28 @@ def forwardCOMHTM(robot, m = 0):
     comDH = np.array(robot.dhParametersCOM([float(q) for q in robot.jointsPositions]))
   
   i = 1
-  for frame in comDH[1 : , :]:
+  for frame in comDH[1 : , :] if not symbolic else dh.symbolicCentersOfMass(robot)[1 : , :]:
     if i > m:
       break
     else:
-      # Center of Mass Homogeneous Transformation Matrix
-      COM = mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3]))
-      
-      # Rigid body's Homogeneous Transformation Matrix
-      B = np.linalg.pinv(framesHTM[i - 1]).dot(framesHTM[i])
-      
-      # Forward kinematics to Center of Mass
-      fkCOMHTM = framesHTM[i].dot(np.linalg.inv(B)).dot(COM)
+      if not symbolic:
+        # Center of Mass Homogeneous Transformation Matrix
+        COM = mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3]))
+        
+        # Rigid body's Homogeneous Transformation Matrix
+        B = np.linalg.pinv(framesHTM[i - 1]).dot(framesHTM[i])
+        
+        # Forward kinematics to Center of Mass
+        fkCOMHTM = framesHTM[i].dot(np.linalg.inv(B)).dot(COM)
+      else:
+        # Center of Mass Homogeneous Transformation Matrix (symbolic)
+        COM = mv.symbolicRz(frame[0]) * mv.symbolicTz(frame[1]) * mv.symbolicTx(frame[2]) * mv.symbolicRx(frame[3])
+        
+        # Rigid body's Homogeneous Transformation Matrix (symbolic)
+        B = framesHTM[i - 1].inv() * framesHTM[i]
+        
+        # Forward kinematics to Center of Mass (symbolic)
+        fkCOMHTM = simplify(nsimplify(framesHTM[i] * B.inv() * COM, tolerance = 1e-10, rational = True))
       framesCOMHTM.append(fkCOMHTM)
       i += 1
   return framesCOMHTM, fkCOMHTM
