@@ -30,7 +30,7 @@ A powerful library for robotics analysis :robot:
 
 ![uRobot](images/uRobot.jpg "uRobot 0.1")
 
-[Return to top](#zrobotics-0-1)
+[Return to top](#zrobotics-01)
 
 ---
 
