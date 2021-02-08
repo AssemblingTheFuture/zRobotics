@@ -189,7 +189,7 @@ def leftOperator(Q):
 def symbolicLeftOperator(Q):
     """
         Left operator for Dual Quaternions multiplication
-        Q: np.array (two - dimensional)
+        Q: Symbolic Matrix (two - dimensional)
     """
     
     # 1. Separates real and dual part of Dual Quaternion
@@ -247,7 +247,7 @@ def rightOperator(Q):
 def symbolicRightOperator(Q):
     """
         Left operator for Dual Quaternions multiplication
-        Q: np.array (two - dimensional)
+        Q: Symbolic Matrix (two - dimensional)
     """
     
     # 1. Separates real and dual part of Dual Quaternion
@@ -285,7 +285,7 @@ def crossOperator(q):
 def symbolicCrossOperator(q):
     """
         Cross operator for quaternions' real part multiplication
-        q: np.array (two - dimensional)
+        q: Symbolic Matrix (two - dimensional)
     """
     return Matrix([[0, -q[3], +q[2]],
                    [+q[3], 0, -q[1]],
@@ -305,7 +305,7 @@ def dualCrossOperator(Q):
 def symbolicDualCrossOperator(Q):
     """
         Cross operator for Dual Quaternions multiplication
-        Q: np.array (two - dimensional)
+        Q: Symbolic Matrix (two - dimensional)
     """
     Qr = symbolicCrossOperatorExtension(Q[0 : 4])
     Qd = symbolicCrossOperatorExtension(Q[4 : 8])
@@ -326,7 +326,7 @@ def crossOperatorExtension(q):
 def symbolicCrossOperatorExtension(q):
     """
         Cross operator extension for quaternions' multiplication
-        q: np.array (two - dimensional)
+        q: Symbolic Matrix (two - dimensional)
     """
     return Matrix([[0, 0, 0, 0],
                    [0, 0, -q[3], +q[2]],
@@ -350,7 +350,7 @@ def conjugate(Q):
 def symbolicConjugate(Q):
     """
         Conjugate operator for Dual Quaternions
-        Q: np.array (two - dimensional)
+        Q: Symbolic Matrix (two - dimensional)
     """
     return Matrix([[+ Q[0, 0]],
                    [- Q[1, 0]],
@@ -364,7 +364,7 @@ def symbolicConjugate(Q):
 def toR3(Q):
     """
         Transformation from Dual Quaternion to Euclidian Space Coordinates
-        Q: np.array (two - dimensional)
+        Q: Symbolic Matrix (two - dimensional)
     """
     z = np.array([[0, 0, 0, 0, 0, 0, 0, 0],
                   [0, 0, 0, 0, 0, 0, 0, 0],
@@ -377,3 +377,21 @@ def toR3(Q):
     qr = np.append(Q[0 : 4, 0].reshape((4, 1)), np.zeros((4, 1)), axis = 0)
     r = z.dot(leftOperator(Q)).dot(conjugate(qr))
     return r[4 : 8, 0]
+
+def symbolicToR3(Q):
+    """
+        Transformation from Dual Quaternion to Euclidian Space Coordinates
+        Q: Symbolic Matrix (two - dimensional)
+    """
+    z = Matrix([[0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 2, 0, 0, 0],
+                [0, 0, 0, 0, 0, 2, 0, 0],
+                [0, 0, 0, 0, 0, 0, 2, 0],
+                [0, 0, 0, 0, 0, 0, 0, rsa
+                 2]])
+    qr = Q[0 : 4, 0].row_insert(4, zeros(4, 1))
+    r = z * symbolicLeftOperator(Q) * symbolicConjugate(qr)
+    return simplify(r[4 : 8, 0])

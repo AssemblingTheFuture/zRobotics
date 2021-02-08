@@ -38,6 +38,7 @@ if __name__ == '__main__':
     4.1 Computes robot's symbolic forward kinematics (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
   symbolicFramesHTM, symbolicfkHTM = k.forwardHTM(uRobot, m = 5, symbolic = True)
+  symbolicFramesDQ, symbolicfkDQ = k.forwardDQ(uRobot, m = 5, symbolic = True)
   
   """
     4.2 Computes robot's forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
@@ -49,6 +50,7 @@ if __name__ == '__main__':
     4.3 Computes robot's symbolic forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
   symbolicFramesCOMHTM, symbolicfkCOMHTM = k.forwardCOMHTM(uRobot, m = 5, symbolic = True)
+  symbolicFramesCOMDQ, symbolicfkCOMDQ = k.forwardCOMDQ(uRobot, m = 5, symbolic = True)
 
   """
     5. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary; this is OPTIONAL)

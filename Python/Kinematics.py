@@ -33,7 +33,10 @@ def forwardHTM(robot, m = 0, symbolic = False):
       if i > m:
         break
       else:
-        fkHTM = fkHTM.dot(mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3]))) if not symbolic else simplify(nsimplify(fkHTM * mv.symbolicRz(frame[0]) * mv.symbolicTz(frame[1]) * mv.symbolicTx(frame[2]) * mv.symbolicRx(frame[3]), tolerance = 1e-10, rational = True))
+        if not symbolic:
+          fkHTM = fkHTM.dot(mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3])))
+        else:
+          fkHTM = nsimplify(simplify(fkHTM * mv.symbolicRz(frame[0]) * mv.symbolicTz(frame[1]) * mv.symbolicTx(frame[2]) * mv.symbolicRx(frame[3])), tolerance = 1e-10, rational = False)
         framesHTM.append(fkHTM)
         i += 1
     return framesHTM, fkHTM
@@ -77,12 +80,12 @@ def forwardCOMHTM(robot, m = 0, symbolic = False):
         B = framesHTM[i - 1].inv() * framesHTM[i]
         
         # Forward kinematics to Center of Mass (symbolic)
-        fkCOMHTM = simplify(nsimplify(framesHTM[i] * B.inv() * COM, tolerance = 1e-10, rational = True))
+        fkCOMHTM = nsimplify(simplify(framesHTM[i] * B.inv() * COM), tolerance = 1e-10, rational = False)
       framesCOMHTM.append(fkCOMHTM)
       i += 1
   return framesCOMHTM, fkCOMHTM
 
-def forwardDQ(robot, m = 0):
+def forwardDQ(robot, m = 0, symbolic = False):
     """
       Using Dual Quaternions, this function computes forward kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
       robot: object (robot.jointsPositions, robot.linksLengths)
@@ -99,27 +102,30 @@ def forwardDQ(robot, m = 0):
       DH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions]))
     
     # Computes forward kinematics, from inertial frame to m - th one
-    fkDQ = np.array([[1, 0, 0, 0, 0, 0, 0, 0]]).T
+    fkDQ = np.array([[1, 0, 0, 0, 0, 0, 0, 0]]).T if not symbolic else Matrix([1, 0, 0, 0, 0, 0, 0, 0])
     i = 0
-    for frame in DH:
+    for frame in DH if not symbolic else dh.symbolicMatrix(robot):
       if i > m:
         break
       else:
-        fkDQ = dq.leftOperator(fkDQ).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.leftOperator(dq.Rz(frame[0]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
+        if not symbolic:
+          fkDQ = dq.leftOperator(fkDQ).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.leftOperator(dq.Rz(frame[0]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
+        else:
+          fkDQ = nsimplify(simplify(dq.symbolicLeftOperator(fkDQ) * dq.symbolicRightOperator(dq.symbolicRx(frame[3])) * dq.symbolicLeftOperator(dq.symbolicRz(frame[0])) * dq.symbolicRightOperator(dq.symbolicTx(frame[2])) * dq.symbolicTz(frame[1])), tolerance = 1e-10, rational = False)
         framesDQ.append(fkDQ)
         i += 1
     return framesDQ, fkDQ
 
-def forwardCOMDQ(robot, m = 0):
+def forwardCOMDQ(robot, m = 0, symbolic = False):
   """
     Using Dual Quaternions, this function computes forward kinematics to m - th center of mass, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
     robot: object (robot.jointsPositions, robot.linksLengths)
     m: int
   """
-  framesDQ, fkDQ = forwardDQ(robot, m = m)
+  framesDQ, fkDQ = forwardDQ(robot, m = m, symbolic = symbolic)
     
   # Initial conditions
-  framesCOMDQ = [np.array([[1], [0], [0], [0], [0], [0], [0], [0]])]
+  framesCOMDQ = [np.array([[1], [0], [0], [0], [0], [0], [0], [0]]) if not symbolic else Matrix([1, 0, 0, 0, 0, 0, 0, 0])]
     
   # Gets Denavit - Hartenberg Matrix
   if not robot.dhParametersCOM:
@@ -128,18 +134,29 @@ def forwardCOMDQ(robot, m = 0):
     comDH = np.array(robot.dhParametersCOM([float(q) for q in robot.jointsPositions]))
   
   i = 1
-  for frame in comDH[1 : , :]:
+  for frame in comDH[1 : , :] if not symbolic else dh.symbolicCentersOfMass(robot)[1 : , :]:
     if i > m:
       break
     else:
-      # Center of Mass Homogeneous Transformation Matrix
-      COM = dq.leftOperator(dq.Rz(frame[0])).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
-      
-      # Rigid body's Dual Quaternion
-      B = dq.leftOperator(dq.conjugate(framesDQ[i - 1])).dot(framesDQ[i])
-      
-      # Forward kinematics to Center of Mass
-      fkCOMDQ = dq.leftOperator(framesDQ[i]).dot(dq.rightOperator(COM)).dot(dq.conjugate(B))
+      if not symbolic:
+        # Center of Mass Homogeneous Transformation Matrix
+        COM = dq.leftOperator(dq.Rz(frame[0])).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
+        
+        # Rigid body's Dual Quaternion
+        B = dq.leftOperator(dq.conjugate(framesDQ[i - 1])).dot(framesDQ[i])
+        
+        # Forward kinematics to Center of Mass
+        fkCOMDQ = dq.leftOperator(framesDQ[i]).dot(dq.rightOperator(COM)).dot(dq.conjugate(B))
+      else:
+        # Center of Mass Homogeneous Transformation Matrix
+        COM = dq.symbolicLeftOperator(dq.symbolicRz(frame[0])) * dq.symbolicRightOperator(dq.symbolicRx(frame[3])) * dq.symbolicRightOperator(dq.symbolicTx(frame[2])) * dq.symbolicTz(frame[1])
+        
+        # Rigid body's Dual Quaternion
+        B = dq.symbolicLeftOperator(dq.symbolicConjugate(framesDQ[i - 1])) * framesDQ[i]
+        
+        # Forward kinematics to Center of Mass
+        fkCOMDQ = nsimplify(simplify(dq.symbolicLeftOperator(framesDQ[i]) * dq.symbolicRightOperator(COM) * dq.symbolicConjugate(B)), tolerance = 1e-10, rational = False)
+        
       framesCOMDQ.append(fkCOMDQ)
       i += 1
   return framesCOMDQ, fkCOMDQ
