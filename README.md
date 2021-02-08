@@ -9,7 +9,7 @@ A powerful library for robotics analysis :robot:
       - [Python](#python)
         - [Geometric Properties](#geometric-properties)
         - [Robot Creation](#robot-creation)
-        - [Denavit - Hartenberg Parameters](#denavit-_-hartenberg-parameters)
+        - [Denavit - Hartenberg Parameters](#denavit-hartenberg-parameters)
         - [Forward Kinematics](#forward-kinematics)
         - [Forward Kinematics to Center of Mass](#forward-kinematics-to-center-of-mass)
         - [Trajectory Planning](#trajectory-planning)
