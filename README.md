@@ -13,7 +13,7 @@ A powerful library for robotics analysis :robot:
         - [Forward Kinematics](#forward-kinematics)
         - [Forward Kinematics to Center of Mass](#forward-kinematics-to-center-of-mass)
         - [Trajectory Planning](#trajectory-planning)
-        - [Inverse Kinematics](#inverse-kinematics)
+        - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
         - [Differential Kinematics](#differential-kinematics)
         - [Inverse Differential Kinematics](#inverse-differential-kinematics)
         - [Robot Animation](#robot-animation)
