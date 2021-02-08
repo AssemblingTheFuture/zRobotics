@@ -20,7 +20,7 @@ A powerful library for robotics analysis :robot:
         - [Inverse Differential Kinematics](#inverse-differential-kinematics)
         - [Robot Animation](#robot-animation)
         - [Plot system's functions](#plot-systems-functions)
-      - [MATLAB (Deprecated)](#matlab)
+      - [MATLAB (Deprecated)](#matlab-deprecated)
 
 ---
 
