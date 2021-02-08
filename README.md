@@ -8,6 +8,9 @@ A powerful library for robotics analysis :robot:
     - [Library Content](#library-content)
       - [Python](#python)
         - [Geometric Properties](#geometric-properties)
+        - [Robot Creation](#robot-creation)
+        - [Denavit - Hartenberg Parameters](#denavit-_-hartenberg-parameters)
+        - [Forward Kinematics](#forward-kinematics)
       - [MATLAB](#matlab)
 
 ### Introduction
@@ -67,7 +70,7 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
 <Enter>
 
-- **[Robot Creation](/Python/Robot.py)**
+- ##### [Robot Creation](/Python/Robot.py)
 
     ```python
         # Returns uRobot's as an object
@@ -88,7 +91,7 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
 ---
 
-- **Denavit - Hartenberg Parameters**
+- ##### **Denavit - Hartenberg Parameters**
 
     - ***Robot's configuration***: first of all, it is mandatory to modify [Denavit - Hartenberg Parameters' file](/Python/DenavitHartenberg.py) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
 
@@ -180,7 +183,7 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
 ---
 
-- **[Forward Kinematics](/Python/Kinematics.py)**
+- ##### [Forward Kinematics](/Python/Kinematics.py)
 
   - Using *Homogeneous Transformation Matrices*
     ```python
