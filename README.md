@@ -456,7 +456,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-- ##### [Plot system's function](/Python/Plot.py)
+- ##### [Plot system's functions](/Python/Plot.py)
 
     ```python
         # Plot any robot's behavior, such as joints' positions, dynamics, control functions, etc.
