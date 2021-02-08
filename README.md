@@ -11,7 +11,13 @@ A powerful library for robotics analysis :robot:
         - [Robot Creation](#robot-creation)
         - [Denavit - Hartenberg Parameters](#denavit-_-hartenberg-parameters)
         - [Forward Kinematics](#forward-kinematics)
-      - [MATLAB](#matlab)
+        - [Forward Kinematics to Center of Mass](#forward-kinematics-to-center-of-mass)
+        - [Trajectory Planning](#trajectory-planning)
+        - [Inverse Kinematics](#inverse-kinematics)
+        - [Differential Kinematics](#differential-kinematics)
+        - [Inverse Differential Kinematics](#inverse-differential-kinematics)
+        - [Robot Animation](#robot-animation)
+      - [MATLAB (Deprecated)](#matlab)
 
 ### Introduction
 
@@ -213,7 +219,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
 <Enter>
 
-- **[Forward Kinematics to Center of Mass](/Python/Kinematics.py)**
+- ##### [Forward Kinematics to Center of Mass](/Python/Kinematics.py)
 
   - Using *Homogeneous Transformation Matrices*
     ```python
@@ -247,7 +253,7 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 
 <Enter>
 
-- **[Trajectory Planning](/Python/Dynamics.py)**
+- ##### [Trajectory Planning](/Python/Dynamics.py)
 
     If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time (all in task space), it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=q\left(t\right) = \sum_{i = 0}^{p} A_it^{i}"> and the inverse kinematics to each individual point. Hence, <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{n \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each joint position and the to get the desired end - effector's pose
 
@@ -289,7 +295,8 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 
 ---
 
-- **[Inverse Kinematics (*Error Feedback*)](/Python/Kinematics.py)**
+- ##### [Inverse Kinematics (*Error Feedback*)](/Python/Kinematics.py)
+  
   - Using *Homogeneous Transformation Matrices*
     ```python
         # Returns robot's inverse kinematics using HTM
@@ -306,13 +313,11 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 
 **IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached
 
-
-
 <Enter>
 
 ---
 
-- **[Differential Kinematics](/Python/Kinematics.py)**
+- ##### [Differential Kinematics](/Python/Kinematics.py)
 
   - Instantaneous velocity to end - effector <img src="https://render.githubusercontent.com/render/math?math=\dot{x}_{m/0}^{0} \in \mathbb{R}^{6 \times 1}"> using *Homogeneous Transformation Matrices*
     ```python
@@ -356,7 +361,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-- **[Inverse Differential Kinematics](/Python/Kinematics.py)**
+- ##### [Inverse Differential Kinematics](/Python/Kinematics.py)
 
   - Instantaneous joints' velocities <img src="https://render.githubusercontent.com/render/math?math=\dot{q} \in \mathbb{R}^{n \times 1}"> using *Homogeneous Transformation Matrices*
     ```python
@@ -380,7 +385,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-- **[Robot Animation](/Python/Plot.py)**
+- ##### [Robot Animation](/Python/Plot.py)
 
     ```python
         # Plot robot with new joints' positions (this also modifies them in the object)
@@ -418,7 +423,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-#### [MATLAB](/MATLAB)
+#### [MATLAB (DEPRECATED)](/MATLAB)
 
   - **[Denavit - Hartenberg Parameters](/MATLAB/denavitHartenberg.m)**
 
