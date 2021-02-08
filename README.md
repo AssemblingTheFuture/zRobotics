@@ -30,7 +30,7 @@ A powerful library for robotics analysis :robot:
 
 ![uRobot](images/uRobot.jpg "uRobot 0.1")
 
-[Return to top](#zrobotics-01)
+[*Return to top*](#zrobotics-01)
 
 ---
 
@@ -41,6 +41,8 @@ You can control how the robot behaves; also, you'll be able to see its end - eff
 ![uRobot](images/uRobot-animation.gif "uRobot 0.1")
 
 Feel free to modify, adjust and extend our work to your necessities :smiley:; these libraries allows you to get a first approach to robot analysis, synthesis and control, however, we will be adding new interesting features, also, **you can request new features or create new ones!**
+
+[*Return to top*](#zrobotics-01)
 
 ---
 
@@ -71,6 +73,8 @@ This library includes the following algorithms:
 
 Please take a look at [main.py](/Python/main.py) to know more about this implementation. **Feel free to  [contact us](mailto:contact@zdynamics.org) if you have any comment, suggestion or question** :smile:
 
+[*Return to top*](#zrobotics-01)
+
 <Enter>
 
 ---
@@ -84,6 +88,8 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
     ```
 
 Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are set in radians. Also, <img src="https://render.githubusercontent.com/render/math?math=L \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -105,6 +111,8 @@ Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mat
         uRobot.centersOfMass    # list
         uRobot.name             # string
     ```
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -198,6 +206,8 @@ Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mat
     ```
     Where <img src="https://render.githubusercontent.com/render/math?math=DH_{com} \in \mathbb{R}^{m \times 4}"> is the Denavit - Hartenberg matrix for the kinematic chain.
 
+[*Return to top*](#zrobotics-01)
+
 <Enter>
 
 ---
@@ -229,6 +239,8 @@ Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mat
     ```
 
 Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=fk_{DQ} \in \mathbb{H}"> represent the robot's forward kinematics using Homogeneous Transformation Matrices and Dual Quaternions respectively. On the other hand, <img src="https://render.githubusercontent.com/render/math?math=frames_{HTM} \in \mathbb{R}^{m \times (4 \times 4)}"> and <img src="https://render.githubusercontent.com/render/math?math=frames_{DQ} \in \mathbb{R}^{m \times (8 \times 1)}"> are lists that store the pose representation for each reference frame
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -265,6 +277,8 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 <Enter>
 
 **IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of motion of your system :wink:
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -310,6 +324,8 @@ Where arguments <img src="https://render.githubusercontent.com/render/math?math=
 
     ![Task Space Orientation in «Z»](images/zOrientation.png "Task Space Orientation in «Z»")
 
+[*Return to top*](#zrobotics-01)
+
 <Enter>
 
 ---
@@ -333,6 +349,8 @@ For previous cases, <img src="https://render.githubusercontent.com/render/math?m
 <Enter>
 
 **IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -384,6 +402,8 @@ For previous cases, <img src="https://render.githubusercontent.com/render/math?m
 
 In this case <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{y/x}^{z}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{y/x}^{z}"> represent the frame's velocity and acceleration in dual form, this is <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{y/x}^{z} = \begin{bmatrix} \omega_{y/x}^{z} \ \ v_{y/x}^{z}\end{bmatrix}^{T}"> and <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{y/x}^{z} = \begin{bmatrix} \dot{\omega}_{y/x}^{z} \ \ \dot{v}_{y/x}^{z}\end{bmatrix}^{T}">
 
+[*Return to top*](#zrobotics-01)
+
 <Enter>
 
 ---
@@ -411,6 +431,8 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
         qddDQ = k.jointsAccelerationsDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, Adq = Adq, xi = xi, xid = xid)
     ```
 
+[*Return to top*](#zrobotics-01)
+
 <Enter>
 
 ---
@@ -428,6 +450,8 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 **IMPORTANT NOTE:** Nowadays, Python animation is not optimized for multibody's one, so this will be quite slow if you want to see all the reference frames, rigid bodies and Centers of Mass. We encourage you to use the options ```plotBodies```, ```plotFrames``` and ```plotCOMs``` based on what you need to see only :wink:
 
+[*Return to top*](#zrobotics-01)
+
 <Enter>
 
 ---
@@ -444,11 +468,15 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ![Joints' positions using DQ](images/qDQ.png "Joints' positions using DQ")
 
+[*Return to top*](#zrobotics-01)
+
 <Enter>
 
 ---
 
   - Under construction... :nerd_face:
+  
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -463,6 +491,8 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
         DH = denavitHartenberg(q, L);
     ```
     Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are the generalized coordinates (set in radians) of the system. Also, <img src="https://render.githubusercontent.com/render/math?math=L \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -480,22 +510,29 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
         % Returns robot's forward kinematics based on «DH» matrix
         DQ = forwardKinematicsDQ(DH, m);
     ```
+[*Return to top*](#zrobotics-01)    
+
 <Enter>
 
 ---
 
   - **Inverse Kinematics (*Error Feedback*)**
     - [using *Homogeneous Transformation Matrices*](/MATLAB/inverseKinematics.m)
+    
     ```matlab
         % Returns robot's inverse kinematics using HTM
         qi = inverseKinematics(q0, L, Hd, K, m);
     ```
     - [using *Dual Quaternions*](/MATLAB/inverseKinematicsDQ.m)
+    
     ```matlab
         % Returns robot's inverse kinematics using Dual Quaternions
         qi = inverseKinematicsDQ(q0, L, Qd, KQ, m);
     ```
-    For previous cases, <img src="https://render.githubusercontent.com/render/math?math=m \in \mathbb{R}, m \geq 1"> represents the number of reference frames of the system (including inertial one). Moreover, <img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{H}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
+
+For previous cases, <img src="https://render.githubusercontent.com/render/math?math=m \in \mathbb{R}, m \geq 1"> represents the number of reference frames of the system (including inertial one). Moreover, <img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{H}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -503,52 +540,63 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
   - **Differential Kinematics**
     - [End - effector Velocity](/MATLAB/endEffectorVelocityDQ.m)
+    
     ```matlab
         % Returns instantaneous end - effector (angular and linear) velocity  in dual form
         W = endEffectorVelocityDQ(q, qd, DH, m);
     ```
 
     - [End - effector Acceleration](/MATLAB/endEffectorAccelerationDQ.m)
+    
     ```matlab
         % Returns instantaneous end - effector (angular and linear) acceleration in dual form
         Wd = endEffectorAccelerationDQ(q, qd, qdd, DH, m);
     ```
 
     - [Joints' Velocities](/MATLAB/jointsVelocitiesDQ.m)
+    
     ```matlab
         % Returns instantaneous joints' velocities «qd»
         qd = jointsVelocitiesDQ(q, W, DH, m);
     ```
 
     - [Joints' Accelerations](/MATLAB/jointsAccelerationsDQ.m)
+    
     ```matlab
         % Returns instantaneous joints' accelerations «qdd»
         qdd = jointsAccelerationsDQ(q, qd, Wd, DH, m);
     ```
-    Where <img src="https://render.githubusercontent.com/render/math?math=\dot{q}, \ddot{q} \in \mathbb{R}^{n \times 1}"> (``` qd, qdd ```) the instantaneous velocity and acceleration of generalized coordinates <img src="https://render.githubusercontent.com/render/math?math=q">. Also, <img src="https://render.githubusercontent.com/render/math?math=\hat{\omega}, \dot{\hat{\omega}} \in \mathbb{H}"> (``` W, Wd ```) are the instantaneous end - effector velocity and acceleration in dual form. **For the case of the joint's acceleration computation, do not forget to include the gravitational acceleration (in dual form) in order to get a more accurate result**
+
+Where <img src="https://render.githubusercontent.com/render/math?math=\dot{q}, \ddot{q} \in \mathbb{R}^{n \times 1}"> (``` qd, qdd ```) the instantaneous velocity and acceleration of generalized coordinates <img src="https://render.githubusercontent.com/render/math?math=q">. Also, <img src="https://render.githubusercontent.com/render/math?math=\hat{\omega}, \dot{\hat{\omega}} \in \mathbb{H}"> (``` W, Wd ```) are the instantaneous end - effector velocity and acceleration in dual form. **For the case of the joint's acceleration computation, do not forget to include the gravitational acceleration (in dual form) in order to get a more accurate result**
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
 ---
 
-  - **Dynamic System Solver and Simulation**
+  - **Dynamical System Solver and Simulation**
     - [Numerical Solver](/MATLAB/solver.m)
+    
     ```matlab
         % Returns ODE solution using fourth order Runge - Kuta algorithm
         F = solver(f, F, h);
     ```
 
     - [Simulator](/MATLAB/dynamicSystem.m)
+    
     ```matlab
         % Returns Dynamic System's simulation results
         [e, q, u, V] = dynamicSystem(q0, qd, K, t);
     ```
 
-    Where <img src="https://render.githubusercontent.com/render/math?math=f, F \in \mathbb{R}^{n \times r}"> represent the differential equation and its **previous solution** respectively; on the other hand, <img src="https://render.githubusercontent.com/render/math?math=h \in \mathbb{R}, h > 0"> is the step that solver needs to compute ODE solution, so the return argument <img src="https://render.githubusercontent.com/render/math?math=F"> will be the **current solution**
+Where <img src="https://render.githubusercontent.com/render/math?math=f, F \in \mathbb{R}^{n \times r}"> represent the differential equation and its **previous solution** respectively; on the other hand, <img src="https://render.githubusercontent.com/render/math?math=h \in \mathbb{R}, h > 0"> is the step that solver needs to compute ODE solution, so the return argument <img src="https://render.githubusercontent.com/render/math?math=F"> will be the **current solution**
     
-    Furthermore, <img src="https://render.githubusercontent.com/render/math?math=\mathrm{K} \in \mathbb{R}^{n \times n}"> is a positive definite constant matrix used by the control function <img src="https://render.githubusercontent.com/render/math?math=\mathrm{v}\left(t\right) = \mathrm{K} \mathrm{e}\left(t\right), \mathrm{v} \in \mathbb{R}^{n \times n}">, where <img src="https://render.githubusercontent.com/render/math?math=\mathrm{e} \in \mathbb{R}^{n \times 1}"> represents the error between the desired joints position <img src="https://render.githubusercontent.com/render/math?math=q_{d}"> and the current one <img src="https://render.githubusercontent.com/render/math?math=q">. This control function leads the joints to the desire position, meanwhile <img src="https://render.githubusercontent.com/render/math?math=\mathrm{u} \in \mathbb{R}^{n \times 1}"> deals with the uncertainty that can be generated by disturbances, measurement noise, etc.
+Furthermore, <img src="https://render.githubusercontent.com/render/math?math=\mathrm{K} \in \mathbb{R}^{n \times n}"> is a positive definite constant matrix used by the control function <img src="https://render.githubusercontent.com/render/math?math=\mathrm{v}\left(t\right) = \mathrm{K} \mathrm{e}\left(t\right), \mathrm{v} \in \mathbb{R}^{n \times n}">, where <img src="https://render.githubusercontent.com/render/math?math=\mathrm{e} \in \mathbb{R}^{n \times 1}"> represents the error between the desired joints position <img src="https://render.githubusercontent.com/render/math?math=q_{d}"> and the current one <img src="https://render.githubusercontent.com/render/math?math=q">. This control function leads the joints to the desire position, meanwhile <img src="https://render.githubusercontent.com/render/math?math=\mathrm{u} \in \mathbb{R}^{n \times 1}"> deals with the uncertainty that can be generated by disturbances, measurement noise, etc.
     
-    **If you want to know more about these control functions and how you can implement them in your projects, check out our course [Control of Dynamic Systems](https://www.udemy.com/course/control-de-sistemas-dinamicos/?referralCode=74300CF3F21F98714329)** :wink:
+**If you want to know more about these control functions and how you can implement them in your projects, check out our course [Control of Dynamic Systems](https://www.udemy.com/course/control-de-sistemas-dinamicos/?referralCode=74300CF3F21F98714329)** :wink:
+
+[*Return to top*](#zrobotics-01)
 
 <Enter>
 
@@ -597,7 +645,9 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
         uRobot.plot(q')
     ```
 
-    **IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached. In order to use ```uRobot.plot( )```, we have to transpose <img src="https://render.githubusercontent.com/render/math?math=q">, otherwise, we won't be able to see the robot's animation
+**IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached. In order to use ```uRobot.plot( )```, we have to transpose <img src="https://render.githubusercontent.com/render/math?math=q">, otherwise, we won't be able to see the robot's animation
+
+[*Return to top*](#zrobotics-01)
 
 ---
 
@@ -606,3 +656,6 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 <Enter>
     
 ![Z Dynamics](images/icon.png "The Future is ROBOTICS")
+
+
+[*Return to top*](#zrobotics-01)
