@@ -390,8 +390,7 @@ def symbolicToR3(Q):
                 [0, 0, 0, 0, 2, 0, 0, 0],
                 [0, 0, 0, 0, 0, 2, 0, 0],
                 [0, 0, 0, 0, 0, 0, 2, 0],
-                [0, 0, 0, 0, 0, 0, 0, rsa
-                 2]])
+                [0, 0, 0, 0, 0, 0, 0, 2]])
     qr = Q[0 : 4, 0].row_insert(4, zeros(4, 1))
     r = z * symbolicLeftOperator(Q) * symbolicConjugate(qr)
     return simplify(r[4 : 8, 0])
