@@ -7,6 +7,7 @@ A powerful library for robotics analysis :robot:
     - [Features](#features)
     - [Library Content](#library-content)
       - [Python](#python)
+        - [Geometric Properties](#geometric-properties)
       - [MATLAB](#matlab)
 
 ### Introduction
@@ -54,7 +55,7 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
 ---
 
-- **Geometric Properties**
+- ##### **Geometric Properties**
 
     ```python
         # Sets robot's generalized coordinates (two - dimensional array) and links' lengths (list)
@@ -199,6 +200,12 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         framesDQ, fkDQ = k.forwardDQ(uRobot, m = 5)
     ```
 
+  - Using *Dual Quaternions* (**symbolic**)
+    ```python
+        # Returns robot's symbolic forward kinematics for each individual frame (framesDQ) and for end - effector (fkDQ)
+        symbolicFramesDQ, symbolicfkDQ = k.forwardDQ(uRobot, m = 5, symbolic = True)
+    ```
+
 Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=fk_{DQ} \in \mathbb{H}"> represent the robot's forward kinematics using Homogeneous Transformation Matrices and Dual Quaternions respectively. On the other hand, <img src="https://render.githubusercontent.com/render/math?math=frames_{HTM} \in \mathbb{R}^{m \times (4 \times 4)}"> and <img src="https://render.githubusercontent.com/render/math?math=frames_{DQ} \in \mathbb{R}^{m \times (8 \times 1)}"> are lists that store the pose representation for each reference frame
 
 <Enter>
@@ -223,7 +230,17 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
         framesCOMDQ, fkCOMDQ = k.forwardCOMDQ(uRobot, m = 5)
     ```
 
-    In this case, <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} \in \mathbb{H}"> are defined as <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} = H_{i/0}^{0} (H_{i/i-1}^{i - 1})^{-1} H_{com_{i}/i-1}^{i - 1}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} = Q_{i/0}^{0} (Q_{i/i-1}^{i - 1})^{*} Q_{com_{i}/i-1}^{i - 1}"> respectively
+  - Using *Dual Quaternions* (**symbolic**)
+    ```python
+        # Returns robot's symbolic forward kinematics for each individual Center of Mass (symbolicFramesCOMDQ) and for end - effector's one (symbolicfkCOMDQ)
+        symbolicFramesCOMDQ, symbolicfkCOMDQ = k.forwardCOMDQ(uRobot, m = 5, symbolic = True)
+    ```  
+
+In this case, <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} \in \mathbb{H}"> are defined as <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} = H_{i/0}^{0} (H_{i/i-1}^{i - 1})^{-1} H_{com_{i}/i-1}^{i - 1}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} = Q_{i/0}^{0} (Q_{i/i-1}^{i - 1})^{*} Q_{com_{i}/i-1}^{i - 1}"> respectively
+
+<Enter>
+
+**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of motion of your system :wink:
 
 <Enter>
 
@@ -236,7 +253,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
         # Returns joints' path to be followed by means of Inverse Kinematics using Homogeneous Transformation Matrices
         qHTM = dy.path(P = jointsHTM, steps = time)
     ```
-    
+
     ![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
 
   - Using *Dual Quaternions*
