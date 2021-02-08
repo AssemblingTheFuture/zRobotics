@@ -17,13 +17,18 @@ A powerful library for robotics analysis :robot:
         - [Differential Kinematics](#differential-kinematics)
         - [Inverse Differential Kinematics](#inverse-differential-kinematics)
         - [Robot Animation](#robot-animation)
+        - [Plot system's functions](#plot-systems-functions)
       - [MATLAB (Deprecated)](#matlab)
+
+---
 
 ### Introduction
 
 **uRobot** is a simple 4 DoF antropomorphic robot that can be used to analyze and develop kinematics and control algorithms as shown in our course [Robotics: from Kinematics to Control](https://www.udemy.com/course/robotica-de-la-cinematica-al-control/?referralCode=5FF404FC9C3C95DE6D11). We hope this library will help you to start your journey in these amazing technologies!
 
 ![uRobot](images/uRobot.jpg "uRobot 0.1")
+
+---
 
 ### Features
 
@@ -32,6 +37,8 @@ You can control how the robot behaves; also, you'll be able to see its end - eff
 ![uRobot](images/uRobot-animation.gif "uRobot 0.1")
 
 Feel free to modify, adjust and extend our work to your necessities :smiley:; these libraries allows you to get a first approach to robot analysis, synthesis and control, however, we will be adding new interesting features, also, **you can request new features or create new ones!**
+
+---
 
 ### Library Content
 
@@ -49,7 +56,7 @@ This library includes the following algorithms:
         import Plot as plot
         import Robot
     ```
-    - Libraries' brief descriptions:
+    - Brief libraries' descriptions:
       1. [```DenavitHartenberg```](/Python/DenavitHartenberg.py): it returns Denavit - Hartenberg parameters of your system. **We encourage you to change this according to your necessites** :wink:
       2. [```DualQuaternions```](/Python/DualQuaternions.py): computes multiple algorithms by means of Dual Quaternion algebra
       3. [ ```Dynamics```](/Python/Dynamics.py): it has numerical integration and dynamic systems algorithms (**under construction :construction:**)
@@ -72,9 +79,11 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
         L = [0.3, 0.4, 0.2]
     ```
 
-    Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are set in radians. Also, <img src="https://render.githubusercontent.com/render/math?math=L \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain
+Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are set in radians. Also, <img src="https://render.githubusercontent.com/render/math?math=L \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain
 
 <Enter>
+
+---
 
 - ##### [Robot Creation](/Python/Robot.py)
 
@@ -219,6 +228,8 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
 <Enter>
 
+---
+
 - ##### [Forward Kinematics to Center of Mass](/Python/Kinematics.py)
 
   - Using *Homogeneous Transformation Matrices*
@@ -253,27 +264,31 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 
 <Enter>
 
+---
+
 - ##### [Trajectory Planning](/Python/Dynamics.py)
 
-    If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time (all in task space), it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=q\left(t\right) = \sum_{i = 0}^{p} A_it^{i}"> and the inverse kinematics to each individual point. Hence, <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{n \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each joint position and the to get the desired end - effector's pose
+If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time (all in task space), it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=q\left(t\right) = \sum_{i = 0}^{p} A_it^{i}"> and the inverse kinematics to each individual point. Hence, <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{n \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each joint position and the to get the desired end - effector's pose
 
-  -  Using *Homogeneous Transformation Matrices*
+  - Using *Homogeneous Transformation Matrices*
+    
     ```python
         # Returns joints' path to be followed by means of Inverse Kinematics using Homogeneous Transformation Matrices
         qHTM = dy.path(P = jointsHTM, steps = time)
     ```
 
-    ![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
+![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
 
   - Using *Dual Quaternions*
+    
     ```python
         # Returns joints' path to be followed by means of Inverse Kinematics using Dual Quaternions
         qDQ = dy.path(P = jointsDQ, steps = time)
     ```
     
-    ![Trajectory Planning for Joints using Dual Quaternions](images/pathDQ.png "Trajectory Planning for Joints using Dual Quaternions")
+![Trajectory Planning for Joints using Dual Quaternions](images/pathDQ.png "Trajectory Planning for Joints using Dual Quaternions")
 
-    Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{n \times p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
+Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{n \times p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
 
 - **[Task Space Path](/Python/Plot.py)**
 
@@ -302,12 +317,14 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
         # Returns robot's inverse kinematics using HTM
         qHTM = k.inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM, K = np.eye(6), m = 5)
     ```
+  
   - Using *Dual Quaternions*
     ```python
         # Returns robot's inverse kinematics using Dual Quaternions
         qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
     ```
-    For previous cases, <img src="https://render.githubusercontent.com/render/math?math=m \in \mathbb{R}, m \geq 1"> represents the number of reference frames of the system (including inertial one). Moreover, <img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{H}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
+
+For previous cases, <img src="https://render.githubusercontent.com/render/math?math=m \in \mathbb{R}, m \geq 1"> represents the number of reference frames of the system (including inertial one). Moreover, <img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{H}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
 
 <Enter>
 
@@ -320,36 +337,42 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 - ##### [Differential Kinematics](/Python/Kinematics.py)
 
   - Instantaneous velocity to end - effector <img src="https://render.githubusercontent.com/render/math?math=\dot{x}_{m/0}^{0} \in \mathbb{R}^{6 \times 1}"> using *Homogeneous Transformation Matrices*
+    
     ```python
         # Computes Instantaneous Inertial Velocity to m - th frame, given joints' velocities «qd»
         Vhtm = k.velocityHTM(uRobot, m = 5, qd = np.random.rand(4, 1))
     ```
 
   - Instantaneous velocity to end - effector <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{m/0}^{0} \in \mathbb{H}^{v}"> using *Dual Quaternions*
+    
     ```python
         # Computes Instantaneous Inertial Velocity to m - th frame (in dual form), given number of joints «n»,joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
         Vdq = k.velocityDQ(uRobot, m = 5, n = 4, qd = np.random.rand(4, 1), xi = xi)
     ```
 
   - Instantaneous relative velocity to i - th frame <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{i/0}^{i} \in \mathbb{H}^{v}"> using *Dual Quaternions*
+    
     ```python
         # Computes Instantaneous velocity to i - th frame (in dual form), given number of joints «n», initial velocity (in dual form) «W0» joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
         Wi = k.relativeVelocityDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
     ```
 
   - Instantaneous velocity to m - th Center of Mass <img src="https://render.githubusercontent.com/render/math?math=\mathcal{v}_{com_{i}/0}^{com_{i}} \in \mathbb{H}^{v}"> using *Dual Quaternions*
+    
     ```python
         # Computes Instantaneous velocity to m - th Center of Mass (in dual form), given number of frames «m», number of centers of mass «COMs», initial velocity (in dual form) «W0», joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi»
         Wcom = k.velocityPropagationDQ(uRobot, m = 5, COMs = 4, W0 = np.zeros((8, 1)), qd = np.random.rand(4, 1), xi = xi)
     ```
 
   - Instantaneous acceleration to end - effector <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{m/0}^{0} \in \mathbb{H}^{v}"> using *Dual Quaternions*
+    
     ```python
         # Computes Instantaneous Inertial Acceleration to m - th frame (in dual form), given number of joints «n», dual velocity of inertial frame «W0», joints' velocities and accelerations «qd» and «qdd»; and Screw vectors of each joint stored in a matrix «xi», including its time derivative «xid»
         Adq = k.accelerationDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, qdd = np.random.rand(4, 1), xi = xi, xid = xid)
     ```
 
   - Instantaneous acceleration to m - th Center of Mass <img src="https://render.githubusercontent.com/render/math?math=\mathcal{a}_{com_{i}/0}^{com_{i}} \in \mathbb{H}^{v}"> using *Dual Quaternions*
+    
     ```python
         # Computes Instantaneous acceleration to m - th Center of Mass (in dual form), given number of frames «m», number of centers of mass «COMs», initial velocity and acceleration (in dual form) «W0» and «A0», joints' velocities and accelerations «qd» and «qdd» and Screw vectors of each joint stored in a matrix «xi» and its time derivative «xid»
         Acom = k.accelerationPropagationDQ(uRobot, m = 5, COMs = 4, W0 = np.zeros((8, 1)), A0 = np.append(np.zeros((7, 1)), np.array([[-9.80665]]), axis = 0), qd = np.random.rand(4, 1), qdd = np.random.rand(4, 1), xi = xi, xid = xid)
@@ -364,18 +387,21 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 - ##### [Inverse Differential Kinematics](/Python/Kinematics.py)
 
   - Instantaneous joints' velocities <img src="https://render.githubusercontent.com/render/math?math=\dot{q} \in \mathbb{R}^{n \times 1}"> using *Homogeneous Transformation Matrices*
+    
     ```python
         # Computes Instantaneous Joints' Velocities given m - th frame one
         qdHTM = k.jointsVelocitiesHTM(uRobot, m = 5, Vhtm = Vhtm)
     ```
 
   - Instantaneous joints' velocities <img src="https://render.githubusercontent.com/render/math?math=\dot{q} \in \mathbb{R}^{n \times 1}"> using *Dual Quaternions*
+    
     ```python
         # Computes Instantaneous Joints' Velocities given m - th frame one (in dual form), number of joints «n» and Screw vectors of each joint stored in a matrix «xi»
         qdDQ = k.jointsVelocitiesDQ(uRobot, m = 5, n = 4, Vdq = Vdq, xi = xi)
     ```
 
   - Instantaneous joints' accelerations <img src="https://render.githubusercontent.com/render/math?math=\ddot{q} \in \mathbb{R}^{n \times 1}"> using *Dual Quaternions*
+    
     ```python
         # Computes Instantaneous Joints' Accelerations given m - th frame one (in dual form), number of joints «n», joints' velocities «qd» and Screw vectors of each joint stored in a matrix «xi», including its time derivative «xid»
         qddDQ = k.jointsAccelerationsDQ(uRobot, m = 5, n = 4, W0 = np.zeros((8, 1)), qd = qdDQ, Adq = Adq, xi = xi, xid = xid)
@@ -402,13 +428,14 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-- **[Plot system's function](/Python/Plot.py)**
+- ##### [Plot system's function](/Python/Plot.py)
 
     ```python
         # Plot any robot's behavior, such as joints' positions, dynamics, control functions, etc.
         plot.graph(function = qHTM, title = "Joints' Positions (using HTM)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qHTM", transparent = True)
         plot.graph(function = qDQ, title = "Joints' Positions (using DQ)", labels = r'$\theta_', complement = r'(k)$', xlabel = r'Samples $k$ [3 $\frac{ms}{sample}$]', ylabel = r'Amplitude [$rad$]', save = True, name = "qDQ", transparent = False)
     ```
+
 ![Joints' positions using HTM](images/qHTM.png "Joints' positions using HTM")
 
 ![Joints' positions using DQ](images/qDQ.png "Joints' positions using DQ")
@@ -423,7 +450,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-#### [MATLAB (DEPRECATED)](/MATLAB)
+#### [MATLAB (Deprecated)](/MATLAB)
 
   - **[Denavit - Hartenberg Parameters](/MATLAB/denavitHartenberg.m)**
 
