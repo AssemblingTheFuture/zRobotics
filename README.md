@@ -120,7 +120,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mat
 
 - ##### **Denavit - Hartenberg Parameters**
 
-    - ***Robot's configuration***: first of all, it is mandatory to modify [Denavit - Hartenberg Parameters' file](/Python/DenavitHartenberg.py) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
+    - ***Robot's configuration***: first of all, it is mandatory to modify [Denavit - Hartenberg Parameters' file](/Python/DenavitHartenberg.py#L3) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
 
     |<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
     |:---:|:---:|:---:|:---:|
@@ -165,7 +165,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mat
 
     <Enter>
 
-    - ***Centers of Mass***: some calculations in robotics needs to be performed with respect to the Center of Mass, so it is mandatory to modify [Denavit - Hartenberg Parameters' file](/Python/DenavitHartenberg.py) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
+    - ***Centers of Mass***: some calculations in robotics needs to be performed with respect to the Center of Mass, so it is mandatory to modify [Denavit - Hartenberg Parameters' file](/Python/DenavitHartenberg.py#L17) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
 
     |<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
     |:---:|:---:|:---:|:---:|
