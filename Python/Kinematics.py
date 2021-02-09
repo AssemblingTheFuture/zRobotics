@@ -21,15 +21,18 @@ def forwardHTM(robot, m = 0, symbolic = False):
     framesHTM = []
     
     # Gets Denavit - Hartenberg Matrix
-    if not robot.dhParameters:
-      DH = dh.matrix(robot)
+    if not symbolic:
+      if not robot.dhParameters:
+        DH = dh.matrix(robot)
+      else:
+        DH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions], [float(L) for L in robot.linksLengths]))
     else:
-      DH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions]))
+        DH = robot.symbolicDHParameters
     
     # Computes forward kinematics, from inertial frame to m - th one
     fkHTM = np.identity(4) if not symbolic else eye(4)
     i = 0
-    for frame in DH if not symbolic else dh.symbolicMatrix(robot):
+    for frame in DH:
       if i > m:
         break
       else:
@@ -53,13 +56,16 @@ def forwardCOMHTM(robot, m = 0, symbolic = False):
   framesCOMHTM = [np.identity(4) if not symbolic else eye(4)]
     
   # Gets Denavit - Hartenberg Matrix
-  if not robot.dhParametersCOM:
-    comDH = dh.centersOfMass(robot)
+  if not symbolic:
+    if not robot.dhParametersCOM:
+      comDH = dh.centersOfMass(robot)
+    else:
+      comDH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions], [float(Lcom) for Lcom in robot.centersOfMass]))
   else:
-    comDH = np.array(robot.dhParametersCOM([float(q) for q in robot.jointsPositions]))
+    comDH = robot.symbolicDHParametersCOM
   
   i = 1
-  for frame in comDH[1 : , :] if not symbolic else dh.symbolicCentersOfMass(robot)[1 : , :]:
+  for frame in comDH[1 : , :]:
     if i > m:
       break
     else:
@@ -96,15 +102,18 @@ def forwardDQ(robot, m = 0, symbolic = False):
     framesDQ = []
     
     # Gets Denavit - Hartenberg Matrix
-    if not robot.dhParameters:
-      DH = dh.matrix(robot)
+    if not symbolic:
+      if not robot.dhParameters:
+          DH = dh.matrix(robot)
+      else:
+        DH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions], [float(L) for L in robot.linksLengths]))
     else:
-      DH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions]))
+      DH = robot.symbolicDHParameters
     
     # Computes forward kinematics, from inertial frame to m - th one
     fkDQ = np.array([[1, 0, 0, 0, 0, 0, 0, 0]]).T if not symbolic else Matrix([1, 0, 0, 0, 0, 0, 0, 0])
     i = 0
-    for frame in DH if not symbolic else dh.symbolicMatrix(robot):
+    for frame in DH:
       if i > m:
         break
       else:
@@ -117,6 +126,7 @@ def forwardDQ(robot, m = 0, symbolic = False):
     return framesDQ, fkDQ
 
 def forwardCOMDQ(robot, m = 0, symbolic = False):
+      
   """
     Using Dual Quaternions, this function computes forward kinematics to m - th center of mass, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
     robot: object (robot.jointsPositions, robot.linksLengths)
@@ -128,13 +138,16 @@ def forwardCOMDQ(robot, m = 0, symbolic = False):
   framesCOMDQ = [np.array([[1], [0], [0], [0], [0], [0], [0], [0]]) if not symbolic else Matrix([1, 0, 0, 0, 0, 0, 0, 0])]
     
   # Gets Denavit - Hartenberg Matrix
-  if not robot.dhParametersCOM:
-    comDH = dh.centersOfMass(robot)
+  if not symbolic:
+    if not robot.dhParametersCOM:
+      comDH = dh.centersOfMass(robot)
+    else:
+      comDH = np.array(robot.dhParameters([float(q) for q in robot.jointsPositions], [float(Lcom) for Lcom in robot.centersOfMass]))
   else:
-    comDH = np.array(robot.dhParametersCOM([float(q) for q in robot.jointsPositions]))
+    comDH = robot.symbolicDHParametersCOM
   
   i = 1
-  for frame in comDH[1 : , :] if not symbolic else dh.symbolicCentersOfMass(robot)[1 : , :]:
+  for frame in comDH[1 : , :]:
     if i > m:
       break
     else:
