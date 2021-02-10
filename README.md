@@ -79,7 +79,7 @@ Please take a look at [main.py](/Python/main.py) to know more about this impleme
 
 ---
 
-- ##### [**Geometric Properties**](Python/main.py#16)
+- #### [**Geometric Properties**](Python/main.py#16)
 
     ```python
         # Sets robot's generalized coordinates (two - dimensional array) and links' lengths (list)
@@ -96,7 +96,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mat
 
 ---
 
-- ##### [Robot Creation](/Python/Robot.py)
+- #### [Robot Creation](/Python/Robot.py)
 
     ```python
         # Returns uRobot's as an object
@@ -119,7 +119,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mat
 
 ---
 
-- ##### **Denavit - Hartenberg Parameters**
+- #### **Denavit - Hartenberg Parameters**
 
     - ***Robot's configuration***: first of all, it is mandatory to modify [Denavit - Hartenberg Parameters' file](/Python/DenavitHartenberg.py#L3) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
 
@@ -213,7 +213,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mat
 
 ---
 
-- ##### [Forward Kinematics](/Python/Kinematics.py)
+- #### [Forward Kinematics](/Python/Kinematics.py)
 
   - [Using *Homogeneous Transformation Matrices*](/Python/Kinematics.py#L13)
     ```python
@@ -247,7 +247,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \
 
 ---
 
-- ##### [Forward Kinematics to Center of Mass](/Python/Kinematics.py)
+- #### [Forward Kinematics to Center of Mass](/Python/Kinematics.py)
 
   - [Using *Homogeneous Transformation Matrices*](/Python/Kinematics.py#L47)
     ```python
@@ -285,7 +285,7 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 
 ---
 
-- ##### [Trajectory Planning](/Python/Dynamics.py)
+- #### [Trajectory Planning](/Python/Dynamics.py)
 
 If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time (all in task space), it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=q\left(t\right) = \sum_{i = 0}^{p} A_it^{i}"> and the inverse kinematics to each individual point. Hence, <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{n \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each joint position and the to get the desired end - effector's pose
 
@@ -331,7 +331,7 @@ Where arguments <img src="https://render.githubusercontent.com/render/math?math=
 
 ---
 
-- ##### Inverse Kinematics (*Error Feedback*)
+- #### Inverse Kinematics (*Error Feedback*)
   
   - [Using *Homogeneous Transformation Matrices*](Python/Kinematics.py#L207)
     ```python
@@ -357,7 +357,7 @@ For previous cases, <img src="https://render.githubusercontent.com/render/math?m
 
 ---
 
-- ##### [Differential Kinematics](/Python/Kinematics.py)
+- #### [Differential Kinematics](/Python/Kinematics.py)
 
   - [Instantaneous velocity to end - effector <img src="https://render.githubusercontent.com/render/math?math=\dot{x}_{m/0}^{0} \in \mathbb{R}^{6 \times 1}"> using *Homogeneous Transformation Matrices*](/Python/Kinematics.py#L264)
     
@@ -409,7 +409,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-- ##### [Inverse Differential Kinematics](/Python/Kinematics.py)
+- #### [Inverse Differential Kinematics](/Python/Kinematics.py)
 
   - [Instantaneous joints' velocities <img src="https://render.githubusercontent.com/render/math?math=\dot{q} \in \mathbb{R}^{n \times 1}"> using *Homogeneous Transformation Matrices*](Python/Kinematics.py#L276)
     
@@ -438,7 +438,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-- ##### [Robot Animation](/Python/Plot.py#L133)
+- #### [Robot Animation](/Python/Plot.py#L133)
 
     ```python
         # Plot robot with new joints' positions (this also modifies them in the object)
@@ -457,7 +457,7 @@ In this case <img src="https://render.githubusercontent.com/render/math?math=\ma
 
 ---
 
-- ##### [Plot system's functions](/Python/Plot.py#L9)
+- #### [Plot system's functions](/Python/Plot.py#L9)
 
     ```python
         # Plot any robot's behavior, such as joints' positions, dynamics, control functions, etc.
