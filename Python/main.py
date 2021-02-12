@@ -55,7 +55,7 @@ if __name__ == '__main__':
   
   """
     5. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary; this is OPTIONAL)
-  """ 
+  """
   X = mv.axisAngle(fkHTM)
   symbolicX = mv.symbolicAxisAngle(symbolicfkHTM)
   
@@ -68,13 +68,13 @@ if __name__ == '__main__':
   """
   # Screw vectors stored in a matrix (mandatory)
   xi = np.array([[0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [1, 1, 1, 1],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0]])
+                 [0, 0, 0, 0],
+                 [0, 0, 0, 0],
+                 [1, 1, 1, 1],
+                 [0, 0, 0, 0],
+                 [0, 0, 0, 0],
+                 [0, 0, 0, 0],
+                 [0, 0, 0, 0]])
 
   # Time derivative of screw vectors stored in a matrix (mandatory)
   xid = np.zeros((8, 4))
@@ -94,7 +94,7 @@ if __name__ == '__main__':
   """ 
   
   # 1. Set number of points
-  points = 7
+  points = 5
     
   # 2. Set time intervals (randomly)
   time = np.append(np.array([0]), np.random.uniform(0.5, 2, points))
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     jointsDQ = np.append(jointsDQ, k.inverseDQ(uRobot, q0 = jointsDQ[:, -1].reshape((m, 1)), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)[:, -1].reshape((m, 1)), axis = 1)
     
   # 5. Compute trajectories for each joints' computation
-  qHTM, qdHTM, qddHTM, xHTM = dy.trajectory(P = jointsHTM, steps = time, grade = points)
+  qHTM, qdHTM, qddHTM, xHTM = dy.trajectory(P = jointsHTM, steps = time)
   qDQ, qdDQ, qddDQ, xDQ = dy.trajectory(P = jointsDQ, steps = time)
   
   """
