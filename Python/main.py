@@ -4,7 +4,7 @@ import Kinematics as k
 import Movements as mv
 import multiprocessing as mp
 import numpy as np
-import Plot as plot
+from Plot import *
 import random
 import Robot
 from sympy import *
@@ -52,13 +52,13 @@ if __name__ == '__main__':
   uRobot.symbolicDHParametersCOM = dh.symbolicCentersOfMass(uRobot)
   symbolicFramesCOMHTM, symbolicfkCOMHTM = k.forwardCOMHTM(uRobot, m = 5, symbolic = True)
   symbolicFramesCOMDQ, symbolicfkCOMDQ = k.forwardCOMDQ(uRobot, m = 5, symbolic = True)
-
+  
   """
     5. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary; this is OPTIONAL)
   """ 
   X = mv.axisAngle(fkHTM)
   symbolicX = mv.symbolicAxisAngle(symbolicfkHTM)
-
+  
   """
     6. Compute Inverse Kinematics
   """ 
@@ -90,20 +90,20 @@ if __name__ == '__main__':
   qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
   
   """
-    6.2 Path planning in Joints' Space, by means of randomizing joints positions. These will be computed to create the path to be followed
+    6.2 Trajectory planning in Joints' Space, by means of randomizing joints positions. These will be computed to create the trajectory to be followed
   """ 
   
   # 1. Set number of points
-  points = 3
-  
+  points = 7
+    
   # 2. Set time intervals (randomly)
   time = np.append(np.array([0]), np.random.uniform(0.5, 2, points))
   m, n = q.shape
-  
+    
   # 3. Set joints' initial conditions (randomly)
   jointsHTM = np.random.rand(m, n)
   jointsDQ = np.random.rand(m, n)
-  
+    
   # 4. Iterate over each point
   for position in range(points):
     # 4.1 Set random positions for each joint
@@ -116,15 +116,15 @@ if __name__ == '__main__':
     # 4.3 Use previous results as desired pose representation to store the joints' positions that have to be reached
     jointsHTM = np.append(jointsHTM, k.inverseHTM(uRobot, q0 = jointsHTM[:, -1].reshape((m, 1)), Hd = fkHTM, K = np.eye(6), m = 5)[:, -1].reshape((m, 1)), axis = 1)
     jointsDQ = np.append(jointsDQ, k.inverseDQ(uRobot, q0 = jointsDQ[:, -1].reshape((m, 1)), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)[:, -1].reshape((m, 1)), axis = 1)
-  
-  # 5. Compute paths for each joints' computation
-  qHTM = dy.path(P = jointsHTM, steps = time)
-  qDQ = dy.path(P = jointsDQ, steps = time)
+    
+  # 5. Compute trajectories for each joints' computation
+  qHTM, qdHTM, qddHTM, xHTM = dy.trajectory(P = jointsHTM, steps = time, grade = points)
+  qDQ, qdDQ, qddDQ, xDQ = dy.trajectory(P = jointsDQ, steps = time)
   
   """
-    6.3 Compute path in Task Space based on path in Joints' Space (this is also in section 7)
+    6.3 Compute trajectory in Task Space based on trajectory in Joints' Space (this is also in section 7)
   """
-  # plot.path3D(robot = uRobot, q = qHTM, m = 5)
+  # plot.trajectory3D(robot = uRobot, q = qHTM, m = 5)
   
   """
     7. Animate robot with joints' positions without multiprocessing (this also modifies them in the object). You can uncomment any of these:
@@ -136,12 +136,12 @@ if __name__ == '__main__':
     7.1 Plot and Animate robot's behavior (joint's positions, end - effector, dynamics, etc) using multiprocessing
   """
   
-  processes = [mp.Process(target = plot.animation, args = (uRobot, qHTM)),
-               mp.Process(target = plot.animation, args = (uRobot, qDQ)),
-               mp.Process(target = plot.path, args = (qHTM, jointsHTM, time, r"Path Planning for Joints' Positions (HTM)", r'$\theta_')),
-               mp.Process(target = plot.path, args = (qDQ, jointsDQ, time, r"Path Planning for Joints' Positions (DQ)", r'$\theta_')),
-               mp.Process(target = plot.path3D, args = (uRobot, qHTM, 5)),
-               mp.Process(target = plot.path3D, args = (uRobot, qDQ, 5))]
+  processes = [mp.Process(target = animation, args = (uRobot, qHTM)),
+               mp.Process(target = animation, args = (uRobot, qDQ)),
+               mp.Process(target = trajectory, args = (qHTM, jointsHTM, time, r"Trajectory Planning for Joints' Positions (HTM)", r'$\theta_')),
+               mp.Process(target = trajectory, args = (qDQ, jointsDQ, time, r"Trajectory Planning for Joints' Positions (DQ)", r'$\theta_')),
+               mp.Process(target = trajectory3D, args = (uRobot, qHTM, 5)),
+               mp.Process(target = trajectory3D, args = (uRobot, qDQ, 5))]
   
   for process in processes:
     process.start()

@@ -33,9 +33,9 @@ def graph(function, title = r'', labels = r'', complement = r'', xlabel = r'', y
   else:
     plt.show()
 
-def path(function, points, steps, title = r"", variable = r"", h = 0.003, GUI = False):
+def trajectory(function, points, steps, title = r"", variable = r"", h = 0.003, GUI = False):
   """
-    Plots any given path to be followed
+    Plots any given trajectory to be followed
     function: np.array (two - dimensional)
     points: np.array (two - dimensional)
     steps: np.array (one - dimensional)
@@ -46,9 +46,9 @@ def path(function, points, steps, title = r"", variable = r"", h = 0.003, GUI = 
   fig = plt.figure()
   plt.title(title)
   t = np.cumsum(steps)
-  for path in range(function.shape[0]):
-    plt.plot(function[path, :], label = variable + str(path + 1) + r"$")
-    plt.scatter(x = t / h, y = points[path, :], c = "red")
+  for trajectory in range(function.shape[0]):
+    plt.plot(function[trajectory, :], label = variable + str(trajectory + 1) + r"$")
+    plt.scatter(x = t / h, y = points[trajectory, :], c = "red")
   plt.title(title)
   plt.xlabel(r"Time [miliseconds]")
   plt.ylabel(r"Amplitude")
@@ -59,9 +59,9 @@ def path(function, points, steps, title = r"", variable = r"", h = 0.003, GUI = 
   else:
     plt.show()
 
-def path3D(robot, q, m, GUI = False):
+def trajectory3D(robot, q, m, GUI = False):
   """
-    Plots robot's end - effector behavior in R3 given joints' paths
+    Plots robot's end - effector behavior in R3 given joints' trajectories
     q: np.array (two - dimensional)
   """
   

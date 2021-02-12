@@ -19,41 +19,60 @@ def solver(f, F, dt):
             F[i, j] = F[i, j] + ((1 / 6) * (k1 + (2 * k2) + (2 * k3) + k4) * dt)
     return F
 
-def path(P, steps, h = 0.003):
-    """
-        This function solves numerically the n - th grade equation X(t) = SUM(Ai * (t ** i))
-        P: np.array (two - dimensional)
-        t: np.array (one - dimensional)
-    """
+def trajectory(P, steps, grade = 5, h = 0.003):
     
-    def equation(A, t, n):
+    def equation(A, t, grade):
         """
             This function computes numerically the n - th grade equation X(t) = SUM(Ai * (t ** i))
             X: np.array (two - dimensional)
+            Xd: np.array (two - dimensional)
+            Xdd: np.array (two - dimensional)
             t: np.array (one - dimensional)
+            grade: int
         """
         X = 0
-        for i in range(n):
+        Xd = 0
+        Xdd = 0
+        for i in range(grade):
             X += (A[i, :] * (t ** i))
-        return X
+            Xd += (i * A[i, :] * (t ** (i - 1)))
+            Xdd += ((i ** 2 - i) * A[i, :] * (t ** (i - 2)))
+        return X, Xd, Xdd
+    
+    def parameters(M, a, B, K):
+        A = a
+        for i in range(15000):
+            e = B - (M.dot(A[:, -1].reshape(a.shape)))
+            A = np.append(A, solver(f = np.linalg.pinv(M).dot(K).dot(e), F = A[:, -1].reshape(a.shape), dt = 0.003), axis = 1)
+            if all(value <= 0.001 for value in abs(e)):
+                break
+        return A
     
     """
-        Check «P» dimensions
+        For «M» matrix
     """
+    pose = lambda t, grade : [0 if np.isnan(t ** i) else t ** i for i in range(grade)]
+    velocity = lambda t, grade : [0 if np.isnan(i * (t ** (i - 1))) else i * (t ** (i - 1)) for i in range(grade)]
+    acceleration = lambda t, grade : [0 if np.isnan((i ** 2 - i) * t ** (i - 2)) else (i ** 2 - i) * (t ** (i - 2)) for i in range(grade)]
+    
+    """
+        System's parameters
+    """
+    A = np.zeros((grade + 1, 1))
     m, n = P.shape
-    
     t = np.cumsum(steps)
-    pose = lambda t, n : [0 if np.isnan(t ** i) else t ** i for i in range(n)]
-    
-    """
-        To find each Ai, it's necessary to solve M * v = B
-    """
-    Z = []
+    X = []
+    Xd = []
+    Xdd = []
     for row in range(m):
-        B = np.zeros((1 * n, 1))
-        M = np.zeros((1 * n, 6))
+        B = np.zeros((n, 1))
+        M = np.zeros((n, grade + 1))
         for column in range(n):
-            M[column, :] = np.array(pose(t[column], 6))
-            B[column, :] = P[row, column]
-        Z.append(equation(A = np.linalg.pinv(M).dot(B), t = np.linspace(t[0], t[-1], int(t[-1] / h)), n = 6))
-    return np.array(Z)
+            M[(column), :] = np.array(pose(t[column], grade + 1))
+            B[(column), :] = P[row, column]
+        A = np.append(A, parameters(M = M, B = B, a = A[:, -1].reshape((grade + 1, 1)), K = np.eye(n))[:, -1].reshape((grade + 1, 1)), axis = 1)
+        x, xd, xdd = equation(A = A[:, -1].reshape((grade + 1, 1)), t = np.linspace(t[0], t[-1], int(t[-1] / h)), grade = grade + 1)
+        X.append(x)
+        Xd.append(xd)
+        Xdd.append(xdd)
+    return np.array(X), np.array(Xd), np.array(Xdd), A
