@@ -292,32 +292,32 @@ If your end - effector, defined mathematically by an *Axis - Angle* vector <img 
   - [Using *Homogeneous Transformation Matrices*](Python/Dynamics.py#L22)
     
     ```python
-        # Returns joints' path to be followed by means of Inverse Kinematics using Homogeneous Transformation Matrices
-        qHTM = dy.path(P = jointsHTM, steps = time)
+        # Returns joints' trajectory to be followed by means of Inverse Kinematics using Homogeneous Transformation Matrices
+        qHTM, qdHTM, qddHTM, xHTM = dy.trajectory(P = jointsHTM, steps = time)
     ```
 
-![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/pathHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
+![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/trajectoryHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
 
   - [Using *Dual Quaternions*](Python/Dynamics.py#L22)
     
     ```python
-        # Returns joints' path to be followed by means of Inverse Kinematics using Dual Quaternions
-        qDQ = dy.path(P = jointsDQ, steps = time)
+        # Returns joints' trajectory to be followed by means of Inverse Kinematics using Dual Quaternions
+        qDQ, qdDQ, qddDQ, xDQ = dy.trajectory(P = jointsDQ, steps = time)
     ```
     
-![Trajectory Planning for Joints using Dual Quaternions](images/pathDQ.png "Trajectory Planning for Joints using Dual Quaternions")
+![Trajectory Planning for Joints using Dual Quaternions](images/trajectoryDQ.png "Trajectory Planning for Joints using Dual Quaternions")
 
 Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{n \times p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
 
-- **Task Space Path**
+- **Task Space Trajectory**
 
   -  [End - effector's Pose](Python/Plot.py#L62):
     ```python
-        # Returns 2D & 3D plot of the task space's path by means of joints' one and the number of reference frames that will be computed
-        plot.path3D(robot = uRobot, q = qDQ, m = 5)
+        # Returns 2D & 3D plot of the task space's trajectory by means of joints' one and the number of reference frames that will be computed
+        plot.trajectory3D(robot = uRobot, q = qDQ, m = 5)
     ```
 
-    ![3D Task Space Position](images/path3D.png "3D Task Space Position")
+    ![3D Task Space Position](images/trajectory3D.png "3D Task Space Position")
     
     ![Task Space Orientation in «X»](images/xOrientation.png "Task Space Orientation in «X»")
 
