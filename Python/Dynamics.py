@@ -58,8 +58,10 @@ def trajectory(P, steps, grade = 5, h = 0.003):
     """
         System's parameters
     """
-    A = np.zeros((grade + 1, 1))
     m, n = P.shape
+    if n > grade:
+        grade = n
+    A = np.zeros((grade + 1, 1))
     t = np.cumsum(steps)
     X = []
     Xd = []

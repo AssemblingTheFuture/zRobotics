@@ -94,7 +94,7 @@ if __name__ == '__main__':
   """ 
   
   # 1. Set number of points
-  points = 5
+  points = 7
     
   # 2. Set time intervals (randomly)
   time = np.append(np.array([0]), np.random.uniform(0.5, 2, points))
