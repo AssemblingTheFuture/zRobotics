@@ -287,13 +287,13 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 
 - #### [Trajectory Planning](/Python/Dynamics.py)
 
-If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time (all in task space), it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=q\left(t\right) = \sum_{i = 0}^{p} A_it^{i}"> and the inverse kinematics to each individual point. Hence, <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{n \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each joint position and the to get the desired end - effector's pose
+If your end - effector, defined mathematically by an *Axis - Angle* vector <img src="https://render.githubusercontent.com/render/math?math=X \in \mathbb{R}^{6 \times 1}"> or Dual Quaternion <img src="https://render.githubusercontent.com/render/math?math=Q \in \mathbb{H}">, has to reach multiple points <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> in some specific intervals of time (all in task space), it is possible to generate a trajectory based on the <img src="https://render.githubusercontent.com/render/math?math=n"> - th grade polynomial equation <img src="https://render.githubusercontent.com/render/math?math=q\left(t\right) = \sum_{i = 0}^{p} A_it^{i}"> using the well - known *spline* algorithm. Hence, <img src="https://render.githubusercontent.com/render/math?math=A_i \in \mathbb{R}^{n \times 1}"> is the constant vector with the parameters that allow to define the polynomial equation to reach each joint position and the to get the desired end - effector's pose
 
   - [Using *Homogeneous Transformation Matrices*](Python/Dynamics.py#L22)
     
     ```python
         # Returns joints' trajectory to be followed by means of Inverse Kinematics using Homogeneous Transformation Matrices
-        qHTM, qdHTM, qddHTM, xHTM = dy.trajectory(P = jointsHTM, steps = time)
+        qHTM, qdHTM, qddHTM, xHTM = dy.trajectory(P = jointsHTM, steps = time, absolut = False)
     ```
 
 ![Trajectory Planning for Joints using Homogeneous Transformation Matrices](images/trajectoryHTM.png "Trajectory Planning for Joints using Homogeneous Transformation Matrices")
@@ -302,12 +302,12 @@ If your end - effector, defined mathematically by an *Axis - Angle* vector <img 
     
     ```python
         # Returns joints' trajectory to be followed by means of Inverse Kinematics using Dual Quaternions
-        qDQ, qdDQ, qddDQ, xDQ = dy.trajectory(P = jointsDQ, steps = time)
+        qDQ, qdDQ, qddDQ, xDQ = dy.trajectory(P = jointsDQ, steps = time, absolut = False)
     ```
     
 ![Trajectory Planning for Joints using Dual Quaternions](images/trajectoryDQ.png "Trajectory Planning for Joints using Dual Quaternions")
 
-Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{n \times p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
+Where arguments <img src="https://render.githubusercontent.com/render/math?math=P \in \mathbb{R}^{n \times p}"> and <img src="https://render.githubusercontent.com/render/math?math=steps \in \mathbb{R}^{1 \times p}"> represent the <img src="https://render.githubusercontent.com/render/math?math=p"> poses to be reached in the specific intervals of time defined as *steps*, this could be set in absolut or relative form. Please take a look at [main.py](/Python/main.py) to see an example of this implementation
 
 - **Task Space Trajectory**
 
