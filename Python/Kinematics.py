@@ -235,7 +235,7 @@ def inverseHTM(robot, q0, Hd, K, m):
       q = np.append(q, dy.solver(f = (np.linalg.pinv(J)).dot(K).dot(e), F = q[:, -1].reshape(q0.shape), dt = 3/1000), axis = 1)
     return q
     
-def inverseDQ(robot, q0, Qd, K, xi, m):
+def inverseDQ(robot, q0, Qd, K, xi, m, limit = False):
   """
     Using Dual Quaternions, this function computes Inverse Kinematics to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
     robot: object (robot.jointsPositions, robot.linksLengths)

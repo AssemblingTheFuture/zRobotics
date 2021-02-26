@@ -59,7 +59,7 @@ def trajectory(function, points, steps, title = r"", variable = r"", h = 0.003, 
   else:
     plt.show()
 
-def trajectory3D(robot, q, m, GUI = False):
+def trajectory3D(robot, q, m, scatter = False, GUI = False):
   """
     Plots robot's end - effector behavior in R3 given joints' trajectories
     q: np.array (two - dimensional)
@@ -115,7 +115,10 @@ def trajectory3D(robot, q, m, GUI = False):
     X = np.append(X, axisAngle(fkHTM), axis = 1)
     
   # End - effector position (3D Plot)
-  ax.plot(xs = X[0, :], ys = X[1, :], zs = X[2, :], color = 'magenta')
+  if not scatter:
+    ax.plot(xs = X[0, :], ys = X[1, :], zs = X[2, :], color = 'magenta')
+  else:
+    ax.scatter(xs = X[0, :], ys = X[1, :], zs = X[2, :])
   
   # End - effector orientation (2D Plot)
   ax1.plot(X[3, :], color = 'red')
@@ -127,6 +130,34 @@ def trajectory3D(robot, q, m, GUI = False):
   
   if GUI:
     return fig, fig1, fig2, fig3
+  else:
+    plt.show()
+
+def taskSpace(x, y, z, scatter = False, GUI = False):
+  """
+    Plots 3D Trajectory
+    x: np.array (two - dimensional)
+    y: np.array (two - dimensional)
+    z: np.array (two - dimensional)
+  """
+  
+  fig = plt.figure()
+  ax = fig.gca(projection = '3d')
+  
+  # Set title and axes text for position
+  ax.set_title("Task Space Trajectory", fontsize = 16)
+  ax.set_xlabel(r'$x$', color = 'red', fontsize = 16)
+  ax.set_ylabel(r'$y$', color = 'green', fontsize = 16)
+  ax.set_zlabel(r'$z$', color = 'blue', fontsize = 16)
+  
+  for function in range(x.shape[0]):
+    if not scatter:
+        ax.plot(xs = x[function, :], ys = y[function, :], zs = z[function, :], color = 'magenta')
+    else:
+      ax.scatter(xs = x[function, :], ys = y[function, :], zs = z[function, :])
+  plt.grid()
+  if GUI:
+    return fig
   else:
     plt.show()
 
