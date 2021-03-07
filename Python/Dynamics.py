@@ -48,7 +48,7 @@ def trajectory(P, steps, absolut = True, h = 0.003):
             X += list(x)
             Xd += list(xd)
             Xdd += list(xdd)
-        return np.array(X), np.array(Xd), np.array(Xdd) 
+        return np.nan_to_num(np.array(X)), np.nan_to_num(np.array(Xd)), np.nan_to_num(np.array(Xdd))
     
     def parameters(M, a, B, K):
         A = a

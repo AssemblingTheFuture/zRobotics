@@ -35,11 +35,11 @@ if __name__ == '__main__':
   
   """
     4.1 Computes robot's symbolic forward kinematics (using Homogeneous Transformation Matrices or Dual Quaternions)
-  """
+  
   uRobot.symbolicDHParameters = dh.symbolicMatrix(uRobot)
   symbolicFramesHTM, symbolicfkHTM = k.forwardHTM(uRobot, m = 5, symbolic = True)
   symbolicFramesDQ, symbolicfkDQ = k.forwardDQ(uRobot, m = 5, symbolic = True)
-  
+  """
   """
     4.2 Computes robot's forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
@@ -48,17 +48,17 @@ if __name__ == '__main__':
 
   """
     4.3 Computes robot's symbolic forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
-  """
+  
   uRobot.symbolicDHParametersCOM = dh.symbolicCentersOfMass(uRobot)
   symbolicFramesCOMHTM, symbolicfkCOMHTM = k.forwardCOMHTM(uRobot, m = 5, symbolic = True)
   symbolicFramesCOMDQ, symbolicfkCOMDQ = k.forwardCOMDQ(uRobot, m = 5, symbolic = True)
-  
+  """
   """
     5. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary; this is OPTIONAL)
-  """
+  
   X = mv.axisAngle(fkHTM)
   symbolicX = mv.symbolicAxisAngle(symbolicfkHTM)
-  
+  """
   """
     6. Compute Inverse Kinematics
   """ 
@@ -82,6 +82,10 @@ if __name__ == '__main__':
   # Jacobian Matrices (optional)
   Jhtm = k.jacobianHTM(uRobot, m = 5)
   Jdq = k.jacobianDQ(uRobot, m = 5, xi = xi)
+
+  # Time derivative of Dual Jacobian Matrix
+  W = np.array(np.zeros((1, 4)).tolist() + np.random.randn(3, 4).tolist() + np.zeros((1, 4)).tolist() + np.random.randn(3, 4).tolist())
+  JdDQ = k.dotJacobianDQ(uRobot, m = 5, W = W, xi = xi, xid = xid)
   
   """ 
     6.4 Computes robot's Inverse Kinematics to a single point (using Homogeneous Transformation Matrices or Dual Quaternions)
@@ -118,8 +122,8 @@ if __name__ == '__main__':
     jointsDQ = np.append(jointsDQ, k.inverseDQ(uRobot, q0 = jointsDQ[:, -1].reshape((m, 1)), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)[:, -1].reshape((m, 1)), axis = 1)
     
   # 5. Compute trajectories for each joints' computation
-  qHTM, qdHTM, qddHTM, xHTM = dy.trajectory(P = jointsHTM, steps = time)
-  qDQ, qdDQ, qddDQ, xDQ = dy.trajectory(P = jointsDQ, steps = time)
+  qHTM, qdHTM, qddHTM, xHTM = dy.trajectory(P = jointsHTM, steps = time, absolut = False)
+  qDQ, qdDQ, qddDQ, xDQ = dy.trajectory(P = jointsDQ, steps = time, absolut = False)
   
   """
     6.3 Compute trajectory in Task Space based on trajectory in Joints' Space (this is also in section 7)
