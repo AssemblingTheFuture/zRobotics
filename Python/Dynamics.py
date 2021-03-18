@@ -1,5 +1,7 @@
+from Kinematics import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from Movements import *
 import numpy as np
 import csv
 
@@ -117,3 +119,40 @@ def trajectory(P, steps, absolut = True, h = 0.003):
         return np.array(X), np.array(Xd), np.array(Xdd), v
     
     return spline(P = P, t = steps, absolut = absolut)
+
+def jointsTrajectory(robot, q0, X, Q, Qd, Qdd, time):
+    """
+        Dynamical system simulation
+    """
+    t = np.linspace(np.cumsum(time)[0], np.cumsum(time)[-1], num = X.shape[1])
+            
+    # Initial conditions for simulation
+    q = q0
+    Xr = np.zeros((6, X.shape[1]))
+    for j in range(t.shape[0]):
+        # Current joints' positions
+        robot.jointsPositions = q[:, -1].reshape(q0.shape)
+                
+        # Current pose
+        robot.framesDQ, robot.fkDQ = forwardDQ(robot, m = q0.shape[0] + 1)
+        robot.framesHTM, robot.fkHTM = forwardHTM(robot, m = q0.shape[0] + 1)
+        Xr[:, j] = axisAngle(robot.fkHTM).reshape((6))
+                
+        # Dual Jacobian Matrix
+        Jdq = jacobianDQ(robot, m = q0.shape[0] + 1, xi = robot.xi)
+                
+        # Time derivative of joints' positions
+        qd = np.linalg.pinv(Jdq).dot(np.eye(8)).dot(Q[:, j].reshape((8, 1)) - robot.fkDQ)
+                
+        # Dual velocity of each frame
+        W = relativeVelocityDQ(robot, m = q0.shape[0] + 1, n = q0.shape[0], W0 = np.zeros((8, 1)), qd = qd, xi = robot.xi)
+                
+        # Time derivative of Dual Jacobian Matrix
+        JdDQ = dotJacobianDQ(robot, m = q0.shape[0] + 1, W = W[:, 1 :], xi = robot.xi, xid = robot.xid)
+                
+        # Second derivative of joints' positions
+        qdd = np.linalg.pinv(Jdq).dot(Qdd[:, j].reshape((8, 1)) - JdDQ.dot(qd))
+                
+        # Solution
+        q = np.append(q, dy.solver(f = dy.solver(f = qdd, F = qd), F = q[:, -1].reshape(q0.shape)), axis = 1)
+    return q, Xr

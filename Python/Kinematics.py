@@ -215,10 +215,10 @@ def dotJacobianDQ(robot, m, W, xi, xid):
   framesDQ, fkDQ = forwardDQ(robot, m)
   Jd = np.zeros((8, n))
   for j in range(n):
-    a = dq.leftOperator(framesDQ[j]).dot(dq.rightOperator(dq.conjugate(framesDQ[j]))).dot(xid[:, j])
-    b = dq.dualCrossOperator(W[:, j].reshape((8, 1))).dot(xi[:, j])
-    c = 0.5 * dq.leftOperator(framesDQ[j]).dot(dq.rightOperator(W[:, -1].reshape((8, 1)))).dot(dq.rightOperator(dq.conjugate(framesDQ[j]))).dot(xi[:, j])
-    Jd[:, j] = a + (0.5 * dq.rightOperator(fkDQ).dot(b + c))
+    a = 0.5 * dq.leftOperator(framesDQ[j]).dot(dq.rightOperator(dq.conjugate(framesDQ[j]))).dot(dq.rightOperator(fkDQ)).dot(xid[:, j])
+    b = 0.5 * dq.dualCrossOperator(W[:, j].reshape((8, 1))).dot(dq.leftOperator(framesDQ[j])).dot(dq.rightOperator(dq.conjugate(framesDQ[j]))).dot(dq.rightOperator(fkDQ)).dot(xi[:, j])
+    c = 0.25 * dq.leftOperator(framesDQ[j]).dot(dq.rightOperator(dq.conjugate(framesDQ[j]))).dot(dq.rightOperator(fkDQ)).dot(dq.rightOperator(W[:, -1].reshape((8, 1)))).dot(xi[:, j])
+    Jd[:, j] = a + b + c
   return Jd
 
 def inverseHTM(robot, q0, Hd, K, m):
