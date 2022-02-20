@@ -23,42 +23,48 @@ if __name__ == '__main__':
   uRobot = Robot.System(jointsPositions = q, linksLengths = L, centersOfMass = Lcom, name = 'uRobot')
 
   """
-    3. Gets robots' Denavit - Hartenberg parameters
+    3. Gets robots' Denavit - Hartenberg parameters (numeric and symbolic)
   """
-  DH = dh.matrix(uRobot)
+  uRobot.dhParameters = dh.matrix(uRobot)
+  uRobot.symbolicDHParameters = dh.symbolicMatrix(uRobot)
+  
+  """
+    3.1 Gets robots' Denavit - Hartenberg COMs' parameters (numeric and symbolic)
+  """
+  uRobot.dhParametersCOM = dh.centersOfMass(uRobot)
+  # uRobot.symbolicDHParametersCOM = dh.symbolicCentersOfMass(uRobot)
 
   """
     4. Computes robot's forward kinematics (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
-  framesHTM, fkHTM = k.forwardHTM(uRobot, m = 5)
-  framesDQ, fkDQ = k.forwardDQ(uRobot, m = 5)
+  
+  # Homogeneous Transformation Matrices
+  fkHTM = k.forwardHTM(uRobot)
+  # symbolicFKHTM = k.forwardHTM(uRobot, symbolic = True)
+  
+  # Dual Quaternions
+  fkDQ = k.forwardDQ(uRobot)
+  # symbolicFKDQ = k.forwardDQ(uRobot, symbolic = True)
   
   """
-    4.1 Computes robot's symbolic forward kinematics (using Homogeneous Transformation Matrices or Dual Quaternions)
+    4.1 Computes robot's forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
+  """
+  # Homogeneous Transformation Matrices
+  fkCOMHTM = k.forwardCOMHTM(uRobot)
+  # symbolicFKCOMHTM = k.forwardCOMHTM(uRobot, symbolic = True)
   
-  uRobot.symbolicDHParameters = dh.symbolicMatrix(uRobot)
-  symbolicFramesHTM, symbolicfkHTM = k.forwardHTM(uRobot, m = 5, symbolic = True)
-  symbolicFramesDQ, symbolicfkDQ = k.forwardDQ(uRobot, m = 5, symbolic = True)
-  """
-  """
-    4.2 Computes robot's forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
-  """
-  framesCOMHTM, fkCOMHTM = k.forwardCOMHTM(uRobot, m = 5)
-  framesCOMDQ, fkCOMDQ = k.forwardCOMDQ(uRobot, m = 5)
+  # Dual Quaternions
+  fkCOMDQ = k.forwardCOMDQ(uRobot)
+  # symbolicDQCOMHTM = k.forwardCOMDQ(uRobot, symbolic = True)
 
-  """
-    4.3 Computes robot's symbolic forward kinematics to m - th center of mass (using Homogeneous Transformation Matrices or Dual Quaternions)
-  
-  uRobot.symbolicDHParametersCOM = dh.symbolicCentersOfMass(uRobot)
-  symbolicFramesCOMHTM, symbolicfkCOMHTM = k.forwardCOMHTM(uRobot, m = 5, symbolic = True)
-  symbolicFramesCOMDQ, symbolicfkCOMDQ = k.forwardCOMDQ(uRobot, m = 5, symbolic = True)
-  """
   """
     5. Compute Axis - Angle vector using Homogeneous Transformation Matrices (if necessary; this is OPTIONAL)
   
-  X = mv.axisAngle(fkHTM)
-  symbolicX = mv.symbolicAxisAngle(symbolicfkHTM)
   """
+  
+  X = mv.axisAngle(fkHTM[-1])
+  # symbolicX = mv.axisAngle(symbolicFKHTM[-1], symbolic = True)
+  
   """
     6. Compute Inverse Kinematics
   """ 
@@ -80,18 +86,18 @@ if __name__ == '__main__':
   xid = np.zeros((8, 4))
 
   # Jacobian Matrices (optional)
-  Jhtm = k.jacobianHTM(uRobot, m = 5)
-  Jdq = k.jacobianDQ(uRobot, m = 5, xi = xi)
+  Jhtm = k.geometricJacobian(uRobot)
+  Jdq = k.jacobianDQ(uRobot, xi = xi)
 
   # Time derivative of Dual Jacobian Matrix
-  W = np.array(np.zeros((1, 4)).tolist() + np.random.randn(3, 4).tolist() + np.zeros((1, 4)).tolist() + np.random.randn(3, 4).tolist())
-  JdDQ = k.dotJacobianDQ(uRobot, m = 5, W = W, xi = xi, xid = xid)
+  # W = np.array(np.zeros((1, 4)).tolist() + np.random.randn(3, 4).tolist() + np.zeros((1, 4)).tolist() + np.random.randn(3, 4).tolist())
+  # JdDQ = k.dotJacobianDQ(uRobot, m = 5, W = W, xi = xi, xid = xid)
   
   """ 
     6.4 Computes robot's Inverse Kinematics to a single point (using Homogeneous Transformation Matrices or Dual Quaternions)
   """
-  qHTM = k.inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM, K = np.eye(6), m = 5)
-  qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ, K = np.eye(8), xi = xi, m = 5)
+  qHTM = k.inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM[-1], K = np.eye(6))
+  qDQ = k.inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ[-1], K = 50 * np.eye(8), xi = xi)
   
   """
     6.2 Trajectory planning in Joints' Space, by means of randomizing joints positions. These will be computed to create the trajectory to be followed

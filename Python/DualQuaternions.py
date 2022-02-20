@@ -2,9 +2,15 @@ import numpy as np
 from sympy import *
 
 def Tx(x = 0):
+    """Translation on «x» axis
+
+    Args:
+        x (float): length of displacement in meters
+
+    Returns:
+        Q (np.array): Dual Quaternion
     """
-        Translation on «x» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return np.array([[1],
                      [0],
                      [0],
@@ -15,9 +21,15 @@ def Tx(x = 0):
                      [0]])
 
 def symbolicTx(x = 0):
+    """Translation on «x» axis
+
+    Args:
+        x (float): length of displacement in meters
+
+    Returns:
+        Q (SymPy Matrix): Dual Quaternion
     """
-        Translation on «x» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return Matrix([[1],
                    [0],
                    [0],
@@ -28,9 +40,15 @@ def symbolicTx(x = 0):
                    [0]])
 
 def Ty(y = 0):
+    """Translation on «y» axis
+
+    Args:
+        y (float): length of displacement in meters
+
+    Returns:
+        Q (np.array): Dual Quaternion
     """
-        Translation on «y» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return np.array([[1],
                      [0],
                      [0],
@@ -41,9 +59,15 @@ def Ty(y = 0):
                      [0]])
 
 def symbolicTy(y = 0):
+    """Translation on «y» axis
+
+    Args:
+        y (float): length of displacement in meters
+
+    Returns:
+        Q (SymPy Matrix): Dual Quaternion
     """
-        Translation on «y» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return Matrix([[1],
                    [0],
                    [0],
@@ -54,9 +78,15 @@ def symbolicTy(y = 0):
                    [0]])
 
 def Tz(z = 0):
+    """Translation on «z» axis
+
+    Args:
+        z (float): length of displacement in meters
+
+    Returns:
+        Q (np.array): Dual Quaternion
     """
-        Translation on «z» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return np.array([[1],
                      [0],
                      [0],
@@ -67,9 +97,15 @@ def Tz(z = 0):
                      [0.5 * z]])
 
 def symbolicTz(z = 0):
+    """Translation on «z» axis
+
+    Args:
+        z (float): length of displacement in meters
+
+    Returns:
+        Q (SymPy Matrix): Dual Quaternion
     """
-        Translation on «z» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return Matrix([[1],
                    [0],
                    [0],
@@ -80,9 +116,15 @@ def symbolicTz(z = 0):
                    [0.5 * z]])
 
 def Rx(x = 0):
+    """Rotation on «x» axis
+
+    Args:
+        x (float): angle of rotation in radians
+
+    Returns:
+        Q (np.array): Dual Quaternion
     """
-        Rotation on «x» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return np.array([[np.cos(x / 2)],
                      [np.sin(x / 2)],
                      [0],
@@ -93,9 +135,15 @@ def Rx(x = 0):
                      [0]])
     
 def symbolicRx(x = 0):
+    """Rotation on «x» axis
+
+    Args:
+        x (float): angle of rotation in radians
+
+    Returns:
+        Q (SymPy Matrix): Dual Quaternion
     """
-        Rotation on «x» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return Matrix([[cos(x / 2)],
                    [sin(x / 2)],
                    [0],
@@ -106,9 +154,15 @@ def symbolicRx(x = 0):
                    [0]])
 
 def Ry(y = 0):
+    """Rotation on «y» axis
+
+    Args:
+        y (float): angle of rotation in radians
+
+    Returns:
+        Q (np.array): Dual Quaternion
     """
-        Rotation on «y» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return np.array([[np.cos(y / 2)],
                      [0],
                      [np.sin(y / 2)],
@@ -119,9 +173,15 @@ def Ry(y = 0):
                      [0]])
 
 def symbolicRy(y = 0):
+    """Rotation on «y» axis
+
+    Args:
+        y (float): angle of rotation in radians
+
+    Returns:
+        Q (SymPy Matrix): Dual Quaternion
     """
-        Rotation on «y» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return Matrix([[cos(y / 2)],
                    [0],
                    [sin(y / 2)],
@@ -132,9 +192,15 @@ def symbolicRy(y = 0):
                    [0]])
 
 def Rz(z = 0):
+    """Rotation on «z» axis
+
+    Args:
+        z (float): angle of rotation in radians
+
+    Returns:
+        Q (np.array): Dual Quaternion
     """
-        Rotation on «z» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return np.array([[np.cos(z / 2)],
                      [0],
                      [0],
@@ -145,9 +211,15 @@ def Rz(z = 0):
                      [0]])
 
 def symbolicRz(z = 0):
+    """Rotation on «z» axis
+
+    Args:
+        z (float): angle of rotation in radians
+
+    Returns:
+        Q (SymPy Matrix): Dual Quaternion
     """
-        Rotation on «z» axis. Returns Dual Quaternion in matrix form
-    """
+    
     return Matrix([[cos(z / 2)],
                    [0],
                    [0],
@@ -158,9 +230,13 @@ def symbolicRz(z = 0):
                    [0]])
 
 def leftOperator(Q):
-    """
-        Left operator for Dual Quaternions multiplication
-        Q: np.array (two - dimensional)
+    """Left operator for Dual Quaternions multiplication
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        L (np.array): Left Operator
     """
     
     # 1. Separates real and dual part of Dual Quaternion
@@ -187,9 +263,13 @@ def leftOperator(Q):
     return np.append(a, b, axis = 0)
 
 def symbolicLeftOperator(Q):
-    """
-        Left operator for Dual Quaternions multiplication
-        Q: Symbolic Matrix (two - dimensional)
+    """Left operator for Dual Quaternions multiplication
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        L (SymPy Matrix): Left Operator
     """
     
     # 1. Separates real and dual part of Dual Quaternion
@@ -216,9 +296,13 @@ def symbolicLeftOperator(Q):
     return a.row_insert(4, b)
 
 def rightOperator(Q):
-    """
-        Right operator for Dual Quaternions multiplication
-        Q: np.array (two - dimensional)
+    """Right operator for Dual Quaternions multiplication
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        R (np.array): Right Operator
     """
     
     # 1. Separates real and dual part of Dual Quaternion
@@ -245,9 +329,13 @@ def rightOperator(Q):
     return np.append(a, b, axis = 0)
 
 def symbolicRightOperator(Q):
-    """
-        Left operator for Dual Quaternions multiplication
-        Q: Symbolic Matrix (two - dimensional)
+    """Left operator for Dual Quaternions multiplication
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        R (SymPy Matrix): Right Operator
     """
     
     # 1. Separates real and dual part of Dual Quaternion
@@ -274,70 +362,118 @@ def symbolicRightOperator(Q):
     return a.row_insert(4, b)
 
 def crossOperator(q):
+    """Cross operator for quaternions' real part
+
+    Args:
+        q (np.array): Quaternion
+
+    Returns:
+        C (np.array): Cross Operator Matrix
     """
-        Cross operator for quaternions' real part multiplication
-        q: np.array (two - dimensional)
-    """
+
     return np.array([[0, float(-q[3]), float(+q[2])],
                      [float(+q[3]), 0, float(-q[1])],
                      [float(-q[2]), float(+q[1]), 0]])
 
 def symbolicCrossOperator(q):
+    """Cross operator for quaternions' real part
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        C (SymPy Matrix): Cross Operator Matrix
     """
-        Cross operator for quaternions' real part multiplication
-        q: Symbolic Matrix (two - dimensional)
-    """
+    
     return Matrix([[0, -q[3], +q[2]],
                    [+q[3], 0, -q[1]],
                    [-q[2], +q[1], 0]])
 
 def dualCrossOperator(Q):
+    """Dual Cross operator for Dual Quaternions' real part
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        C (np.array): Dual Cross Operator Matrix
     """
-        Cross operator for Dual Quaternions multiplication
-        Q: np.array (two - dimensional)
-    """
+    
+    # Cross Operator for rotational part
     Qr = crossOperatorExtension(Q[0 : 4])
+    
+    # Cross Operator for translational part
     Qd = crossOperatorExtension(Q[4 : 8])
+    
+    # Auxiliar matrices
     a = np.append(Qr, np.zeros((4, 4)), axis = 1)
     b = np.append(Qd, Qr, axis = 1)
+    
+    
     return np.append(a, b, axis = 0)
 
 def symbolicDualCrossOperator(Q):
+    """Dual Cross operator for Dual Quaternions' real part
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        C (SymPy Matrix): Dual Cross Operator Matrix
     """
-        Cross operator for Dual Quaternions multiplication
-        Q: Symbolic Matrix (two - dimensional)
-    """
+    
+    # Cross Operator for rotational part
     Qr = symbolicCrossOperatorExtension(Q[0 : 4])
+    
+    # Cross Operator for translational part
     Qd = symbolicCrossOperatorExtension(Q[4 : 8])
+    
+    # Auxiliar matrices
     a = Qr.column_insert(4, zeros(4))
     b = Qd.column_insert(4, Qr)
+    
     return a.row_insert(4, b)
 
 def crossOperatorExtension(q):
+    """Cross operator extension for quaternions' multiplication
+
+    Args:
+        q (np.array): Quaternion
+
+    Returns:
+        C (np.array): Cross Operator Extension Matrix
     """
-        Cross operator extension for quaternions' multiplication
-        q: np.array (two - dimensional)
-    """
+    
     return np.array([[0, 0, 0, 0],
                      [0, 0, float(-q[3]), float(+q[2])],
                      [0, float(+q[3]), 0, float(-q[1])],
                      [0, float(-q[2]), float(+q[1]), 0]])
 
 def symbolicCrossOperatorExtension(q):
+    """Cross operator extension for quaternions' multiplication
+
+    Args:
+        q (np.array): Quaternion
+
+    Returns:
+        C (SymPy Matrix): Cross Operator Extension Matrix
     """
-        Cross operator extension for quaternions' multiplication
-        q: Symbolic Matrix (two - dimensional)
-    """
+    
     return Matrix([[0, 0, 0, 0],
                    [0, 0, -q[3], +q[2]],
                    [0, +q[3], 0, -q[1]],
                    [0, -q[2], +q[1], 0]])
 
 def conjugate(Q):
+    """Conjugate operator for Dual Quaternions
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        C (np.array): Conjugate Dual Quaternion
     """
-        Conjugate operator for Dual Quaternions
-        Q: np.array (two - dimensional)
-    """
+
     return np.array([[+ float(Q[0, 0])],
                      [- float(Q[1, 0])],
                      [- float(Q[2, 0])],
@@ -348,10 +484,15 @@ def conjugate(Q):
                      [- float(Q[7, 0])]])
 
 def symbolicConjugate(Q):
+    """Conjugate operator for Dual Quaternions
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        C (SymPy Matrix): Conjugate Dual Quaternion
     """
-        Conjugate operator for Dual Quaternions
-        Q: Symbolic Matrix (two - dimensional)
-    """
+    
     return Matrix([[+ Q[0, 0]],
                    [- Q[1, 0]],
                    [- Q[2, 0]],
@@ -362,10 +503,16 @@ def symbolicConjugate(Q):
                    [- Q[7, 0]]])
     
 def toR3(Q):
+    """Transformation from Dual Quaternion to Euclidian Space Coordinates
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        r (np.array): Position in R3 coordinates
     """
-        Transformation from Dual Quaternion to Euclidian Space Coordinates
-        Q: Symbolic Matrix (two - dimensional)
-    """
+    
+    # Auxiliar matrix
     z = np.array([[0, 0, 0, 0, 0, 0, 0, 0],
                   [0, 0, 0, 0, 0, 0, 0, 0],
                   [0, 0, 0, 0, 0, 0, 0, 0],
@@ -374,15 +521,25 @@ def toR3(Q):
                   [0, 0, 0, 0, 0, 2, 0, 0],
                   [0, 0, 0, 0, 0, 0, 2, 0],
                   [0, 0, 0, 0, 0, 0, 0, 2]])
+    
+    # Extract rotation part to a dual quaternion
     qr = np.append(Q[0 : 4, 0].reshape((4, 1)), np.zeros((4, 1)), axis = 0)
+    
+    # Transformation to R3
     r = z.dot(leftOperator(Q)).dot(conjugate(qr))
     return r[4 : 8, 0]
 
 def symbolicToR3(Q):
+    """Transformation from Dual Quaternion to Euclidian Space Coordinates
+
+    Args:
+        Q (np.array): Dual Quaternion
+
+    Returns:
+        r (SymPy Matrix): Position in R3 coordinates
     """
-        Transformation from Dual Quaternion to Euclidian Space Coordinates
-        Q: Symbolic Matrix (two - dimensional)
-    """
+    
+    #Auxiliar matrix
     z = Matrix([[0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -391,6 +548,10 @@ def symbolicToR3(Q):
                 [0, 0, 0, 0, 0, 2, 0, 0],
                 [0, 0, 0, 0, 0, 0, 2, 0],
                 [0, 0, 0, 0, 0, 0, 0, 2]])
+    
+    # Extract rotation part to a dual quaternion
     qr = Q[0 : 4, 0].row_insert(4, zeros(4, 1))
+    
+    # Transformation to R3
     r = z * symbolicLeftOperator(Q) * symbolicConjugate(qr)
     return simplify(r[4 : 8, 0])
