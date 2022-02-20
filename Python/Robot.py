@@ -8,14 +8,19 @@ from matplotlib.animation import FuncAnimation
 from sympy import *
 
 class System:
+  
+  # Object contructor
   def __init__(self, jointsPositions, linksLengths, centersOfMass, dhParameters = [], symbolicDHParameters = [], dhParametersCOM = [], symbolicDHParametersCOM = [], xi = [], xid = [], name = ''):
-    """
-      Robot's constructor
-      jointsPositions: np.array (two - dimensional)
-      linksLengths: list (one - dimensional)
-      centersOfMass: list (one - dimensional)
-      name: string (optional)
-    """
+    
+    """Object constructor
+
+    Args:
+      jointsPositions (np.array): joints set in radians
+      linksLengths (list): length of each robot's link in meters
+      centersOfMass (list): relative position of each center of mass
+      name (str, optional): robot's name (if any)
+    """ 
+
     # Robot's name
     self.name = name
 
