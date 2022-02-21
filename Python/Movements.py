@@ -191,34 +191,17 @@ def axisAngle(H, symbolic = False):
     X (SymPy Matrix): Axis - Angle vector
   """
   
-  if symbolic:
-        
-    # Calculate angle of rotation
-    theta = simplify(acos((H[0 : 3, 0 : 3].trace() - 1) / 2))
-    
-    # Calculate axis of rotation
-    n = (1 / (2 * sin(theta))) * Matrix([[H[2, 1] - H[1, 2]],
-                                         [H[0, 2] - H[2, 0]],
-                                         [H[1 ,0] - H[0, 1]]])
-    
-    # Append position and orientation in one single vector
-    X = H[0 : 3, 3].row_insert(3, simplify(theta * n))
-    
-    # Returns value
-    return X
-    
-  else:
+  # Calculate angle of rotation
+  theta = simplify(acos((H[0 : 3, 0 : 3].trace() - 1) / 2)) if symbolic else np.arccos((np.trace(H[0 : 3, 0 : 3]) - 1)/2)
   
-    # Calculate angle of rotation
-    theta = np.arccos((np.trace(H[0 : 3, 0 : 3]) - 1)/2)
-    
-    # Calculate axis of rotation
-    n = (1/(2 * np.sin(theta))) * np.array([[H[2, 1] - H[1, 2]],
-                                            [H[0, 2] - H[2, 0]],
-                                            [H[1 ,0] - H[0, 1]]])
-    
-    # Append position and orientation in one single vector
-    X = np.append(H[0 : 3, 3], theta * n)
-    
-    # Returns value
-    return X.reshape((6, 1))
+  # Calculate axis of rotation
+  n = simplify((1 / (2 * sin(theta))) * Matrix([[H[2, 1] - H[1, 2]],
+                                                [H[0, 2] - H[2, 0]],
+                                                [H[1 ,0] - H[0, 1]]])) if symbolic else (1/(2 * np.sin(theta))) * np.array([[H[2, 1] - H[1, 2]],
+                                                                                                                            [H[0, 2] - H[2, 0]],
+                                                                                                                            [H[1 ,0] - H[0, 1]]])
+  
+  # Append position and orientation in one single vector
+  X = H[0 : 3, 3].row_insert(3, simplify(theta * n)) if symbolic else np.append(H[0 : 3, 3], theta * n)
+  
+  return nsimplify(X, tolerance = 1e-10, rational = False) if symbolic else X.reshape((6, 1))

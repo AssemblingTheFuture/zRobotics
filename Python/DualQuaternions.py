@@ -554,4 +554,5 @@ def symbolicToR3(Q):
     
     # Transformation to R3
     r = z * symbolicLeftOperator(Q) * symbolicConjugate(qr)
-    return simplify(r[4 : 8, 0])
+    
+    return nsimplify(simplify(r[4 : 8, 0]), tolerance = 1e-10, rational = False)

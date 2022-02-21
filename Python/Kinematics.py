@@ -1,8 +1,8 @@
-import DenavitHartenberg as dh
 import DualQuaternions as dq
 import Dynamics as dy
 import Movements as mv
 import numpy as np
+from Robot import *
 from sympy import *
 
 """
@@ -23,17 +23,20 @@ def forwardHTM(robot, symbolic = False):
   # Initial conditions
   framesHTM = []
 
-  # Get Denavit - Hartenberg Matrix
-  DH = dh.symbolicMatrix(robot) if symbolic else dh.matrix(robot)
+  # Set Denavit - Hartenberg Matrix
+  robot.symbolicDenavitHartenberg() if symbolic else robot.denavitHartenberg()
+  
+  # Set Denavit - Hartenberg Matrix
+  DH = robot.symbolicDH if symbolic else robot.dhParameters
 
   # Create Homogeneous Transformation Matrix for Inertial Frame
   fkHTM = eye(4) if symbolic else np.identity(4)
-
+  
   # Iteration through all the rows in Denavit - Hartenberg Matrix
-  for frame in DH:
+  for frame in range(DH.rows) if symbolic else DH:
     
     # Operates matrices symbolically: Rz * Tz * Tx * Rx
-    fkHTM = nsimplify(simplify(fkHTM * mv.symbolicRz(frame[0]) * mv.symbolicTz(frame[1]) * mv.symbolicTx(frame[2]) * mv.symbolicRx(frame[3])), tolerance=1e-10, rational = False) if symbolic else fkHTM.dot(mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3])))
+    fkHTM = nsimplify(simplify(fkHTM * mv.symbolicRz(DH[frame, 0]) * mv.symbolicTz(DH[frame, 1]) * mv.symbolicTx(DH[frame, 2]) * mv.symbolicRx(DH[frame, 3])), tolerance = 1e-10, rational = False) if symbolic else fkHTM.dot(mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3])))
 
     # Append each calculated Homogeneous Transformation Matrix
     framesHTM.append(fkHTM)
@@ -52,43 +55,31 @@ def forwardCOMHTM(robot, symbolic = False):
   """
     
   # Calculate forward kinematics
-  framesHTM = forwardHTM(robot, symbolic = symbolic)
+  framesHTM = forwardHTM(robot, symbolic)
 
   # Initial conditions
   framesCOMHTM = [eye(4) if symbolic else np.identity(4)]
-
-  # Get symbolic Denavit - Hartenberg COM Matrix
-  comDH = dh.symbolicCentersOfMass(robot) if symbolic else dh.centersOfMass(robot)
+  
+  # Set Denavit - Hartenberg Matrix
+  robot.symbolicDenavitHartenbergCOM() if symbolic else robot.denavitHartenbergCOM()
+  
+  # Set Denavit - Hartenberg Matrix
+  comDH = robot.symbolicDHParametersCOM if symbolic else robot.dhParametersCOM
   
   # Iterator
   i = 1
     
   # Iteration through all the rows in Denavit - Hartenberg Matrix
-  for frame in comDH[1:, :]:
+  for frame in range(comDH[1 : , :].rows) if symbolic else comDH[1 : , :]:
           
-    # If calculation is symbolic
-    if symbolic:
-            
-      # Center of Mass Homogeneous Transformation Matrix (symbolic)
-      COM = mv.symbolicRz(frame[0]) * mv.symbolicTz(frame[1]) * mv.symbolicTx(frame[2]) * mv.symbolicRx(frame[3])
+    # Center of Mass Homogeneous Transformation Matrix 
+    COM = mv.symbolicRz(comDH[frame + 1, 0]) * mv.symbolicTz(comDH[frame + 1, 1]) * mv.symbolicTx(comDH[frame + 1, 2]) * mv.symbolicRx(comDH[frame + 1, 3]) if symbolic else mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3]))
         
-      # Rigid body's Homogeneous Transformation Matrix (symbolic)
-      B = framesHTM[i - 1].inv() * framesHTM[i]
+    # Rigid body's Homogeneous Transformation Matrix
+    B = framesHTM[i - 1].inv() * framesHTM[i] if symbolic else np.linalg.pinv(framesHTM[i - 1]).dot(framesHTM[i])
 
-      # Forward kinematics to Center of Mass (symbolic)
-      fkCOMHTM = nsimplify(simplify(framesHTM[i] * B.inv() * COM), tolerance=1e-10, rational = False)
-      
-    # Else, calculation is numerical
-    else:
-            
-      # Center of Mass Homogeneous Transformation Matrix
-      COM = mv.rz(frame[0]).dot(mv.tz(frame[1])).dot(mv.tx(frame[2])).dot(mv.rx(frame[3]))
-       
-      # Rigid body's Homogeneous Transformation Matrix
-      B = np.linalg.pinv(framesHTM[i - 1]).dot(framesHTM[i])
-
-      # Forward kinematics to Center of Mass
-      fkCOMHTM = framesHTM[i].dot(np.linalg.inv(B)).dot(COM)
+    # Forward kinematics to Center of Mass
+    fkCOMHTM = nsimplify(simplify(framesHTM[i] * B.inv() * COM), tolerance = 1e-10, rational = False) if symbolic else framesHTM[i].dot(np.linalg.inv(B)).dot(COM)
         
     framesCOMHTM.append(fkCOMHTM)
     i += 1
@@ -109,17 +100,20 @@ def forwardDQ(robot, symbolic = False):
   # Initial conditions
   framesDQ = []
 
-  # Get Denavit - Hartenberg Matrix
-  DH = dh.symbolicMatrix(robot) if symbolic else dh.matrix(robot)
+  # Set Denavit - Hartenberg Matrix
+  robot.symbolicDenavitHartenberg() if symbolic else robot.denavitHartenberg()
+  
+  # Set Denavit - Hartenberg Matrix
+  DH = robot.symbolicDH if symbolic else robot.dhParameters
 
   # Create Dual Quaternion for Inertial Frame
   fkDQ = Matrix([1, 0, 0, 0, 0, 0, 0, 0]) if symbolic else np.array([[1, 0, 0, 0, 0, 0, 0, 0]]).T
   
   # Iteration through all the rows in Denavit - Hartenberg Matrix
-  for frame in DH:
+  for frame in range(DH.rows) if symbolic else DH:
     
     # Operates dual quaternions symbolically: Rz * Tz * Tx * Rx
-    fkDQ = nsimplify(simplify(dq.symbolicLeftOperator(fkDQ) * dq.symbolicRightOperator(dq.symbolicRx(frame[3])) * dq.symbolicLeftOperator(dq.symbolicRz(frame[0])) * dq.symbolicRightOperator(dq.symbolicTx(frame[2])) * dq.symbolicTz(frame[1])), tolerance=1e-10, rational = False) if symbolic else dq.leftOperator(fkDQ).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.leftOperator(dq.Rz(frame[0]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
+    fkDQ = nsimplify(simplify(dq.symbolicLeftOperator(fkDQ) * dq.symbolicRightOperator(dq.symbolicRx(DH[frame, 3])) * dq.symbolicLeftOperator(dq.symbolicRz(DH[frame, 0])) * dq.symbolicRightOperator(dq.symbolicTx(DH[frame, 2])) * dq.symbolicTz(DH[frame, 1])), tolerance = 1e-10, rational = False) if symbolic else dq.leftOperator(fkDQ).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.leftOperator(dq.Rz(frame[0]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
 
     # Append each calculated Homogeneous Transformation Matrix
     framesDQ.append(fkDQ)
@@ -138,43 +132,31 @@ def forwardCOMDQ(robot, symbolic = False):
   """
   
   # Calculate forward kinematics
-  framesDQ = forwardDQ(robot, symbolic = symbolic)
+  framesDQ = forwardDQ(robot, symbolic)
 
   # Initial conditions
   framesCOMDQ = Matrix([1, 0, 0, 0, 0, 0, 0, 0]) if symbolic else [np.array([[1], [0], [0], [0], [0], [0], [0], [0]])]
 
-  # Get Denavit - Hartenberg COM Matrix
-  comDH = dh.symbolicCentersOfMass(robot) if symbolic else dh.centersOfMass(robot)
+  # Set Denavit - Hartenberg Matrix
+  robot.symbolicDenavitHartenbergCOM() if symbolic else robot.denavitHartenbergCOM()
+  
+  # Set Denavit - Hartenberg Matrix
+  comDH = robot.symbolicDHParametersCOM if symbolic else robot.dhParametersCOM
 
   # Iterator
   i = 1
     
   # Iteration through all the rows in Denavit - Hartenberg Matrix
-  for frame in comDH[1:, :]:
+  for frame in range(comDH[1 : , :].rows) if symbolic else comDH[1 : , :]:
           
-    # If calculation is symbolic
-    if symbolic:
-      
-      # Center of Mass Homogeneous Transformation Matrix
-      COM = dq.symbolicLeftOperator(dq.symbolicRz(frame[0])) * dq.symbolicRightOperator(dq.symbolicRx(frame[3])) * dq.symbolicRightOperator(dq.symbolicTx(frame[2])) * dq.symbolicTz(frame[1])
+    # Center of Mass Homogeneous Transformation Matrix
+    COM = dq.symbolicLeftOperator(dq.symbolicRz(comDH[frame + 1, 0])) * dq.symbolicRightOperator(dq.symbolicRx(comDH[frame + 1, 3])) * dq.symbolicRightOperator(dq.symbolicTx(comDH[frame + 1, 2])) * dq.symbolicTz(comDH[frame + 1, 1]) if symbolic else dq.leftOperator(dq.Rz(frame[0])).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
 
-      # Rigid body's Dual Quaternion
-      B = dq.symbolicLeftOperator(dq.symbolicConjugate(framesDQ[i - 1])) * framesDQ[i]
+    # Rigid body's Dual Quaternion
+    B = dq.symbolicLeftOperator(dq.symbolicConjugate(framesDQ[i - 1])) * framesDQ[i] if symbolic else dq.leftOperator(dq.conjugate(framesDQ[i - 1])).dot(framesDQ[i])
 
-      # Forward kinematics to Center of Mass
-      fkCOMDQ = nsimplify(simplify(dq.symbolicLeftOperator(framesDQ[i]) * dq.symbolicRightOperator(COM) * dq.symbolicConjugate(B)), tolerance=1e-10, rational = False)
-
-    # Else, calculation is numerical  
-    else:
-      
-      # Center of Mass Dual Quaternion
-      COM = dq.leftOperator(dq.Rz(frame[0])).dot(dq.rightOperator(dq.Rx(frame[3]))).dot(dq.rightOperator(dq.Tx(frame[2]))).dot(dq.Tz(frame[1]))
-        
-      # Rigid body's Dual Quaternion
-      B = dq.leftOperator(dq.conjugate(framesDQ[i - 1])).dot(framesDQ[i])
-        
-      # Forward kinematics to Center of Mass
-      fkCOMDQ = dq.leftOperator(framesDQ[i]).dot(dq.rightOperator(COM)).dot(dq.conjugate(B))
+    # Forward kinematics to Center of Mass
+    fkCOMDQ = nsimplify(simplify(dq.symbolicLeftOperator(framesDQ[i]) * dq.symbolicRightOperator(COM) * dq.symbolicConjugate(B)), tolerance = 1e-10, rational = False) if symbolic else dq.leftOperator(framesDQ[i]).dot(dq.rightOperator(COM)).dot(dq.conjugate(B))
 
     framesCOMDQ.append(fkCOMDQ)
     i += 1
@@ -189,15 +171,15 @@ def geometricJacobian(robot, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    J (np.array): Inertial Geometric Jacobian Matrix
-    J (SymPy Matrix): Inertial Geometric Jacobian Matrix
+    J (np.array): Geometric Jacobian Matrix
+    J (SymPy Matrix): Geometric Jacobian Matrix
   """
 
   # Get number of joints (generalized coordinates)
   n = robot.jointsPositions.shape[0]
   
   # Calculate forward kinematics
-  fkHTM = forwardHTM(robot, symbolic = symbolic)
+  fkHTM = forwardHTM(robot, symbolic)
   
   # Initializes jacobian matrix with zeros
   J = zeros(6, n) if symbolic else np.zeros((6, n))
@@ -212,12 +194,67 @@ def geometricJacobian(robot, symbolic = False):
     r = fkHTM[-1][0: 3, 3] - fkHTM[j][0: 3, 3]
     
     # Calculate axes of actuation of end - effector caused by current joint
-    J[0: 3, j] = nsimplify(z.cross(r), tolerance=1e-10, rational = False) if symbolic else np.cross(z, r)
+    J[0: 3, j] = nsimplify(simplify(z.cross(r)), tolerance = 1e-10, rational = False) if symbolic else np.cross(z, r)
     
     # Set axis of actuation
     J[3: 6, j] = z
     
   return J
+
+def analyticJacobian(robot, dq = 0.001, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes Jacobian matrix to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): _description_
+    dq (float, optional): step size for numerical derivative. Defaults to 0.001.
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    J (np.array): Inertial Analytic Jacobian Matrix
+    J (SymPy Matrix): Inertial Analytic Jacobian Matrix
+  """
+  
+  # Calculate forward kinematics: f(q)
+  fkHTM = forwardHTM(robot, symbolic)
+  
+  # Convert result into an Axis - Angle vector: x(q)
+  x = mv.axisAngle(fkHTM[-1], symbolic)
+  
+  if symbolic:
+    
+    # Calculate Analytic Jacobian Matrix by differentiating Axis - Angle vector with SymPy functions
+    return x.jacobian(robot.qSymbolic)
+    
+  else:
+        
+    # Get number of joints (generalized coordinates)
+    n = robot.jointsPositions.shape[0]
+  
+    # Initializes jacobian matrix with zeros
+    J = np.zeros((6, n))
+    
+    # Auxiliar variable to keep original joints positions
+    q = robot.jointsPositions.copy()
+    
+    # Iterates through all colums (generalized coordinates)
+    for j in range(n):
+      
+      # Set increment to current generalized coordinate: z[j] = q[j] + dq
+      robot.jointsPositions[j] += dq
+        
+      # Calculate forward kinematics with step size: f(z) = f(q + dq)
+      f = forwardHTM(robot)
+      
+      # Convert result into an Axis - Angle vector: X(q + dq)
+      X = mv.axisAngle(f[-1])
+      
+      # Calculate analytic jacobian matrix: [X(q + dq) - x(q)] / dq
+      J[: , j] = ((X - x) / dq).flatten()
+      
+      # Eliminates step size by copying original values from auxiliar variable
+      robot.jointsPositions[:, :] = q
+    
+    return J
 
 def jacobianDQ(robot, xi, symbolic = False):
   """Using Dual Quaternions, this function computes Jacobian matrix to m - th rigid body given joints positions in radians. Robot's kinematic parameters have to be set before using this function
@@ -236,7 +273,7 @@ def jacobianDQ(robot, xi, symbolic = False):
   n = robot.jointsPositions.shape[0]
   
   # Calculate forward kinematics
-  fkDQ = forwardDQ(robot, symbolic = symbolic)
+  fkDQ = forwardDQ(robot, symbolic)
   
   # Initializes jacobian matrix with zeros
   J = zeros(8, n) if symbolic else np.zeros((8, n))
@@ -245,7 +282,7 @@ def jacobianDQ(robot, xi, symbolic = False):
   for j in range(n):
         
     # Calculate Jacobian Matrix
-      J[:, j] = 0.5 * dq.symbolicLeftOperator(fkDQ[j]) * dq.symbolicRightOperator(fkDQ[-1]) * dq.symbolicRightOperator(dq.symbolicConjugate(fkDQ[j])) * xi[:, j] if symbolic else 0.5 * dq.leftOperator(fkDQ[j]).dot(dq.rightOperator(fkDQ[-1])).dot(dq.rightOperator(dq.conjugate(fkDQ[j]))).dot(xi[:, j])
+      J[:, j] = nsimplify(simplify(0.5 * dq.symbolicLeftOperator(fkDQ[j]) * dq.symbolicRightOperator(fkDQ[-1]) * dq.symbolicRightOperator(dq.symbolicConjugate(fkDQ[j])) * Matrix(xi[:, j])), tolerance = 1e-10, rational = False) if symbolic else 0.5 * dq.leftOperator(fkDQ[j]).dot(dq.rightOperator(fkDQ[-1])).dot(dq.rightOperator(dq.conjugate(fkDQ[j]))).dot(xi[:, j])
   
   return J
 
@@ -386,83 +423,132 @@ def inverseDQ(robot, q0, Qd, K, xi):
   Differential Kinematics Section
 """
 
+def geometricStateSpace(robot, qd, symbolic = False):
+    """Using Homogeneous Transformation Matrices, this function computes state-space equation to m - th frame, given joints velocities. Robot's kinematic parameters have to be set before using this function
 
-def velocityHTM(robot, m, qd):
-    """
-      Using Homogeneous Transformation Matrices, this function computes Instantaneous Inertial Velocity to m - th frame, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function
-      robot: object (robot.jointsPositions, robot.linksLengths)
-      m: int
-      n: int
-      qd: np.array (two - dimensional)
-    """
-    Jhtm = geometricJacobian(robot, m)
-    Vhtm = Jhtm.dot(qd)
-    return Vhtm
+    Args:
+      robot (object): _description_
+      qd (np.array): joints velocities
+      symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
+    Returns:
+      Xd (np.array): state-space equation (X'(t), numerical)
+      Xd (SymPy Matrix): state-space equation (X'(t), symbolic)
+    """
 
-def jointsVelocitiesHTM(robot, m, Vhtm):
-    """
-      Using Homogeneous Transformation Matrices, this function computes Instantaneous Joints' Velocities to n - th joint, given m - th frame velocity in meters/second. Robot's kinematic parameters have to be set before using this function
-      robot: object (robot.jointsPositions, robot.linksLengths)
-      m: int
-      n: int
-      Vhtm: np.array (two - dimensional)
-    """
-    Jhtm = geometricJacobian(robot, m)
-    qd = np.linalg.pinv(Jhtm).dot(Vhtm)
-    return qd
+    # Calculate Inertial Geometric Jacobian Matrix 
+    J = geometricJacobian(robot, symbolic)
+    
+    # Calculate state-space equation (symbolic or numerical)
+    Xd = nsimplify(simplify(J * qd), tolerance = 1e-10, rational = False) if symbolic else J.dot(qd)
+    
+    return Xd
 
+def analyticStateSpace(robot, qd, dq = 0.001, symbolic = False):
+    """Using Homogeneous Transformation Matrices, this function computes state-space equation to m - th frame, given joints velocities. Robot's kinematic parameters have to be set before using this function
 
-def jacobianVDQ(robot, m, n, xi):
+    Args:
+      robot (object): _description_
+      qd (np.array): joints velocities
+      dq (float, optional): step size for numerical derivative. Defaults to 0.001.
+      symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+      Xd (np.array): state-space equation (X'(t), numerical)
+      Xd (SymPy Matrix): state-space equation (X'(t), symbolic)
     """
-      Using Dual Quaternions, this function computes Inertial Velocity Jacobian matrix to n - th joint, given number of frames actuated by joints and joints positions in radians. Robot's kinematic parameters have to be set before using this function
-      robot: object (robot.jointsPositions, robot.linksLengths)
-      m: int
-      n: int
-      xi: np.array (two - dimensional)
-    """
-    framesDQ, fkDQ = forwardDQ(robot, m)
-    J = np.zeros((8, n))
-    for j in range(n):
-        J[:, j] = dq.leftOperator(
-            framesDQ[j + 1]).dot(dq.rightOperator(dq.conjugate(framesDQ[j + 1]))).dot(xi[:, j])
-    return J
+
+    # Calculate Inertial Geometric Jacobian Matrix 
+    J = analyticJacobian(robot, dq, symbolic)
+    
+    # Calculate state-space equation (symbolic or numerical)
+    Xd = nsimplify(simplify(J * qd), tolerance = 1e-10, rational = False) if symbolic else J.dot(qd)
+    
+    return Xd
+
+def jacobianVDQ(robot, xi, symbolic = False):
+  """Using Dual Quaternions, this function computes Inertial Velocity Jacobian matrix to n - th joint, given number of frames actuated by joints and joints positions in radians. Robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): _description_
+    xi (np.array): axes of rotation of each joint
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    J (np.array): Inertial Velocity Jacobian Matrix
+    J (SymPy Matrix): Inertial Velocity Jacobian Matrix
+  """
+  
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Calculate forward kinematics
+  fkDQ = forwardDQ(robot, symbolic)
+  
+  # Initializes jacobian matrix with zeros
+  J = zeros(8, n) if symbolic else np.zeros((8, n))
+  
+  # Iterates through all generalized coordinates
+  for j in range(n):
+  
+    # Calculate Jacobian Matrix
+    J[:, j] = nsimplify(simplify(dq.symbolicLeftOperator(fkDQ[j + 1]) * dq.symbolicRightOperator(dq.symbolicConjugate(fkDQ[j + 1])) * Matrix(xi[:, j])), tolerance = 1e-10, rational = False) if symbolic else dq.leftOperator(fkDQ[j + 1]).dot(dq.rightOperator(dq.conjugate(fkDQ[j + 1]))).dot(xi[:, j])
+  
+  return J
+
+def velocityDQ(robot, qd, xi, symbolic = False):
+  """Using Dual Quaternions, this function computes Instantaneous Inertial Velocity to m - th frame, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): _description_
+    xi (np.array): axes of rotation of each joint
+    qd (np.array): joints velocities
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    V (np.array): Inertial Velocity
+    V (SymPy Matrix): Inertial Velocity
+  """
+  
+  # Calculate forward kinematics
+  fkDQ = forwardDQ(robot, symbolic)
+  
+  # Get end-effector position in euclidean space
+  r = dq.symbolicToR3(fkDQ[-1]) if symbolic else dq.toR3(fkDQ[-1])
+  
+  # End-effector position matrix
+  M = eye(4).col_insert(4, zeros(4)).row_insert(4, -dq.symbolicCrossOperatorExtension(r).col_insert(4, eye(4))) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis=1), np.append(-dq.crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+  
+  # Inertial Velocity Jacobian Matrix
+  J = jacobianVDQ(robot, xi, symbolic)
+  
+  # End-effector inertial velocity
+  V = M * J * qd if symbolic else M.dot(J).dot(qd)
+  
+  return V
 
 
 def jacobianADQ(robot, m, n, W0, qd, xi, xid):
-    """
-      Using Dual Quaternions, this function computes Inertial Acceleration Jacobian matrix to n - th joint, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
-      robot: object (robot.jointsPositions, robot.linksLengths)
-      m: int
-      n: int
-      W0: np.array (two - dimensional)
-      qd: np.array (two - dimensional)
-      xi: np.array (two - dimensional)
-    """
-    framesQ, fkQ = forwardDQ(robot, m)
-    K = np.zeros((8, n))
-    W = relativeVelocityDQ(robot, m=m, n = n, W0 = W0, qd = qd, xi = xi)
-    for j in range(n):
-        K[:, j] = dq.leftOperator(framesQ[j + 1]).dot(dq.rightOperator(dq.conjugate(
-            framesQ[j + 1]))).dot((dq.dualCrossOperator(W[:, j + 1]).dot(xi[:, j])) + xid[:, j])
-    return K
+  """Using Dual Quaternions, this function computes Inertial Acceleration Jacobian matrix to n - th joint, given joints positions in radians. Robot's kinematic parameters have to be set before using this function
 
+  Args:
+    robot (object): _description_
+    xi (np.array): axes of rotation of each joint
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
-def velocityDQ(robot, m, n, qd, xi):
-    """
-      Using Dual Quaternions, this function computes Instantaneous Inertial Velocity to m - th frame, given joints velocities in radians/second. Robot's kinematic parameters have to be set before using this function
-      robot: object (robot.jointsPositions, robot.linksLengths)
-      m: int
-      n: int
-      qd: np.array (two - dimensional)
-      xi: np.array (two - dimensional)
-    """
-    framesDQ, fkDQ = forwardDQ(robot, m)
-    r = dq.toR3(fkDQ)
-    M = np.append(np.append(np.eye(4), np.zeros((4, 4)), axis=1), np.append(-dq.crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
-    Jvdq = jacobianVDQ(robot, m, n, xi)
-    Vdq = M.dot(Jvdq).dot(qd)
-    return Vdq
+  Returns:
+    J (np.array): Inertial Velocity Jacobian Matrix
+    J (SymPy Matrix): Inertial Velocity Jacobian Matrix
+  """
+  
+  framesQ, fkQ = forwardDQ(robot, m)
+  K = np.zeros((8, n))
+  W = relativeVelocityDQ(robot, m=m, n = n, W0 = W0, qd = qd, xi = xi)
+  for j in range(n):
+    K[:, j] = dq.leftOperator(fkQ[j + 1]).dot(dq.rightOperator(dq.conjugate(fkQ[j + 1]))).dot((dq.dualCrossOperator(W[:, j + 1]).dot(xi[:, j])) + xid[:, j])
+  
+  return K
+
 
 
 def relativeVelocityDQ(robot, m, n, W0, qd, xi):
