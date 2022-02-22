@@ -8,21 +8,21 @@ A powerful library for robotics analysis :robot:
     - [Introduction](#introduction)
     - [Features](#features)
     - [Future Work](#future-work)
-    - [Before Starting](#before-starting) :warning:
-    - [Library Content](#library-content) :book:
-      - [How to import it?](#how-to-import-it) :man_technologist:
+    - [Before Starting](#before-starting-warning) :warning:
+    - [Library Content](#library-content-book) :book:
+      - [How to import it?](#how-to-import-it-man-technologist) :man_technologist:
       - [(Brief) Libraries' Description](#brief-libraries-description)
     - [Movements](#movements)
-      - [Translations](#translation)
-      - [Rotations](#rotation)
-    - [Robot Creation and Setup](#robot)
+      - [Translation](#translation)
+      - [Rotation](#rotation)
+    - [Robot Creation and Setup](#robot-creation-and-setup)
       - [Geometric Properties](#geometric-properties)
-      - [Robot Creation](#robot-creation)
+      - [Creation](#creation)
       - [Denavit - Hartenberg Parameters](#denavit---hartenberg-parameters)
       - [Centers of Mass](#centers-of-mass)
     - [Kinematics](#kinematics)
       - [Forward Kinematics](#forward-kinematics)
-      - [Forward Kinematics to Center of Mass](#forward-kinematics-to-center-of-mass)
+      - [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass)
       - [Axis - Angle Vector](#axis---angle-vector)
       - [Jacobian Matrix](#jacobian-matrix)
       - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
@@ -70,7 +70,7 @@ We are working, or will start working soon, on the following tasks for future re
 
 ## Before Starting :warning:
 
-This libraryt can be used with [Python :snake: 3.8.10 - 64 bits](https://www.python.org/downloads/release/python-3810/) or superior. Please install the following libraries or make sure that they're already in your computer:
+This library can be used with [Python :snake: 3.8.10 - 64 bits](https://www.python.org/downloads/release/python-3810/) or superior. Please install the following libraries or make sure that they're already in your computer:
 
 ```bash
 pip3 install numpy
@@ -425,7 +425,7 @@ L = [0.3, 0.4, 0.2]
 Lcom = [0.15, 0.25, 0.2]
 ```
 
-Where <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\q \in \mathbb{R}^{n \times 1}"> are set in radians. Also, <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\L, L_{com} \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain and its centers of mass
+Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are set in radians. Also, <img src="https://render.githubusercontent.com/render/math?math=L, L_{com} \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain and its centers of mass
 
 [*Return to top*](#zrobotics-01)
 
@@ -495,13 +495,13 @@ You can add new attributes if they are necessary for your project :smiley:
 
 Any serial manipulator is built by a Denavit - Hartenberg Parameters Matrix as this
 
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \theta_z">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ d_z">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ a_x">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\\alpha_x">|
+|<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
 |:---:|:---:|:---:|:---:|
 | 0 | 0 | 0 | 0 |
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\q_1">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\L_1">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \frac{\pi}{2}">|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\q_2">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\L_2">|0|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\q_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \frac{\pi}{2}">|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\q_4">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\L_3">|0|0|
+|<img src="https://render.githubusercontent.com/render/math?math=q_1">|<img src="https://render.githubusercontent.com/render/math?math=L_1">|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+|<img src="https://render.githubusercontent.com/render/math?math=q_2">|0|<img src="https://render.githubusercontent.com/render/math?math=L_2">|0|
+|<img src="https://render.githubusercontent.com/render/math?math=q_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+|<img src="https://render.githubusercontent.com/render/math?math=q_4">|<img src="https://render.githubusercontent.com/render/math?math=L_3">|0|0|
 
 so is mandatory to modify [Robot's file](/lib/Robot.py#L54) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**):
 
@@ -536,13 +536,13 @@ It is not necessary to call this function before performing any kinematics task,
 
 Some calculations in robotics needs to be performed with respect to the Center of Mass, so it is mandatory to modify [Robot's file](/lib/Robot.py#L73) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
 
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \theta_z">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\d_z">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\a_x">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \alpha_x">|
+|<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
 |:---:|:---:|:---:|:---:|
 | 0 | 0 | 0 | 0 |
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\\theta_1">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\L_{com_{1}}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \frac{\pi}{2}">|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \theta_2">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\L_{com_{2}}">|0|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \theta_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\\frac{\pi}{2}">|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ \theta_4">|<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\L_{com_{3}}">|0|0|
+|<img src="https://render.githubusercontent.com/render/math?math=\theta_1">|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{1}}">|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+|<img src="https://render.githubusercontent.com/render/math?math=\theta_2">|0|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{2}}">|0|
+|<img src="https://render.githubusercontent.com/render/math?math=\theta_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
+|<img src="https://render.githubusercontent.com/render/math?math=\theta_4">|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{3}}">|0|0|
 
 Therefore,
 
@@ -597,7 +597,7 @@ fkDQ = forwardDQ(uRobot)
 symbolicFKDQ = forwardDQ(uRobot, symbolic = True)
 ```
 
-Where <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ fk_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ fk_{DQ} \in \mathbb{H}"> are lists that store the pose representation for each reference frame with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
+Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=fk_{DQ} \in \mathbb{H}"> are lists that store the pose representation for each reference frame with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
 
 ```bash
 # NumPy Array
@@ -663,7 +663,7 @@ fkCOMDQ = forwardCOMDQ(uRobot)
 symbolicDQCOMHTM = forwardCOMDQ(uRobot, symbolic = True)
 ```
 
-Where <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ fkCOM_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\ fkCOM_{DQ} \in \mathbb{H}"> are lists that store the pose representation for each center of mass with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
+Where <img src="https://render.githubusercontent.com/render/math?math=fkCOM_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=fkCOM_{DQ} \in \mathbb{H}"> are lists that store the pose representation for each center of mass with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
 
 ```bash
 # NumPy Array
@@ -703,7 +703,7 @@ Matrix([[                                                      -sin(q1/2 + q4/2)
         [-(L1*sin(q2/2 + q3/2) + L2*cos(q2/2 - q3/2) + Lcom3*sin(q2/2 + q3/2))*sin(q1/2 + q4/2)/2]])
 ```
 
-In this case, <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\H_{com_{i}/0}^{0} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\Q_{com_{i}/0}^{0} \in \mathbb{H}"> are defined as <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\H_{com_{i}/0}^{0} = H_{i/0}^{0} (H_{i/i-1}^{i - 1})^{-1} H_{com_{i}/i-1}^{i - 1}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\Q_{com_{i}/0}^{0} = Q_{i/0}^{0} (Q_{i/i-1}^{i - 1})^{*} Q_{com_{i}/i-1}^{i - 1}"> respectively
+In this case, <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} \in \mathbb{H}"> are defined as <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} = H_{i/0}^{0} (H_{i/i-1}^{i - 1})^{-1} H_{com_{i}/i-1}^{i - 1}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} = Q_{i/0}^{0} (Q_{i/i-1}^{i - 1})^{*} Q_{com_{i}/i-1}^{i - 1}"> respectively
 
 
 **IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of motion of your system :wink:
@@ -869,9 +869,9 @@ qHTM = inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM[-1], K = 50 * np
 qDQ = inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ[-1], K = 50 * np.eye(8), xi = xi)
 ```
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{gray}\q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\Q_d \in \mathbb{H}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
+<img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{H}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
 
-**IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math={\color{gray}\p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached
+**IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached
 
 [*Return to top*](#zrobotics-01)
 
