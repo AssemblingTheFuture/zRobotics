@@ -2,20 +2,20 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 
-A powerful library for robotics analysis :robot:
+A powerful library for robotics analysis :mechanical_arm: :robot:
 
-- Index
-    - [Introduction](#introduction)
-    - [Features](#features)
-    - [Future Work](#future-work)
+- Index :card_index_dividers:
+    - [Introduction](#introduction-books) :books:
+    - [Features](#features-sparkles) :sparkles:
+    - [Future Work](#future-work-cloud) :cloud:
     - [Before Starting](#before-starting-warning) :warning:
     - [Library Content](#library-content-book) :book:
-      - [How to import it?](#how-to-import-it-man-technologist) :man_technologist:
-      - [(Brief) Libraries' Description](#brief-libraries-description)
+      - [How to import it?](#how-to-import-it-man_technologist) :man_technologist:
+      - [(Brief) Libraries' Description](#brief-libraries-description-blue_book) :blue_book:
     - [Movements](#movements)
       - [Translation](#translation)
       - [Rotation](#rotation)
-    - [Robot Creation and Setup](#robot-creation-and-setup)
+    - [Robot Creation and Setup](#robot-creation-and-setup-mechanical_leg) :mechanical_leg:
       - [Geometric Properties](#geometric-properties)
       - [Creation](#creation)
       - [Denavit - Hartenberg Parameters](#denavit---hartenberg-parameters)
@@ -29,7 +29,7 @@ A powerful library for robotics analysis :robot:
 
 ---
 
-## Introduction
+## Introduction :books:
 
 You can use this simple library to analyze and develop kinematics and control algorithms for your robots as shown in our online trainigs:
 
@@ -43,7 +43,7 @@ We hope this library will help you to start your journey in these amazing discip
 
 ---
 
-## Features
+## Features :sparkles:
 
 You can set your robot attributes and analyze its behavior; also, you'll be able to see its end - effector displacement in a 3D animation (*comming soon*). To achieve this, all the algorithms were developed using Homogeneous Transformation Matrices and Dual Quaternions algebra, however, **the logic used to develop them will allow you to adapt it to almost any embedded system!**
 
@@ -55,7 +55,7 @@ Feel free to modify, adjust and extend our work to your necessities :smiley:; th
 
 ---
 
-## Future Work
+## Future Work :cloud: 
 
 We are working, or will start working soon, on the following tasks for future releases:
 
@@ -154,7 +154,7 @@ Then, you will be able to use all our files from your root directory :wink:
 
 ---
 
-### (Brief) Libraries' Description
+### (Brief) Libraries' Description :blue_book:
 
 1. [```lib.Robot```](/lib/Robot.py): to facilitate algorithms implementation and usage, this creates your robot as an object :robot:, so what you have to do is to create its Denavit - Hartenberg Parameters Matrix. :warning: **It only allows to create serial manipulators** :warning:, but some other robots will be added soon
 2. [```lib.movements```](/lib/movements): it can be used to compute the translational and rotational movements representation using Homogeneous Transformation Matrices or Dual Quaternions
@@ -405,7 +405,7 @@ Qz = dqRz(z = 0.5, symbolic = True)
 
 ---
 
-## Robot Creation and Setup
+## Robot Creation and Setup :mechanical_leg:
 
 A robot can be created as an object, but upt to this day, this library only works with serial manipulators, but we will add other type of robots soon :wink: but before creating the robot, it is necessary to set some attributes
 

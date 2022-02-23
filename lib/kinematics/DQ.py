@@ -22,11 +22,18 @@ def forwardDQ(robot, symbolic = False):
   # Initial conditions
   framesDQ = []
 
-  # Set Denavit - Hartenberg Matrix
-  robot.denavitHartenberg(symbolic)
-  
-  # Set Denavit - Hartenberg Matrix
-  DH = robot.dhParameters
+  if symbolic:
+      
+    # Get Denavit - Hartenberg Parameters Matrix
+    DH = robot.symbolicDHParameters
+    
+  else:
+      
+    # Update Denavit - Hartenberg Parameters Matrix
+    robot.denavitHartenberg()
+    
+    # Get Denavit - Hartenberg Matrix
+    DH = robot.dhParameters
 
   # Create Dual Quaternion for Inertial Frame
   fkDQ = Matrix([1, 0, 0, 0, 0, 0, 0, 0]) if symbolic else np.array([[1, 0, 0, 0, 0, 0, 0, 0]]).T
@@ -59,11 +66,18 @@ def forwardCOMDQ(robot, symbolic = False):
   # Initial conditions
   framesCOMDQ = [Matrix([1, 0, 0, 0, 0, 0, 0, 0])] if symbolic else [np.array([[1], [0], [0], [0], [0], [0], [0], [0]])]
 
-  # Set Denavit - Hartenberg Matrix
-  robot.denavitHartenbergCOM(symbolic)
-  
-  # Set Denavit - Hartenberg Matrix
-  comDH = robot.dhParametersCOM
+  if symbolic:
+      
+    # Get Denavit - Hartenberg Parameters Matrix
+    comDH = robot.symbolicDHParametersCOM
+    
+  else:
+      
+    # Update Denavit - Hartenberg Parameters Matrix
+    robot.denavitHartenbergCOM()
+    
+    # Get Denavit - Hartenberg Matrix
+    comDH = robot.dhParametersCOM
 
   # Iterator
   i = 1
@@ -85,12 +99,11 @@ def forwardCOMDQ(robot, symbolic = False):
       
   return framesCOMDQ
 
-def jacobianDQ(robot, xi, symbolic = False):
+def jacobianDQ(robot, symbolic = False):
   """Using Dual Quaternions, this function computes Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
-    xi (np.array): axes of rotation of each joint
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
@@ -109,13 +122,16 @@ def jacobianDQ(robot, xi, symbolic = False):
   
   # Iterates through all generalized coordinates
   for j in range(n):
+    
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row = robot.whereIsTheJoint(j + 1)
         
     # Calculate Jacobian Matrix
-      J[:, j] = nsimplify(simplify(0.5 * leftOperator(fkDQ[j], symbolic = True) * rightOperator(fkDQ[-1], symbolic = True) * rightOperator(conjugateDQ(fkDQ[j], symbolic = True), symbolic = True) * Matrix(xi[:, j])), tolerance = 1e-10, rational = False) if symbolic else 0.5 * leftOperator(fkDQ[j]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[j]))).dot(xi[:, j])
+    J[:, j] = nsimplify(simplify(0.5 * leftOperator(fkDQ[row - 1], symbolic = True) * rightOperator(fkDQ[-1], symbolic = True) * rightOperator(conjugateDQ(fkDQ[row - 1], symbolic = True), symbolic = True) * Matrix(robot.xi[:, j])), tolerance = 1e-10, rational = False) if symbolic else 0.5 * leftOperator(fkDQ[row - 1]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[row - 1]))).dot(robot.xi[:, j])
   
   return J
 
-def inverseDQ(robot, q0, Qd, K, xi):
+def inverseDQ(robot, q0, Qd, K):
   """Using Dual Quaternions, this function computes Inverse Kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -123,7 +139,6 @@ def inverseDQ(robot, q0, Qd, K, xi):
     q0 (np.array): initial conditions of joints
     Qd (np.array): desired pose represented with a Dual Quaternion
     K (np.array): gain matrix to guarantee stability
-    xi (np.array): axes of actuation of each joint
 
   Returns:
     q (np.array): joints positions to reach desired pose
@@ -156,7 +171,7 @@ def inverseDQ(robot, q0, Qd, K, xi):
       break
     
     # Calculate inertial jacobian matrix
-    J = jacobianDQ(robot, xi)
+    J = jacobianDQ(robot)
     
     # Calculate new joints positions
     solution = rungeKutta4(f = (np.linalg.pinv(J)).dot(K).dot(e), F = q[:, -1].reshape(q0.shape))

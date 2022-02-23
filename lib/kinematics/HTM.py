@@ -22,11 +22,18 @@ def forwardHTM(robot, symbolic = False):
     # Initial conditions
     framesHTM = []
 
-    # Set Denavit - Hartenberg Matrix
-    robot.denavitHartenberg(symbolic)
+    if symbolic:
+      
+      # Get Denavit - Hartenberg Parameters Matrix
+      DH = robot.symbolicDHParameters
     
-    # Get Denavit - Hartenberg Matrix
-    DH = robot.dhParameters
+    else:
+      
+      # Update Denavit - Hartenberg Parameters Matrix
+      robot.denavitHartenberg()
+    
+      # Get Denavit - Hartenberg Matrix
+      DH = robot.dhParameters
 
     # Create Homogeneous Transformation Matrix for Inertial Frame
     fkHTM = eye(4) if symbolic else np.identity(4)
@@ -59,11 +66,18 @@ def forwardCOMHTM(robot, symbolic = False):
   # Initial conditions
   framesCOMHTM = [eye(4) if symbolic else np.identity(4)]
   
-  # Set Denavit - Hartenberg Matrix
-  robot.denavitHartenbergCOM(symbolic)
-  
-  # Get Denavit - Hartenberg Matrix
-  comDH = robot.dhParametersCOM
+  if symbolic:
+      
+    # Get Denavit - Hartenberg Parameters Matrix
+    comDH = robot.symbolicDHParametersCOM
+    
+  else:
+      
+    # Update Denavit - Hartenberg Parameters Matrix
+    robot.denavitHartenbergCOM()
+    
+    # Get Denavit - Hartenberg Matrix
+    comDH = robot.dhParametersCOM
   
   # Iterator
   i = 1
@@ -135,12 +149,15 @@ def geometricJacobian(robot, symbolic = False):
   
   # Iterates through all colums (generalized coordinates)
   for j in range(n):
-        
-    # Get axis of rotation of current joint
-    z = fkHTM[j][0: 3, 2]
+    
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row = robot.whereIsTheJoint(j + 1)
+    
+    # Get axis of actuation of current joint ("row - 1" represents the reference frame where ONLY the joint is attached)
+    z = fkHTM[row - 1][0: 3, 2]
       
     # Calculate distance between end - effector and current joint
-    r = fkHTM[-1][0: 3, 3] - fkHTM[j][0: 3, 3]
+    r = fkHTM[-1][0: 3, 3] - fkHTM[row - 1][0: 3, 3]
     
     # Calculate axes of actuation of end - effector caused by current joint
     J[0: 3, j] = nsimplify(simplify(z.cross(r)), tolerance = 1e-10, rational = False) if symbolic else np.cross(z, r)
