@@ -9,14 +9,19 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
     - [Features](#features-sparkles) :sparkles:
     - [Future Work](#future-work-cloud) :cloud:
     - [Before Starting](#before-starting-warning) :warning:
+      - [Symbolic Computation](#symbolic-computation-warning) :warning:
     - [Library Content](#library-content-book) :book:
       - [How to import it?](#how-to-import-it-man_technologist) :man_technologist:
       - [(Brief) Libraries' Description](#brief-libraries-description-blue_book) :blue_book:
     - [Movements](#movements)
       - [Translation](#translation)
       - [Rotation](#rotation)
+    - [Dual Quaternions Functionalities](#dual-quaternions-functionalities)
+      - [Dual Quaternions Multiplication](#dual-quaternions-multiplication)
+      - [Dual Quaternions Conjugate](#dual-quaternions-conjugate)
+      - [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space)
     - [Robot Creation and Setup](#robot-creation-and-setup-mechanical_leg) :mechanical_leg:
-      - [Geometric Properties](#geometric-properties)
+      - [Attributes](#attributes)
       - [Creation](#creation)
       - [Denavit - Hartenberg Parameters](#denavit---hartenberg-parameters)
       - [Centers of Mass](#centers-of-mass)
@@ -26,6 +31,17 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Axis - Angle Vector](#axis---angle-vector)
       - [Jacobian Matrix](#jacobian-matrix)
       - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
+    - [Differential Kinematics](#differential-kinematics)
+      - [Inertial Rate of Change](#inertial-rate-of-change)
+      - [Inertial Velocity](#inertial-velocity)
+      - [Inertial Velocity for Centers of Mass](#inertial-velocity-for-centers-of-mass)
+    - [Dynamics](#dynamics)
+      - [Inertia Matrix](#inertia-matrix)
+      - [Kinetic Energy](#kinetic-energy)
+      - [Potential Energy](#potential-energy)
+      - [Gravity Actuation](#gravity-actuation)
+      - [Centrifugal and Coriolis Effects](#centrifugal-and-coriolis-effects)
+      - [Robot Model](#robot-model)
 
 ---
 
@@ -37,7 +53,7 @@ You can use this simple library to analyze and develop kinematics and control al
 - [Control of Dynamical Systems](https://bit.ly/zControl) 
 - [Robotics: from Kinematics to Control](https://bit.ly/RoboticZ)
  
-We hope this library will help you to start your journey in these amazing discipline!
+We hope this library will help you to start your journey in these amazing discipline! :heart:
 
 [*Return to top*](#zrobotics-01)
 
@@ -47,7 +63,19 @@ We hope this library will help you to start your journey in these amazing discip
 
 You can set your robot attributes and analyze its behavior; also, you'll be able to see its end - effector displacement in a 3D animation (*comming soon*). To achieve this, all the algorithms were developed using Homogeneous Transformation Matrices and Dual Quaternions algebra, however, **the logic used to develop them will allow you to adapt it to almost any embedded system!**
 
-![Animation](img/uRobotPython.gif "Robot Animation")
+Some interesting functionalities can be listed as follows:
+
+- [x] [Forward Kinematics](#forward-kinematics)
+  - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/HTM.py#11) (numerical and symbolical)
+  - [x] [Using Dual Quaternions](/lib/kinematics/DQ.py#11) (numerical and symbolical)
+- [x] [Numerical Inverse Kinematics](#inverse-kinematics-error-feedback)
+  - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/HTM.py#280)
+  - [x] [Using Dual Quaternions](/lib/kinematics/DQ.py#135)
+- [ ] [Differential Kinematics](#differential-kinematics)
+  - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/DifferentialHTM.py) (numerical and Symbolical)
+  - [ ] Using Dual Quaternions (:warning: **UNDER DEVELOPMENT** :warning:)
+- Robot Dynamics
+  - Robot Differential Equation using Homogeneous Transformation Matrices (numerical and symbolical)
 
 Feel free to modify, adjust and extend our work to your necessities :smiley:; this library allows you to get a first approach to robot analysis, synthesis and control, however, we will be adding new interesting features, also, **you can request new features or create new ones!**
 
@@ -59,10 +87,11 @@ Feel free to modify, adjust and extend our work to your necessities :smiley:; th
 
 We are working, or will start working soon, on the following tasks for future releases:
 
-- [ ] Velocity Analysis using Homogeneous Transformation Matrices
-- [ ] Acceleration Analysis using Homogeneous Transformation Matrices
-- [ ] Euler - Lagrange formulation using Homogeneous Transformation Matrices
+- [x] ~~Velocity Analysis using Homogeneous Transformation Matrices~~
+- [x] ~~Euler - Lagrange formulation using Homogeneous Transformation Matrices~~
 - [ ] Newton - Euler Recursive Algorithm using Homogeneous Transformation Matrices
+- [ ] Acceleration Analysis using Homogeneous Transformation Matrices
+
 
 [*Return to top*](#zrobotics-01)
 
@@ -78,7 +107,7 @@ pip3 install sympy
 pip3 install matplotlib
 ```
 
-**Please do not forget to set your Python Path** :wink:. Also, you can use ```pip``` if you only have Python installed:
+**Please do not forget to set your Python Path** :wink:. Also, you can use ```pip``` depending on your Python version and/or configuration:
 
 ```bash
 pip install numpy
@@ -86,7 +115,53 @@ pip install sympy
 pip install matplotlib
 ```
 
-If this modules were installed correctly, you will be able to use our library :smiley:
+If these modules were installed correctly, you will be able to use our library :smiley:
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Symbolic Computation :warning:
+
+You can get your robot's equations in a symbolical form, however, please consider that **this computation is slower than numerical one**, also **resulting equations won't be simplified as we do in paper**. If you need to simplify the obtained results, you can use ```trigsimp()``` function as follows:
+
+```python
+
+"""
+  Example of symbolcal simplification
+"""
+
+# Homogeneous Transformation Matrix library
+from lib.movements.HTM import *
+
+# SymPy library
+from sympy import *
+
+# Symbolical Homogeneous Transformation Matrix (multiplication is done with * because is a symbolical matrix)
+H = rz(z = "q1", symbolic = True) * tx(x = "L1", symbolic = True) * rz(z = "q2", symbolic = True) * tx(x = "L2", symbolic = True)
+
+# Simplified Homogeneous Transformation Matrix
+Hsimplified = trigsimp(H)
+
+```
+
+So the outputs will be
+
+```bash
+>>> H
+Matrix([[-sin(q1)*sin(q2) + cos(q1)*cos(q2), -sin(q1)*cos(q2) - sin(q2)*cos(q1), 0, L1*cos(q1) + L2*(-sin(q1)*sin(q2) + cos(q1)*cos(q2))],
+        [ sin(q1)*cos(q2) + sin(q2)*cos(q1), -sin(q1)*sin(q2) + cos(q1)*cos(q2), 0,  L1*sin(q1) + L2*(sin(q1)*cos(q2) + sin(q2)*cos(q1))],
+        [                                 0,                                  0, 1,                                                    0],
+        [                                 0,                                  0, 0,                                                    1]])
+
+>>> Hsimplified
+Matrix([[cos(q1 + q2), -sin(q1 + q2), 0, L1*cos(q1) + L2*cos(q1 + q2)],
+        [sin(q1 + q2),  cos(q1 + q2), 0, L1*sin(q1) + L2*sin(q1 + q2)],
+        [           0,             0, 1,                            0],
+        [           0,             0, 0,                            1]])
+```
+
+**Please consider that the bigger the equation, the slower the simplification**. Also ```trigsimp()``` will find the best possible value, then sometimes **your simplification won't be the same as the computer's, but it doesn't mean equations are wrong, but there are multiple ways to simplify them**
 
 [*Return to top*](#zrobotics-01)
 
@@ -111,7 +186,8 @@ zRobotics
 |   |   ├── DifferentialDQ.py       # Velocities and accelerations using Dual Quaternions (UNDER DEVELOPMENT)
 |   |   └── DifferentialHTM.py      # Velocities and accelerations using Homogeneous Transformation Matrices (UNDER DEVELOPMENT)
 |   ├── dynamics
-|   |   └── Solver.py   # Numerical solvers for multiple purposes (UNDER DEVELOPMENT)
+|   |   ├── DynamicsHTM.py          # Dynamics equations using Homogeneous Transformation Matrices 
+|   |   └── Solver.py               # Numerical solvers for multiple purposes (UNDER DEVELOPMENT)
 |   ├── plot
 |   └── └── Plot.py     # For function plotting (UNDER DEVELOPMENT)
 ├── CODE_OF_CONDUCT.md
@@ -160,7 +236,7 @@ Then, you will be able to use all our files from your root directory :wink:
 2. [```lib.movements```](/lib/movements): it can be used to compute the translational and rotational movements representation using Homogeneous Transformation Matrices or Dual Quaternions
 4. [```lib.kinematics```](/lib/kinematics): based on Dual Quaternions algebra and Homogeneous Transformation Matrices, it solves the most common problem of kinematics, from forward kinematics to differential one (**under construction :construction:**)
 5. [ ```lib.dynamics```](/lib/dynamics): it has numerical integration and dynamical systems algorithms (**under construction :construction:**)
-6. [```lib.plot```](/lib/plot): this allows to plot graphs of your robot's behavior
+6. [```lib.plot```](/lib/plot): this allows to plot graphs of your robot's behavior (**under construction :construction:**)
 
 
 Please take a look at [main.py](main.py) to know more about this implementation. **Feel free to  [contact us](mailto:contact@zdynamics.org) if you have any comment, suggestion or question** :smile:
@@ -396,10 +472,172 @@ Hz = rz(z = 0, symbolic = False)
 from lib.movements.DQ import *
 
 # Using Dual Quaternions
-Qx = dqRx(x = 0.5, symbolic = True)
-Qy = dqRy(y = 0.5, symbolic = True)
-Qz = dqRz(z = 0.5, symbolic = True)
+Qx = dqRx(x = 0.5, symbolic = False)
+Qy = dqRy(y = 0.5, symbolic = False)
+Qz = dqRz(z = 0.5, symbolic = False)
 ```
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+## [Dual Quaternions Functionalities](/lib/movements/DQ.py)
+
+As shown in our [online training](https://bit.ly/RoboticZ), there are multiple operations and operators for dual quaternions. Our library needs some of their functionalities to work correctly, so they are listed below
+
+### Dual Quaternions Multiplication
+
+Let's consider the dual quaternions <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{q}_{a}, \hat{q}_{b} \in \mathbb{H}}"> that have to be multiplicated as <img src="https://render.githubusercontent.com/render/math?math={\color{red} \hat{q}_{c} = \hat{q}_{a} \cdot \hat{q}_{b}}">, so this operation can be simplified with left and right operators <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[ \cdot \right]_{\mathrm{L}}, \left[ \cdot \right]_{\mathrm{R}} \in \mathbb{R}^{8 \times 8}}">:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{q}_{c} = \left[ \hat{q}_{a}\right]_{\mathrm{L}} \cdot \hat{q}_{b} = \left[ \hat{q}_{b}\right]_{\mathrm{R}} \cdot \hat{q}_{a}}">
+
+Then these operators can be calculated as follows:
+
+```python
+"""
+  Dual Quaternions Multiplication
+"""
+
+# Dual Quaternions library
+from lib.movements.DQ import *
+
+# NumPy Library for Matrix multiplication
+import numpy as np
+
+# Dual Quaternion 
+Qa = dqTy(y = 0.5)
+
+# Dual Quaternion 
+Qb = dqRz(z = 0.5)
+
+# Multiplication with Left Operator
+QcLeft = leftOperator(Q = Qa, symbolic = False).dot(Qb)
+
+# Multiplication with Right Operator
+QcRight = rightOperator(Q = Qb, symbolic = False).dot(Qa)
+
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> QcLeft
+array([[0.96891242],
+       [0.        ],
+       [0.        ],
+       [0.24740396],
+       [0.        ],
+       [0.06185099],
+       [0.24222811],
+       [0.        ]])
+
+# NumPy Array
+>>> QcRight
+array([[0.96891242],
+       [0.        ],
+       [0.        ],
+       [0.24740396],
+       [0.        ],
+       [0.06185099],
+       [0.24222811],
+       [0.        ]])
+```
+
+You can also calculate its symbolic expressions by setting ```symbolic``` parameter to ```True```.
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Dual Quaternions Conjugate
+
+The inverse form of an Homogeneous Transformation Matrix can be calculated easily with ```numpy``` library, however, the inverse form of a dual quaternions is as simple as conjugating its values:
+
+```python
+"""
+  Dual Quaternions Conjugate
+"""
+
+# Dual Quaternions library
+from lib.movements.DQ import *
+
+# Dual Quaternion 
+Qa = dqTy(y = 0.5)
+
+# Conjugate form of a Dual Quaternion 
+Qb = conjugateDQ(Q = Qa, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Qa
+array([[1.  ],
+       [0.  ],
+       [0.  ],
+       [0.  ],
+       [0.  ],
+       [0.  ],
+       [0.25],
+       [0.  ]])
+
+>>> Qb
+array([[ 1.  ],
+       [-0.  ],
+       [-0.  ],
+       [-0.  ],
+       [ 0.  ],
+       [-0.  ],
+       [-0.25],
+       [-0.  ]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```.
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Dual Quaternions to Euclidian Space
+
+Sometimes it will be necessary to transform a pose representation as dual quaternion <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{q}_{i/0}^0 \in \mathbb{H}}"> into an Euclidian space one <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i/0}^{0} \in \mathbb{R}^{3 \times 1}}">:
+
+```python
+"""
+  Dual Quaternions to R3
+"""
+
+# Dual Quaternions library
+from lib.movements.DQ import *
+
+# Dual Quaternion 
+Q = dqTy(y = 0.5)
+
+# Euclidian space representation
+r = dqToR3(Q, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Q
+array([[1.  ],
+       [0.  ],
+       [0.  ],
+       [0.  ],
+       [0.  ],
+       [0.  ],
+       [0.25],
+       [0.  ]])
+
+>>> r
+array([0. , 0. , 0.5, 0. ])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```.
 
 [*Return to top*](#zrobotics-01)
 
@@ -407,25 +645,61 @@ Qz = dqRz(z = 0.5, symbolic = True)
 
 ## Robot Creation and Setup :mechanical_leg:
 
-A robot can be created as an object, but upt to this day, this library only works with serial manipulators, but we will add other type of robots soon :wink: but before creating the robot, it is necessary to set some attributes
+A robot can be created as an object, but this library only works with serial manipulators (we will add other type of robots soon :wink:). Before creating your system, it is necessary to set some attributes.
 
-### Geometric Properties
+### Attributes
+
+These are generated randomly as an example, but you can use your own values for each attribute :smiley:
 
 ```python
 # NumPy library is necessary for joints positions
 import numpy as np
 
-# Sets robot's generalized coordinates
-q = np.random.rand(4, 1)
+# Number of rigid bodies
+m = 4
+  
+# Number of Generalized Coordinates
+n = 4
+  
+# Generalized coordinates (created randomly)
+q = np.random.randn(n, 1)
+  
+# Joints velocities (created randomly)
+qd = np.random.randn(n, 1)
+  
+# Screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
+xi = np.array([[0, 0],
+               [0, 0],
+               [0, 0],
+               [1, 1],
+               [0, 0],
+               [0, 0],
+               [0, 0],
+               [0, 0]])
+  
+# Derivative of previous screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
+xid = np.zeros((n, 1))
+  
+# Links (created randomly)
+L = [np.random.rand() for i in range(m)]
+  
+# Center of Mass of each link (created randomly)
+Lcom = [value / 2 for value in L]
 
-# Set links' lengths
-L = [0.3, 0.4, 0.2]
-
-# Set centers of mass in each rigid body
-Lcom = [0.15, 0.25, 0.2]
+# Mass of each link (created randomly)
+m = [np.random.rand() for i in range(m)]
+  
+# Inertia of each link (created randomly)
+Inertia = [np.random.rand(3, 3) for i in range(n)]
 ```
 
-Where <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times 1}"> are set in radians. Also, <img src="https://render.githubusercontent.com/render/math?math=L, L_{com} \in \mathbb{R}^{p \times 1}"> is the length (set in meters) of each rigid body in the kinematic chain and its centers of mass
+Where each attribute is described below:
+
+- Joints positions and velocities (generalized coordinates): <img src="https://render.githubusercontent.com/render/math?math={\color{red} q, \dot{q} \in \mathbb{R}^{n \times 1}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} rad}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red} \frac{rad}{sec}}">) 
+- Links Lengths and distance to Centers of Mass: <img src="https://render.githubusercontent.com/render/math?math={\color{red} L, L_{com} \in \mathbb{R}^{m \times 1}}"> (set in meters)
+- Screw vectors for Dual Quaternions operations: <img src="https://render.githubusercontent.com/render/math?math={\color{red} \xi, \dot{\xi} \in \mathbb{H}}">
+- Mass of each link: <img src="https://render.githubusercontent.com/render/math?math={\color{red} m \in \mathbb{R}, m > 0}"> (set in kilograms)
+- Inertia tensor of each link: <img src="https://render.githubusercontent.com/render/math?math={\color{red} I \in \mathbb{R}^{3 \times 3}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} kg \cdot m^2}">)
 
 [*Return to top*](#zrobotics-01)
 
@@ -444,7 +718,7 @@ It is really simple to create a robot object:
 from lib.Robot import *
 
 # Returns robot as an object
-uRobot = Serial(jointsPositions = q, linksLengths = L, COMs = Lcom, name = 'uRobot')
+uRobot = Serial(jointsPositions = q, jointsVelocities = qd, linksLengths = L, COMs = Lcom, mass = m, inertia = Inertia, name = 'uRobot', xi = xi, xid = xid)
 ```
 
 After this, it is possible to access to its attributes as follows:
@@ -485,7 +759,7 @@ Matrix([[Lcom1],
         [Lcom3]])
 ```
 
-You can add new attributes if they are necessary for your project :smiley:
+The rest of attributes were ommitted, but you can check them in [Robot.py](/lib/Robot.py). You can also add new attributes if they are necessary for your project :smiley:
 
 [*Return to top*](#zrobotics-01)
 
@@ -495,15 +769,15 @@ You can add new attributes if they are necessary for your project :smiley:
 
 Any serial manipulator is built by a Denavit - Hartenberg Parameters Matrix as this
 
-|<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\theta_z}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}d_z}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}a_x}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\alpha_x}">|
 |:---:|:---:|:---:|:---:|
 | 0 | 0 | 0 | 0 |
-|<img src="https://render.githubusercontent.com/render/math?math=q_1">|<img src="https://render.githubusercontent.com/render/math?math=L_1">|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
-|<img src="https://render.githubusercontent.com/render/math?math=q_2">|0|<img src="https://render.githubusercontent.com/render/math?math=L_2">|0|
-|<img src="https://render.githubusercontent.com/render/math?math=q_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
-|<img src="https://render.githubusercontent.com/render/math?math=q_4">|<img src="https://render.githubusercontent.com/render/math?math=L_3">|0|0|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_1}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_1}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\pi}{2}}">|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_2}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_2}">|0|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_3}">|0|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\pi}{2}}">|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_4}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_3}">|0|0|
 
-so is mandatory to modify [Robot's file](/lib/Robot.py#L54) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**):
+so is mandatory to modify [Robot.py](/lib/Robot.py#L74) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**):
 
 ```python
 def denavitHartenberg(self, symbolic = False):
@@ -526,7 +800,7 @@ def denavitHartenberg(self, symbolic = False):
                                                                                                                                            [self.jointsPositions[3, 0], self.linksLengths[2], 0.000000000000000000, 0.0000000]])
 ```
 
-It is not necessary to call this function before performing any kinematics task, this is because all the algorithms will access to these methods automatically
+It is not necessary to call this function before performing any kinematics task, this is because all the algorithms will access to these methods automatically. **For future releases, we will work on a simpler way to create this matrices** :wink:
 
 [*Return to top*](#zrobotics-01)
 
@@ -536,13 +810,13 @@ It is not necessary to call this function before performing any kinematics task,
 
 Some calculations in robotics needs to be performed with respect to the Center of Mass, so it is mandatory to modify [Robot's file](/lib/Robot.py#L73) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
 
-|<img src="https://render.githubusercontent.com/render/math?math=\theta_z">|<img src="https://render.githubusercontent.com/render/math?math=d_z">|<img src="https://render.githubusercontent.com/render/math?math=a_x">|<img src="https://render.githubusercontent.com/render/math?math=\alpha_x">|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\theta_z}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}d_z}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}a_x}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\alpha_x}">|
 |:---:|:---:|:---:|:---:|
 | 0 | 0 | 0 | 0 |
-|<img src="https://render.githubusercontent.com/render/math?math=\theta_1">|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{1}}">|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
-|<img src="https://render.githubusercontent.com/render/math?math=\theta_2">|0|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{2}}">|0|
-|<img src="https://render.githubusercontent.com/render/math?math=\theta_3">|0|0|<img src="https://render.githubusercontent.com/render/math?math=\frac{\pi}{2}">|
-|<img src="https://render.githubusercontent.com/render/math?math=\theta_4">|<img src="https://render.githubusercontent.com/render/math?math=L_{com_{3}}">|0|0|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_1}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com_{1}}}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\pi}{2}}">|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_2}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com_{2}}}">|0|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_3}">|0|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\pi}{2}}">|
+|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_4}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com_{3}}}">|0|0|
 
 Therefore,
 
@@ -597,7 +871,7 @@ fkDQ = forwardDQ(uRobot)
 symbolicFKDQ = forwardDQ(uRobot, symbolic = True)
 ```
 
-Where <img src="https://render.githubusercontent.com/render/math?math=fk_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=fk_{DQ} \in \mathbb{H}"> are lists that store the pose representation for each reference frame with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
+Where <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{k_{HTM}} \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{k_{DQ}} \in \mathbb{H}}"> are lists that store the pose representation for each reference frame with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
 
 ```bash
 # NumPy Array
@@ -637,7 +911,7 @@ Matrix([[                                                   -sin(q1/2 + q4/2)*si
         [-(L1*sin(q2/2 + q3/2) + L2*cos(q2/2 - q3/2) + L3*sin(q2/2 + q3/2))*sin(q1/2 + q4/2)/2]])
 ```
 
-**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of motion of your system :wink:
+**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of your system. Take a look at [Symbolic Computation](#symbolic-computation-warning) for more information :wink:
 
 [*Return to top*](#zrobotics-01)
 
@@ -663,7 +937,7 @@ fkCOMDQ = forwardCOMDQ(uRobot)
 symbolicDQCOMHTM = forwardCOMDQ(uRobot, symbolic = True)
 ```
 
-Where <img src="https://render.githubusercontent.com/render/math?math=fkCOM_{HTM} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=fkCOM_{DQ} \in \mathbb{H}"> are lists that store the pose representation for each center of mass with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
+Where <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{com_{HTM}} \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{com_{DQ}} \in \mathbb{H}}"> are lists that store the pose representation for each center of mass with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
 
 ```bash
 # NumPy Array
@@ -703,10 +977,9 @@ Matrix([[                                                      -sin(q1/2 + q4/2)
         [-(L1*sin(q2/2 + q3/2) + L2*cos(q2/2 - q3/2) + Lcom3*sin(q2/2 + q3/2))*sin(q1/2 + q4/2)/2]])
 ```
 
-In this case, <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} \in \mathbb{H}"> are defined as <img src="https://render.githubusercontent.com/render/math?math=H_{com_{i}/0}^{0} = H_{i/0}^{0} (H_{i/i-1}^{i - 1})^{-1} H_{com_{i}/i-1}^{i - 1}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_{com_{i}/0}^{0} = Q_{i/0}^{0} (Q_{i/i-1}^{i - 1})^{*} Q_{com_{i}/i-1}^{i - 1}"> respectively
+In this case, <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_{com_{i}/0}^{0} \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_{com_{i}/0}^{0} \in \mathbb{H}}"> are defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_{com_{i}/0}^{0} = H_{i/0}^{0} (H_{i/i-1}^{i - 1})^{-1} H_{com_{i}/i-1}^{i - 1}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_{com_{i}/0}^{0} = Q_{i/0}^{0} (Q_{i/i-1}^{i - 1})^{*} Q_{com_{i}/i-1}^{i - 1}}"> respectively
 
-
-**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of motion of your system :wink:
+**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of your system. Take a look at [Symbolic Computation](#symbolic-computation-warning) for more information :wink:
 
 [*Return to top*](#zrobotics-01)
 
@@ -714,7 +987,7 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math=H_
 
 ### Axis - Angle Vector
 
-A compact representation of an Homogeneous Transformation Matrix can be obtained by and Axis - Angle Vector. This is OPTIONAL, because each function can call it automatically if needed:
+A compact representation of an Homogeneous Transformation Matrix can be obtained by and Axis - Angle Vector <img src="https://render.githubusercontent.com/render/math?math={\color{red} \mathrm{x} \in \mathbb{R}^{6 \times 1}}">. This is OPTIONAL, because each function can call it automatically if needed:
 
 ```python
 # Kinematics libraries
@@ -747,7 +1020,7 @@ Matrix([[                                                                       
         [  (cos(q2 + q3) - 1)*sin(q1 + q4)*acos(cos(q1 + q4)*cos(q2 + q3)/2 - cos(q1 + q4)/2 - cos(q2 + q3)/2 - 1/2)/sqrt(4 - (cos(q1 + q4)*cos(q2 + q3) - cos(q1 + q4) - cos(q2 + q3) - 1)**2)]])
 ```
 
-**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of motion of your system :wink:
+**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of your system. Take a look at [Symbolic Computation](#symbolic-computation-warning) for more information :wink:
 
 [*Return to top*](#zrobotics-01)
 
@@ -755,7 +1028,7 @@ Matrix([[                                                                       
 
 ### Jacobian Matrix
 
-This is OPTIONAL, because each function who needs a Jacobian Matrix can call and process it automatically :wink: but you can calculate its geometrical or analytical form:
+This is **OPTIONAL**, because each function who needs a Jacobian Matrix <img src="https://render.githubusercontent.com/render/math?math={\color{red}J \left( \mathrm{x} \right) \in \mathbb{R}^{6 \times n}}"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form:
 
 ```python
 # Kinematics libraries
@@ -847,7 +1120,7 @@ Matrix([[                                                 -sin(q2/2 + q3/2)*cos(
         [-(L1*sin(q2/2 + q3/2) + L2*cos(q2/2 - q3/2) + L3*sin(q2/2 + q3/2))*cos(q1/2 + q4/2)/4, -L1*sin(q1/2)*cos(q4/2)*cos(q2/2 + q3/2)/2 + L1*sin(q1/2 - q4/2)*cos(q2/2 + q3/2)/4 + L2*sin(q1/2)*sin(q2/2 - q3/2)*cos(q4/2)/2 - L2*sin(q1/2 - q4/2)*sin(q2/2 - q3/2)/4 - L3*sin(q1/2)*cos(q4/2)*cos(q2/2 + q3/2)/2 + L3*sin(q1/2 - q4/2)*cos(q2/2 + q3/2)/4, -L1*sin(q1/2)**3*cos(q2/2)**2*cos(q4/2)*cos(q2/2 + q3/2)/4 - L1*sin(q1/2)**2*sin(q2/2)**2*sin(q1/2 + q4/2)*cos(q2/2 + q3/2)/4 - L1*sin(q1/2)*cos(q1/2)*cos(q2/2)**2*cos(q1/2 - q4/2)*cos(q2/2 + q3/2)/4 - L1*sin(q2/2)**2*sin(q1/2 + q4/2)*cos(q1/2)**2*cos(q2/2 + q3/2)/4 - L1*sin(q4/2)*cos(q1/2)**3*cos(q2/2)**2*cos(q2/2 + q3/2)/4 - L2*sin(q1/2)**3*sin(q2/2)**2*sin(q2/2 - q3/2)*cos(q4/2)/4 - L2*sin(q1/2)**2*sin(q1/2 + q4/2)*sin(q2/2 - q3/2)*cos(q2/2)**2/4 - L2*sin(q1/2)*sin(q2/2)**2*sin(q2/2 - q3/2)*cos(q1/2)*cos(q1/2 - q4/2)/4 - L2*sin(q2/2)**2*sin(q4/2)*sin(q2/2 - q3/2)*cos(q1/2)**3/4 - L2*sin(q1/2 + q4/2)*sin(q2/2 - q3/2)*cos(q1/2)**2*cos(q2/2)**2/4 - L3*sin(q1/2)**3*cos(q2/2)**2*cos(q4/2)*cos(q2/2 + q3/2)/4 - L3*sin(q1/2)**2*sin(q2/2)**2*sin(q1/2 + q4/2)*cos(q2/2 + q3/2)/4 - L3*sin(q1/2)*cos(q1/2)*cos(q2/2)**2*cos(q1/2 - q4/2)*cos(q2/2 + q3/2)/4 - L3*sin(q2/2)**2*sin(q1/2 + q4/2)*cos(q1/2)**2*cos(q2/2 + q3/2)/4 - L3*sin(q4/2)*cos(q1/2)**3*cos(q2/2)**2*cos(q2/2 + q3/2)/4,    L1*sin(q1/2 - q2/2 - q3/2 + q4/2)/8 - L1*sin(q1/2 + q2/2 + q3/2 + q4/2)/8 - L2*cos(q1/2 - q2/2 + q3/2 + q4/2)/8 - L2*cos(q1/2 + q2/2 - q3/2 + q4/2)/8 + L3*sin(q1/2 - q2/2 - q3/2 + q4/2)/8 - L3*sin(q1/2 + q2/2 + q3/2 + q4/2)/8]]) 
 ```
 
-**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of motion of your system :wink:
+**IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of your system. Take a look at [Symbolic Computation](#symbolic-computation-warning) for more information :wink:
 
 [*Return to top*](#zrobotics-01)
 
@@ -869,9 +1142,247 @@ qHTM = inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM[-1], K = 50 * np
 qDQ = inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ[-1], K = 50 * np.eye(8), xi = xi)
 ```
 
-<img src="https://render.githubusercontent.com/render/math?math=q_0 \in \mathbb{R}^{n \times 1}"> are the initial conditions of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math=H_d \in \mathbb{R}^{4 \times 4}"> and <img src="https://render.githubusercontent.com/render/math?math=Q_d \in \mathbb{H}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math=K \in \mathbb{R}^{6 \times 6}"> and <img src="https://render.githubusercontent.com/render/math?math=K_Q \in \mathbb{R}^{8 \times 8}"> are the constant symmetric gain matrices that are used to solve inverse kinematics problem
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_0 \in \mathbb{R}^{n \times 1}}"> is the initial condition of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_d \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_d \in \mathbb{H}}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math={\color{red}K \in \mathbb{R}^{6 \times 6}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}K_Q \in \mathbb{R}^{8 \times 8}}"> are the constant gain matrices that are used to solve inverse kinematics problem
 
-**IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math=q \in \mathbb{R}^{n \times p}">, where <img src="https://render.githubusercontent.com/render/math?math=p \in \mathbb{R}, p \geq 1"> is the number of joints' positions that have to be reached
+**IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math={\color{red}q \in \mathbb{R}^{n \times p}}">, where <img src="https://render.githubusercontent.com/render/math?math={\color{red}p \in \mathbb{R}, p \geq 1}"> is the number of joints positions that will be reached
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+## [Differential Kinematics](/lib/kinematics/)
+
+This is the relation between motion (velocity) in joint space and motion (linear/angular velocity) in task space (e.g., Cartesian space), but it is known that time derivative of end-effector pose won't lead to its inertial velocity
+
+### Inertial Rate of Change
+
+The rate of change of the end-effector (is not the same as its velocity) can be calculated by deriving its equations that define its pose in an [Axis - Angle vector](#axis---angle-vector) <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{x} \left( t \right) \in \mathbb{R}^{6 \times 1}}">, so this will return an [Analytic Jacobian Matrix](/lib/kinematics/HTM.py#225) <img src="https://render.githubusercontent.com/render/math?math={\color{red}J \left( \mathrm{x} \right) \in \mathbb{R}^{6 \times n}}"> that can be multiplied by the generalized coordinates vector:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial \mathrm{x}}{\partial q} = J \left ( \mathrm{x} \right) \implies \frac{\partial \mathrm{x}}{\partial q} = J \left ( \mathrm{x} \right) \frac{\partial t}{\partial t} \implies \frac{\partial \mathrm{x}}{\partial t} = J \left ( \mathrm{x} \right) \frac{\partial q}{\partial t} \implies \dot{\mathrm{x}} = J \left ( \mathrm{x} \right) \dot{q}}">
+
+This calculation can be done as follows:
+
+```python
+"""
+  Inertial Rate of Change
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPY
+import numpy as np
+
+# Analytic Jacobian Matrix (dq: step size of numerical derivative)
+Ja = analyticJacobian(uRobot, dq = 0.001, symbolic = False)
+
+# Inertial Rate of Change (calculated by analytic jacobian and joints velocities)
+Xd1 = Ja.dot(uRobot.jointsVelocities)
+
+# Inertial Rate of Change (calculated by library's module)
+Xd2 = analyticStateSpace(uRobot, dq = 0.001, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Ja
+array([[ 0.29672459, -0.04726979,  0.38999721,  0.        ],
+       [-0.32124701, -0.04361767,  0.35986554,  0.        ],
+       [ 0.        , -0.43734803, -0.10510702,  0.        ],
+       [-0.11043124,  0.73688832,  0.73688832, -0.02344649],
+       [ 1.49976911,  0.02134172,  0.02134172, -1.50364647],
+       [ 0.10196457,  1.08967036,  1.08967036,  0.10196457]])
+
+>>> Xd1
+array([[ 0.20836402],
+       [-0.11456081],
+       [ 0.05803193],
+       [-0.02882665],
+       [ 4.45519401],
+       [-0.24049479]])
+
+>>> Xd2
+array([[ 0.20836402],
+       [-0.11456081],
+       [ 0.05803193],
+       [-0.02882665],
+       [ 4.45519401],
+       [-0.24049479]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```.
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Inertial Velocity
+
+End-effector velocity can be calcualted with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130), because this maps the effect of each joint directly to the end-effector, so linear and angular velocities can be calculated:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v} = \begin{bmatrix} v_{x} \\ v_{y} \\ v_{z} \\ \omega_{x} \\ \omega_{y} \\ \omega_{z} \end{bmatrix} = J \left ( q \right) \dot{q}}">
+
+This can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Velocity
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPY
+import numpy as np
+
+# Geometric Jacobian Matrix
+Jg = geometricJacobian(uRobot, symbolic = False)
+
+# Inertial Velocity (calculated by geometric jacobian and joints velocities)
+Xd1 = Jg.dot(uRobot.jointsVelocities)
+
+# Inertial Velocity (calculated by library's module)
+Xd2 = geometricStateSpace(uRobot, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Jg
+array([[ 2.96563941e-01, -4.74304994e-02,  3.89958559e-01, -1.38777878e-17],
+       [-3.21395346e-01, -4.37659599e-02,  3.59829875e-01, 4.16333634e-17],
+       [ 0.00000000e+00, -4.37315835e-01, -1.05372345e-01, -1.73472348e-18],
+       [ 0.00000000e+00,  6.78145901e-01,  6.78145901e-01, -1.43152138e-01],
+       [ 0.00000000e+00, -7.34927300e-01, -7.34927300e-01, -1.32092026e-01],
+       [ 1.00000000e+00,  6.12323400e-17,  6.12323400e-17, -9.80846146e-01]])
+
+>>> Xd1
+array([[ 0.20830251],
+       [-0.11461763],
+       [ 0.05799426],
+       [ 0.32363338],
+       [ 0.35274929],
+       [ 2.91790934]])
+
+>>> Xd2
+array([[ 0.20830251],
+       [-0.11461763],
+       [ 0.05799426],
+       [ 0.32363338],
+       [ 0.35274929],
+       [ 2.91790934]])
+```
+
+Please notice that angular velocities are not the same as the angular rate of change on [Inertial Rate of Change](#inertial-rate-of-change) results. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```.
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Inertial Velocity for Centers of Mass
+
+**For dynamic modelling, it will be mandatory to know the velocity of each center of mass**. As stated in previous section, inertial velocities can be calcualted with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130). In this case, it maps the effect of each joint directly to the each center of mass, so linear and angular velocities can be calculated:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_i} = \begin{bmatrix} v_{x_{com_i}} \\ v_{y_{com_i}} \\ v_{z_{com_i}} \\ \omega_{x_{com_i}} \\ \omega_{y_{com_i}} \\ \omega_{z_{com_i}} \end{bmatrix} = J_{com_i} \left ( q \right) \dot{q}}">
+
+This can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Velocity to a Center of Mass
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPY
+import numpy as np
+
+# Geometric Jacobian Matrix for a specific center of mass
+JgCOM = geometricJacobianCOM(uRobot, COM = 2, symbolic = False)
+
+# Inertial Velocity (calculated by geometric jacobian to center of mass and joints velocities)
+XdCOM1 = JgCOM.dot(uRobot.jointsVelocities)
+
+# Inertial Velocity (calculated by library's module)
+XdCOM2 = geometricCOMStateSpace(uRobot, COM = 2, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> JgCOM
+array([[ 1.12553059e-01, -2.18694529e-01,  0.00000000e+00, 0.00000000e+00],
+       [-1.21977167e-01, -2.01797917e-01,  0.00000000e+00, 0.00000000e+00],
+       [ 0.00000000e+00, -1.65971745e-01,  0.00000000e+00, 0.00000000e+00],
+       [ 0.00000000e+00,  6.78145901e-01,  0.00000000e+00, 0.00000000e+00],
+       [ 0.00000000e+00, -7.34927300e-01,  0.00000000e+00, 0.00000000e+00],
+       [ 1.00000000e+00,  6.12323400e-17,  0.00000000e+00, 0.00000000e+00]])
+
+>>> XdCOM1
+array([[ 0.09348339],
+       [-0.03018717],
+       [ 0.02690157],
+       [-0.10991743],
+       [ 0.11912085],
+       [ 0.51563446]])
+
+>>> XdCOM2
+array([[ 0.09348339],
+       [-0.03018717],
+       [ 0.02690157],
+       [-0.10991743],
+       [ 0.11912085],
+       [ 0.51563446]])
+```
+
+Please notice that jacobian matrix is zero in columns two to four because these joints (<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{3}, q_{4}}">) don't affect the center of mass number two because they are attached after it. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```.
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+## Dynamics
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Inertia Matrix
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Kinetic Energy
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Potential Energy
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Gravity Actuation
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Centrifugal and Coriolis Effects
+
+[*Return to top*](#zrobotics-01)
+
+---
+
+### Robot Model
 
 [*Return to top*](#zrobotics-01)
 

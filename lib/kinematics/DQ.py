@@ -16,7 +16,7 @@ def forwardDQ(robot, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    framesDQ (list): Dual Quaternions with frames' poses
+    framesDQ (list): Dual Quaternions with frames' poses (numerical or symbolical)
   """
   
   # Initial conditions
@@ -42,7 +42,7 @@ def forwardDQ(robot, symbolic = False):
   for frame in range(DH.rows) if symbolic else DH:
     
     # Operates dual quaternions symbolically: Rz * Tz * Tx * Rx
-    fkDQ = nsimplify(simplify(leftOperator(fkDQ, symbolic = True) * rightOperator(dqRx(DH[frame, 3], symbolic = True), symbolic = True) * leftOperator(dqRz(DH[frame, 0], symbolic = True), symbolic = True) * rightOperator(dqTx(DH[frame, 2], symbolic = True), symbolic = True) * dqTz(DH[frame, 1], symbolic = True)), tolerance = 1e-10, rational = False) if symbolic else leftOperator(fkDQ).dot(rightOperator(dqRx(frame[3]))).dot(leftOperator(dqRz(frame[0]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
+    fkDQ = leftOperator(fkDQ, symbolic = True) * rightOperator(dqRx(DH[frame, 3], symbolic = True), symbolic = True) * leftOperator(dqRz(DH[frame, 0], symbolic = True), symbolic = True) * rightOperator(dqTx(DH[frame, 2], symbolic = True), symbolic = True) * dqTz(DH[frame, 1], symbolic = True) if symbolic else leftOperator(fkDQ).dot(rightOperator(dqRx(frame[3]))).dot(leftOperator(dqRz(frame[0]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
 
     # Append each calculated Homogeneous Transformation Matrix
     framesDQ.append(fkDQ)
@@ -57,7 +57,7 @@ def forwardCOMDQ(robot, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    framesHTM (list): Dual Quaternions with COMs' poses
+    framesHTM (list): Dual Quaternions with COMs' poses (numerical or symbolical)
   """
   
   # Calculate forward kinematics
@@ -92,9 +92,10 @@ def forwardCOMDQ(robot, symbolic = False):
     B = leftOperator(conjugateDQ(framesDQ[i - 1], symbolic = True), symbolic = True) * framesDQ[i] if symbolic else leftOperator(conjugateDQ(framesDQ[i - 1])).dot(framesDQ[i])
 
     # Forward kinematics to Center of Mass
-    fkCOMDQ = nsimplify(simplify(leftOperator(framesDQ[i], symbolic = True) * rightOperator(COM, symbolic = True) * conjugateDQ(B, symbolic = True)), tolerance = 1e-10, rational = False) if symbolic else leftOperator(framesDQ[i]).dot(rightOperator(COM)).dot(conjugateDQ(B))
+    fkCOMDQ = leftOperator(framesDQ[i], symbolic = True) * rightOperator(COM, symbolic = True) * conjugateDQ(B, symbolic = True) if symbolic else leftOperator(framesDQ[i]).dot(rightOperator(COM)).dot(conjugateDQ(B))
 
     framesCOMDQ.append(fkCOMDQ)
+    
     i += 1
       
   return framesCOMDQ
@@ -107,8 +108,8 @@ def jacobianDQ(robot, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    J (np.array): Inertial Jacobian Matrix
-    J (SymPy Matrix): Inertial Jacobian Matrix
+    J (NumPy Array): Inertial Jacobian Matrix (numerical)
+    J (SymPy Matrix): Inertial Jacobian Matrix (symbolical)
   """
 
   # Get number of joints (generalized coordinates)
@@ -127,7 +128,7 @@ def jacobianDQ(robot, symbolic = False):
     row = robot.whereIsTheJoint(j + 1)
         
     # Calculate Jacobian Matrix
-    J[:, j] = nsimplify(simplify(0.5 * leftOperator(fkDQ[row - 1], symbolic = True) * rightOperator(fkDQ[-1], symbolic = True) * rightOperator(conjugateDQ(fkDQ[row - 1], symbolic = True), symbolic = True) * Matrix(robot.xi[:, j])), tolerance = 1e-10, rational = False) if symbolic else 0.5 * leftOperator(fkDQ[row - 1]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[row - 1]))).dot(robot.xi[:, j])
+    J[:, j] = 0.5 * leftOperator(fkDQ[row - 1], symbolic = True) * rightOperator(fkDQ[-1], symbolic = True) * rightOperator(conjugateDQ(fkDQ[row - 1], symbolic = True), symbolic = True) * Matrix(robot.xi[:, j]) if symbolic else 0.5 * leftOperator(fkDQ[row - 1]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[row - 1]))).dot(robot.xi[:, j])
   
   return J
 
@@ -146,6 +147,9 @@ def inverseDQ(robot, q0, Qd, K):
   
   # Set initial conditions
   q = q0.reshape(q0.shape)
+  
+  # Auxiliar variable to keep original joints positions
+  z = robot.jointsPositions.copy()
   
   # Iterator
   j = 0
@@ -178,6 +182,11 @@ def inverseDQ(robot, q0, Qd, K):
     
     # Append result
     q = np.append(q, solution, axis = 1)
+    
+    j += 1
+    
+  # Restore original joints positions to don't affect other calculations
+  robot.jointsPositions = z.copy()
     
   return q
 
