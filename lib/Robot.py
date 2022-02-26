@@ -23,7 +23,7 @@ class Serial(Robot):
       Robot (obj): robot as object
   """  
   
-  def __init__(self, jointsPositions, linksLengths, COMs, xi = [], xid = [], name = ''):
+  def __init__(self, jointsPositions, jointsVelocities, linksLengths, COMs, mass, inertia, xi = [], xid = [], name = ''):
     
     """Object constructor
 
@@ -41,11 +41,23 @@ class Serial(Robot):
     self.linksLengths = linksLengths
     self.COMs = COMs
     
-    # Symbolic parameters
+    # Dynamic Parameters
+    self.jointsVelocities = jointsVelocities
+    self.mass = mass
+    self.inertia = inertia
+    
+    # Symbolic Joints: q(t), q'(t) and q''(t)
     self.qSymbolic = Matrix([[f"q{i + 1}",] for i in range(self.jointsPositions.shape[0])])
     self.qdSymbolic = Matrix([[f"qd{i + 1}",] for i in range(self.jointsPositions.shape[0])])
+    self.qddSymbolic = Matrix([[f"qdd{i + 1}",] for i in range(self.jointsPositions.shape[0])])
+    
+    # Symbolic Geometrical Properties
     self.symbolicLinks = Matrix([f"L{i + 1}" for i in range(len(self.linksLengths))])
     self.symbolicCOMs = Matrix([f"Lcom{i + 1}" for i in range(len(self.COMs))])
+    
+    # Symbolic Physical Properties
+    self.symbolicMass = Matrix([[f"m{i + 1}",] for i in range(len(self.mass))])
+    self.symbolicInertia = [Matrix([[f"Ixx{i + 1}", f"Ixy{i + 1}", f"Ixz{i + 1}"], [f"Iyx{i + 1}", f"Iyy{i + 1}", f"Iyz{i + 1}"], [f"Izx{i + 1}", f"Izy{i + 1}", f"Izz{i + 1}"]]) for i in range(len(self.inertia))]
     
     # Set Denavit - Hartenberg Parameters Matrix (numerical and symbolical)
     self.denavitHartenberg()
@@ -67,23 +79,38 @@ class Serial(Robot):
       a: translation on «x» axis
       alpha: rotation on «x» axis
     """ 
+    
     if symbolic:
       
+      self.symbolicDHParameters = Matrix([[0, 0, 0, 0],
+                                          [self.qSymbolic[0, 0], self.symbolicLinks[0], 0.0000000000000000000, np.pi / 2],
+                                          [self.qSymbolic[1, 0], 0.0000000000000000000, self.symbolicLinks[1], 0.0000000],
+                                          [self.qSymbolic[2, 0], 0.0000000000000000000, 0.0000000000000000000, np.pi / 2],
+                                          [self.qSymbolic[3, 0], self.symbolicLinks[2], 0.0000000000000000000, 0.0000000]])
+      
+      """
       # Set symbolic Denavit Hartenberg Parameters Matrix
       self.symbolicDHParameters = Matrix([[0, 0, 0, 0],
-                                  [self.qSymbolic[0, 0], self.symbolicLinks[0], 0.0000000000000000000, np.pi / 2],
-                                  [self.qSymbolic[1, 0], 0.0000000000000000000, self.symbolicLinks[1], 0.0000000],
-                                  [self.qSymbolic[2, 0], 0.0000000000000000000, 0.0000000000000000000, np.pi / 2],
-                                  [self.qSymbolic[3, 0], self.symbolicLinks[2], 0.0000000000000000000, 0.0000000]])
-    else:
+                                          [self.qSymbolic[0, 0], 0, self.symbolicLinks[0], 0],
+                                          [self.qSymbolic[1, 0], 0, self.symbolicLinks[1], 0]])
+      """
       
-      # Set numeric Denavit Hartenberg Parameters Matrix
+    else:
+          
       self.dhParameters = np.array([[0, 0, 0, 0],
                                     [self.jointsPositions[0, 0], self.linksLengths[0], 0.000000000000000000, np.pi / 2],
                                     [self.jointsPositions[1, 0], 0.000000000000000000, self.linksLengths[1], 0.0000000],
                                     [self.jointsPositions[2, 0], 0.000000000000000000, 0.000000000000000000, np.pi / 2],
                                     [self.jointsPositions[3, 0], self.linksLengths[2], 0.000000000000000000, 0.0000000]])
-    
+      
+      """
+      
+      # Set numeric Denavit Hartenberg Parameters Matrix
+      self.dhParameters = np.array([[0, 0, 0, 0],
+                                    [self.jointsPositions[0, 0], 0, self.linksLengths[0], 0],
+                                    [self.jointsPositions[1, 0], 0, self.linksLengths[1], 0]])
+      """
+      
   def denavitHartenbergCOM(self, symbolic = False):
     """Denavit - Hartenberg parameters for n - th center of mass
 
@@ -94,18 +121,33 @@ class Serial(Robot):
     """ 
     
     if symbolic:
+      
+      """
       self.symbolicDHParametersCOM = Matrix([[0, 0, 0, 0],
-                                     [self.qSymbolic[0, 0], self.symbolicCOMs[0], 0.000000000000000000, np.pi / 2],
-                                     [self.qSymbolic[1, 0], 0.000000000000000000, self.symbolicCOMs[1], 0.0000000],
-                                     [self.qSymbolic[2, 0], 0.000000000000000000, 0.000000000000000000, np.pi / 2],
-                                     [self.qSymbolic[3, 0], self.symbolicCOMs[2], 0.000000000000000000, 0.0000000]])
+                                             [self.qSymbolic[0, 0], 0, self.symbolicCOMs[0], 0],
+                                             [self.qSymbolic[1, 0], 0, self.symbolicCOMs[1], 0]])
+      
+      """
+      self.symbolicDHParametersCOM = Matrix([[0, 0, 0, 0],
+                                             [self.qSymbolic[0, 0], self.symbolicCOMs[0], 0.000000000000000000, np.pi / 2],
+                                             [self.qSymbolic[1, 0], 0.000000000000000000, self.symbolicCOMs[1], 0.0000000],
+                                             [self.qSymbolic[2, 0], 0.000000000000000000, 0.000000000000000000, np.pi / 2],
+                                             [self.qSymbolic[3, 0], self.symbolicCOMs[2], 0.000000000000000000, 0.0000000]])
+      
     else:
-     self.dhParametersCOM =  np.array([[0, 0, 0, 0],
-                                       [self.jointsPositions[0, 0], self.COMs[0], 0.0000000000, np.pi / 2],
-                                       [self.jointsPositions[1, 0], 0.0000000000, self.COMs[1], 0.0000000],
-                                       [self.jointsPositions[2, 0], 0.0000000000, 0.0000000000, np.pi / 2],
-                                       [self.jointsPositions[3, 0], self.COMs[2], 0.0000000000, 0.0000000]])
-  
+     
+     """
+     self.dhParametersCOM = np.array([[0, 0, 0, 0],
+                                      [self.jointsPositions[0, 0], 0, self.COMs[0], 0],
+                                      [self.jointsPositions[1, 0], 0, self.COMs[1], 0]])
+          
+     """
+     self.dhParametersCOM = np.array([[0, 0, 0, 0],
+                                      [self.jointsPositions[0, 0], self.COMs[0], 0.0000000000, np.pi / 2],
+                                      [self.jointsPositions[1, 0], 0.0000000000, self.COMs[1], 0.0000000],
+                                      [self.jointsPositions[2, 0], 0.0000000000, 0.0000000000, np.pi / 2],
+                                      [self.jointsPositions[3, 0], self.COMs[2], 0.0000000000, 0.0000000]])
+    
   def whereIsTheJoint(self, joint):
     """This method allows to know in which reference frame is attached any joint based on symbolic Denavit - Hartenberg Parameters Matrix, so this have to be set before calling this method
 
@@ -124,6 +166,29 @@ class Serial(Robot):
         
       # If joint qi is in current reference frame
       if r'q' + str(joint) in str(frame):
+        break
+    
+    # Returns the frame
+    return i
+  
+  def whereIsTheCOM(self, COM):
+    """This method allows to know in which reference frame is attached any Center of Mass based on symbolic Denavit - Hartenberg Parameters Matrix, so this have to be set before calling this method
+
+    Args:
+        COM (int): number of Center of Mass we want to look for
+
+    Returns:
+        int: Number of reference frame where Center of Mass is attached
+    """        
+        
+    # Check what frame has the i-th joint attached by iteration through all the rows in Denavit - Hartenberg symbolic matrix
+    for i in range(self.dhParameters.shape[0]):
+        
+      # Get the current row from the symbolic Denavit - Hartenberg parameters
+      frame = self.symbolicDHParametersCOM[4 * i : 4 * (i + 1)]
+        
+      # If Center of Máss Lcomi is in current reference frame
+      if r'Lcom' + str(COM) in str(frame):
         break
     
     # Returns the frame

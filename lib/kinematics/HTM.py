@@ -16,7 +16,7 @@ def forwardHTM(robot, symbolic = False):
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        framesHTM (list): Homogeneous Transformation Matrices with frames' poses
+        framesHTM (list): Homogeneous Transformation Matrices with frames' poses (numerical or symbolical)
     """
 
     # Initial conditions
@@ -42,7 +42,7 @@ def forwardHTM(robot, symbolic = False):
     for frame in range(DH.rows) if symbolic else DH:
         
         # Operates matrices symbolically: Rz * Tz * Tx * Rx
-        fkHTM = nsimplify(simplify(fkHTM * rz(DH[frame, 0], symbolic = True) * tz(DH[frame, 1], symbolic = True) * tx(DH[frame, 2], symbolic = True) * rx(DH[frame, 3], symbolic = True)), tolerance = 1e-10, rational = False) if symbolic else fkHTM.dot(rz(frame[0]).dot(tz(frame[1])).dot(tx(frame[2])).dot(rx(frame[3])))
+        fkHTM = fkHTM * rz(DH[frame, 0], symbolic = True) * tz(DH[frame, 1], symbolic = True) * tx(DH[frame, 2], symbolic = True) * rx(DH[frame, 3], symbolic = True) if symbolic else fkHTM.dot(rz(frame[0]).dot(tz(frame[1])).dot(tx(frame[2])).dot(rx(frame[3])))
 
         # Append each calculated Homogeneous Transformation Matrix
         framesHTM.append(fkHTM)
@@ -57,7 +57,7 @@ def forwardCOMHTM(robot, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    framesHTM (list): Homogeneous Transformation Matrices with COMs' poses
+    framesHTM (list): Homogeneous Transformation Matrices with COMs' poses (numerical or symbolical)
   """
     
   # Calculate forward kinematics
@@ -92,9 +92,10 @@ def forwardCOMHTM(robot, symbolic = False):
     B = framesHTM[i - 1].inv() * framesHTM[i] if symbolic else np.linalg.pinv(framesHTM[i - 1]).dot(framesHTM[i])
 
     # Forward kinematics to Center of Mass
-    fkCOMHTM = nsimplify(simplify(framesHTM[i] * B.inv() * COM), tolerance = 1e-10, rational = False) if symbolic else framesHTM[i].dot(np.linalg.inv(B)).dot(COM)
+    fkCOMHTM = framesHTM[i] * B.inv() * COM if symbolic else framesHTM[i].dot(np.linalg.inv(B)).dot(COM)
         
     framesCOMHTM.append(fkCOMHTM)
+    
     i += 1
     
   return framesCOMHTM
@@ -107,24 +108,24 @@ def axisAngle(H, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    X (np.array): Axis - Angle vector
-    X (SymPy Matrix): Axis - Angle vector
+    X (NumPy Array): Axis - Angle vector (numerical)
+    X (SymPy Matrix): Axis - Angle vector (symbolical)
   """
   
   # Calculate angle of rotation
-  theta = simplify(acos((H[0 : 3, 0 : 3].trace() - 1) / 2)) if symbolic else np.arccos((np.trace(H[0 : 3, 0 : 3]) - 1)/2)
+  theta = acos((H[0 : 3, 0 : 3].trace() - 1) / 2) if symbolic else np.arccos((np.trace(H[0 : 3, 0 : 3]) - 1)/2)
   
   # Calculate axis of rotation
-  n = simplify((1 / (2 * sin(theta))) * Matrix([[H[2, 1] - H[1, 2]],
-                                                [H[0, 2] - H[2, 0]],
-                                                [H[1 ,0] - H[0, 1]]])) if symbolic else (1/(2 * np.sin(theta))) * np.array([[H[2, 1] - H[1, 2]],
-                                                                                                                            [H[0, 2] - H[2, 0]],
-                                                                                                                            [H[1 ,0] - H[0, 1]]])
+  n = (1 / (2 * sin(theta))) * Matrix([[H[2, 1] - H[1, 2]],
+                                       [H[0, 2] - H[2, 0]],
+                                       [H[1 ,0] - H[0, 1]]]) if symbolic else (1/(2 * np.sin(theta))) * np.array([[H[2, 1] - H[1, 2]],
+                                                                                                                  [H[0, 2] - H[2, 0]],
+                                                                                                                  [H[1 ,0] - H[0, 1]]])
   
   # Append position and orientation in one single vector
   X = H[0 : 3, 3].row_insert(3, simplify(theta * n)) if symbolic else np.append(H[0 : 3, 3], theta * n)
   
-  return nsimplify(X, tolerance = 1e-10, rational = False) if symbolic else X.reshape((6, 1))
+  return X if symbolic else X.reshape((6, 1))
 
 def geometricJacobian(robot, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
@@ -134,8 +135,8 @@ def geometricJacobian(robot, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    J (np.array): Geometric Jacobian Matrix
-    J (SymPy Matrix): Geometric Jacobian Matrix
+    J (np.array): Geometric Jacobian Matrix (numerical)
+    J (SymPy Matrix): Geometric Jacobian Matrix (symbolical)
   """
 
   # Get number of joints (generalized coordinates)
@@ -159,8 +160,62 @@ def geometricJacobian(robot, symbolic = False):
     # Calculate distance between end - effector and current joint
     r = fkHTM[-1][0: 3, 3] - fkHTM[row - 1][0: 3, 3]
     
-    # Calculate axes of actuation of end - effector caused by current joint
-    J[0: 3, j] = nsimplify(simplify(z.cross(r)), tolerance = 1e-10, rational = False) if symbolic else np.cross(z, r)
+    # Calculate axes of actuation of Center of Mass or End - Effector caused by current joint
+    J[0: 3, j] = z.cross(r) if symbolic else np.cross(z, r)
+    
+    # Set axis of actuation
+    J[3: 6, j] = z
+    
+  return J
+
+def geometricJacobianCOM(robot, COM, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix to a desired Center of Mass of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    COM (int): center of mass that will be analyzed
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    J (np.array): Geometric Jacobian Matrix (numerical)
+    J (SymPy Matrix): Geometric Jacobian Matrix (symbolical)
+  """
+
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Calculate forward kinematics
+  fkHTM = forwardHTM(robot, symbolic)
+  
+  # Calculate forward kinematics to each Center of Mass
+  fkCOMHTM = forwardCOMHTM(robot, symbolic)
+    
+  # Check in what row of Denavit Hartenberg Parameters Matrix is the Center of Mass (the sum is because of the way Python indexes arrays)
+  rowCOM = robot.whereIsTheCOM(COM)
+  
+  # Initializes jacobian matrix with zeros
+  J = zeros(6, n) if symbolic else np.zeros((6, n))
+  
+  # Iterates through all colums (generalized coordinates)
+  for j in range(n):
+    
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row = robot.whereIsTheJoint(j + 1)
+    
+    # If the current joint is coupled after the desired center of mass, and any Center of Mass is analyzed
+    if row > rowCOM:
+      
+      # Stop the algorithm, because this joint won't affect the desired center of mass
+      break
+    
+    # Get axis of actuation of current joint ("row - 1" represents the reference frame where ONLY the joint is attached)
+    z = fkHTM[row - 1][0: 3, 2]
+      
+    # Calculate distance between Desired Center of Mass and current joint
+    r = fkCOMHTM[rowCOM][0: 3, 3] - fkHTM[row - 1][0: 3, 3]
+    
+    # Calculate axes of actuation of Center of Mass or End - Effector caused by current joint
+    J[0: 3, j] = z.cross(r) if symbolic else np.cross(z, r)
     
     # Set axis of actuation
     J[3: 6, j] = z
@@ -176,8 +231,8 @@ def analyticJacobian(robot, dq = 0.001, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    J (np.array): Inertial Analytic Jacobian Matrix
-    J (SymPy Matrix): Inertial Analytic Jacobian Matrix
+    J (np.array): Inertial Analytic Jacobian Matrix (numerical)
+    J (SymPy Matrix): Inertial Analytic Jacobian Matrix (symbolical)
   """
   
   # Calculate forward kinematics: f(q)
@@ -248,6 +303,9 @@ def inverseHTM(robot, q0, Hd, K, jacobian = 'geometric'):
   # Set initial conditions
   q = q0.reshape(q0.shape)
   
+  # Auxiliar variable to keep original joints positions
+  z = robot.jointsPositions.copy()
+  
   # Iterator
   j = 0
   
@@ -287,6 +345,11 @@ def inverseHTM(robot, q0, Hd, K, jacobian = 'geometric'):
     # Append results
     q = np.append(q, solution, axis = 1)
     
+    j += 1
+  
+  # Restore original joints positions to don't affect other calculations
+  robot.jointsPositions = z.copy()
+     
   return q
 
 if __name__ == '__main__':
