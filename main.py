@@ -13,10 +13,10 @@ if __name__ == '__main__':
   """
   
   # Number of rigid bodies
-  m = 2
+  m = 3
   
   # Number of Generalized Coordinates
-  n = 2
+  n = 4
   
   # Generalized coordinates
   q = np.random.randn(n, 1)
@@ -25,14 +25,14 @@ if __name__ == '__main__':
   qd = np.random.randn(n, 1)
   
   # Screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
-  xi = np.array([[0, 0],
-                 [0, 0],
-                 [0, 0],
-                 [1, 1],
-                 [0, 0],
-                 [0, 0],
-                 [0, 0],
-                 [0, 0]])
+  xi = np.array([[0, 0, 0, 0],
+                 [0, 0, 0, 0],
+                 [0, 0, 0, 0],
+                 [1, 1, 1, 1],
+                 [0, 0, 0, 0],
+                 [0, 0, 0, 0],
+                 [0, 0, 0, 0],
+                 [0, 0, 0, 0]])
   
   # Derivative of previous screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
   xid = np.zeros((n, 1))
@@ -94,7 +94,7 @@ if __name__ == '__main__':
   
   # Geometric Jacobian Matrix to any Center of Mass (OPTIONAL)
   JgCOM = geometricJacobianCOM(uRobot, COM = 2)
-  # symbolicJgCOM = geometricJacobianCOM(uRobot, COM = 1, symbolic = True)
+  # symbolicJgCOM = geometricJacobianCOM(uRobot, COM = 2, symbolic = True)
   
   # Analytic Jacobian Matrix (OPTIONAL)
   Ja = analyticJacobian(uRobot)
@@ -138,37 +138,21 @@ if __name__ == '__main__':
   D = inertiaMatrix(uRobot)
   # symbolicD = inertiaMatrix(uRobot, symbolic = True)  
   
-  # Test: D(q)
-  # d11 = (m[0] * Lcom[0] ** 2) + (m[1] * (L[0] ** 2 + Lcom[1] ** 2 + (2 * L[0] * Lcom[1] * np.cos(q[1])))) + I[0][-1, -1] + I[1][-1, -1]
-  # d12 = m[1] * (Lcom[1] ** 2 + (L[0] * Lcom[1] * np.cos(q[1]))) + I[1][-1, -1]
-  # d22 = m[1] * Lcom[1] ** 2 + I[1][-1, -1]
-  
   # Kinetic Energy of the robot in the Centers of Mass: 0.5 * q'(t)^T * D * q'(t) (OPTIONAL)
   K = kineticEnergyCOM(uRobot)
   # symbolicK = kineticEnergyCOM(uRobot, symbolic = True)
   
   # Potential Energy of the robot in the Centers of Mass: m * g^T * r (OPTIONAL)
-  P = potentialEnergyCOM(uRobot, g = np.array([[0], [-9.80665], [0]]))
-  # symbolicP = potentialEnergyCOM(uRobot, g = np.array([[0], [-9.80665], [0]]), symbolic = True)
-  
-  # Lagrange Equation: L = K - P
-  # L = K - Matrix(P)
-  # symbolicL = symbolicK - symbolicP
+  P = potentialEnergyCOM(uRobot)
+  # symbolicP = potentialEnergyCOM(uRobot, symbolic = True)
   
   # Centrifugal and Coriolis Matrix: C(q, q')
   C = centrifugalCoriolis(uRobot)
   # symbolicC = centrifugalCoriolis(uRobot, symbolic = True)
   
-  # Test: C(q, q')
-  # c = -m[1] * L[0] * Lcom[1] * np.sin(q[1])
-  
   # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
-  G = dPdq(uRobot, g = np.array([[0], [-9.80665], [0]]))
-  # symbolicG = dPdq(uRobot, g = np.array([[0], [-9.80665], [0]]), symbolic = True)
-  
-  # Test: g(q)
-  # g1 = (m[0] * (-9.80665) * Lcom[0] * np.cos(q[0])) + (m[1] * (-9.80665) * (L[0] * np.cos(q[0]) + Lcom[1] * np.cos(q[0] + q[1])))
-  # g2 = m[1] * (-9.80665) * Lcom[1] * np.cos(q[0] + q[1])
+  G = dPdq(uRobot)
+  # symbolicG = dPdq(uRobot, symbolic = True)
   
   # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
   T = (D * uRobot.qddSymbolic) + (C * uRobot.qdSymbolic) + G

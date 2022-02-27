@@ -96,7 +96,7 @@ class Serial(Robot):
       """
       
     else:
-          
+      
       self.dhParameters = np.array([[0, 0, 0, 0],
                                     [self.jointsPositions[0, 0], self.linksLengths[0], 0.000000000000000000, np.pi / 2],
                                     [self.jointsPositions[1, 0], 0.000000000000000000, self.linksLengths[1], 0.0000000],
@@ -147,7 +147,7 @@ class Serial(Robot):
                                       [self.jointsPositions[1, 0], 0.0000000000, self.COMs[1], 0.0000000],
                                       [self.jointsPositions[2, 0], 0.0000000000, 0.0000000000, np.pi / 2],
                                       [self.jointsPositions[3, 0], self.COMs[2], 0.0000000000, 0.0000000]])
-    
+      
   def whereIsTheJoint(self, joint):
     """This method allows to know in which reference frame is attached any joint based on symbolic Denavit - Hartenberg Parameters Matrix, so this have to be set before calling this method
 
