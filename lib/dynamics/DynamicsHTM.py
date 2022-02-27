@@ -41,7 +41,7 @@ def inertiaMatrix(robot, symbolic = False):
         rowCOM = robot.whereIsTheCOM(j + 1)
         
         # Rotation Matrix of the reference frame related to the current Center of Mass
-        R = fkHTM[rowCOM][0 : 3, 0 : 3]
+        R = (fkHTM[rowCOM - 1] * rz(z = robot.symbolicDHParameters[rowCOM, 0], symbolic = True))[0 : 3, 0 : 3] if symbolic else (fkHTM[rowCOM - 1].dot(rz(z = robot.dhParameters[rowCOM, 0])))[0 : 3, 0 : 3]
         
         # Inertia with respect to center of mass: Icom = R^T * I * R
         Icom = R.T * robot.symbolicInertia[j] * R if symbolic else R.T.dot(robot.inertia[j]).dot(R)
