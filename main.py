@@ -13,7 +13,7 @@ if __name__ == '__main__':
   """
   
   # Number of rigid bodies
-  m = 3
+  rb = 3
   
   # Number of Generalized Coordinates
   n = 4
@@ -38,16 +38,16 @@ if __name__ == '__main__':
   xid = np.zeros((n, 1))
   
   # Links
-  L = [np.random.rand() for i in range(m)]
+  L = [np.random.rand() for i in range(rb)]
   
   # Center of Mass of each link
   Lcom = [value / 2 for value in L]
 
   # Mass of each link
-  m = [np.random.rand() for i in range(m)]
+  m = [np.random.rand() for i in range(rb)]
   
   # Inertia of each link (with respect to the Center of Mass)
-  Inertia = [np.random.rand(3, 3) for i in range(n)]
+  Inertia = [np.random.rand(3, 3) for i in range(rb)]
 
   # Robot initialization as an object
   uRobot = Serial(jointsPositions = q, jointsVelocities = qd, linksLengths = L, COMs = Lcom, mass = m, inertia = Inertia, name = 'uRobot', xi = xi, xid = xid)

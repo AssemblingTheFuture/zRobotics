@@ -87,12 +87,9 @@ def forwardCOMHTM(robot, symbolic = False):
           
     # Center of Mass Homogeneous Transformation Matrix 
     COM = rz(comDH[frame + 1, 0], symbolic = True) * tz(comDH[frame + 1, 1], symbolic = True) * tx(comDH[frame + 1, 2], symbolic = True) * rx(comDH[frame + 1, 3], symbolic = True) if symbolic else rz(frame[0]).dot(tz(frame[1])).dot(tx(frame[2])).dot(rx(frame[3]))
-        
-    # Rigid body's Homogeneous Transformation Matrix
-    B = framesHTM[i - 1].inv() * framesHTM[i] if symbolic else np.linalg.pinv(framesHTM[i - 1]).dot(framesHTM[i])
-
+    
     # Forward kinematics to Center of Mass
-    fkCOMHTM = framesHTM[i] * B.inv() * COM if symbolic else framesHTM[i].dot(np.linalg.inv(B)).dot(COM)
+    fkCOMHTM = framesHTM[i - 1] * COM if symbolic else framesHTM[i - 1].dot(COM)
         
     framesCOMHTM.append(fkCOMHTM)
     

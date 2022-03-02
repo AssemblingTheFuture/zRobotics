@@ -88,11 +88,8 @@ def forwardCOMDQ(robot, symbolic = False):
     # Center of Mass Homogeneous Transformation Matrix
     COM = leftOperator(dqRz(comDH[frame + 1, 0], symbolic = True), symbolic = True) * rightOperator(dqRx(comDH[frame + 1, 3], symbolic = True), symbolic = True) * rightOperator(dqTx(comDH[frame + 1, 2], symbolic = True), symbolic = True) * dqTz(comDH[frame + 1, 1], symbolic = True) if symbolic else leftOperator(dqRz(frame[0])).dot(rightOperator(dqRx(frame[3]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
 
-    # Rigid body's Dual Quaternion
-    B = leftOperator(conjugateDQ(framesDQ[i - 1], symbolic = True), symbolic = True) * framesDQ[i] if symbolic else leftOperator(conjugateDQ(framesDQ[i - 1])).dot(framesDQ[i])
-
     # Forward kinematics to Center of Mass
-    fkCOMDQ = leftOperator(framesDQ[i], symbolic = True) * rightOperator(COM, symbolic = True) * conjugateDQ(B, symbolic = True) if symbolic else leftOperator(framesDQ[i]).dot(rightOperator(COM)).dot(conjugateDQ(B))
+    fkCOMDQ = leftOperator(framesDQ[i - 1], symbolic = True) * COM if symbolic else leftOperator(framesDQ[i - 1]).dot(COM)
 
     framesCOMDQ.append(fkCOMDQ)
     

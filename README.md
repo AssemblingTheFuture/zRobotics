@@ -707,8 +707,8 @@ Where each attribute is described below:
 - Joints positions and velocities (generalized coordinates): <img src="https://render.githubusercontent.com/render/math?math={\color{red} q, \dot{q} \in \mathbb{R}^{n \times 1}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} rad}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red} \frac{rad}{sec}}">) 
 - Links Lengths and distance to Centers of Mass: <img src="https://render.githubusercontent.com/render/math?math={\color{red} L, L_{com} \in \mathbb{R}^{r_b}}"> (set in meters)
 - Screw vectors for Dual Quaternions operations: <img src="https://render.githubusercontent.com/render/math?math={\color{red} \xi, \dot{\xi} \in \mathbb{H}}">
-- Mass of each link: <img src="https://render.githubusercontent.com/render/math?math={\color{red} m \in \mathbb{R}, m > 0}"> (set in kilograms)
-- Inertia tensor of each link with respect to its origin: <img src="https://render.githubusercontent.com/render/math?math={\color{red} I \in \mathbb{R}^{3 \times 3}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} kg \cdot m^2}">)
+- Mass of each link: <img src="https://render.githubusercontent.com/render/math?math={\color{red} m_j \in \mathbb{R}, m_j > 0}"> (set in kilograms)
+- Inertia tensor of each link with respect to its origin: <img src="https://render.githubusercontent.com/render/math?math={\color{red} I_j \in \mathbb{R}^{3 \times 3}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} kg \cdot m^2}">)
 
 [*Return to top*](#zrobotics-02)
 
@@ -1002,7 +1002,7 @@ Matrix([[                                                      -sin(q1/2 + q4/2)
         [-(L1*sin(q2/2 + q3/2) + L2*cos(q2/2 - q3/2) + Lcom3*sin(q2/2 + q3/2))*sin(q1/2 + q4/2)/2]])
 ```
 
-In this case, <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_{com_{i}/0}^{0} \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_{com_{i}/0}^{0} \in \mathbb{H}}"> are defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_{com_{i}/0}^{0} = H_{i/0}^{0} (H_{i/i-1}^{i - 1})^{-1} H_{com_{i}/i-1}^{i - 1}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_{com_{i}/0}^{0} = Q_{i/0}^{0} (Q_{i/i-1}^{i - 1})^{*} Q_{com_{i}/i-1}^{i - 1}}"> respectively
+In this case, <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_{com_{j}/0}^{0} \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_{com_{j}/0}^{0} \in \mathbb{H}}"> are defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_{com_{j}/0}^{0} = H_{i - 1/0}^{0} \ \ H_{com_{j}/i-1}^{i - 1}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_{com_{j}/0}^{0} = Q_{i - 1/0}^{0} \ \ Q_{com_{j}/i-1}^{i - 1}}"> respectively
 
 **IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of your system. Take a look at [Symbolic Computation](#symbolic-computation-warning) for more information :wink:
 
@@ -1053,22 +1053,12 @@ Matrix([[                                                                       
 
 ### Jacobian Matrix
 
-This is **OPTIONAL**, because each function who needs a Jacobian Matrix <img src="https://render.githubusercontent.com/render/math?math={\color{red}J \left( \mathrm{x} \right) \in \mathbb{R}^{6 \times n}}"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form:
+This is **OPTIONAL**, because each function that needs a Jacobian Matrix <img src="https://render.githubusercontent.com/render/math?math={\color{red}J \in \mathbb{R}^{6 \times n}}"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form:
 
 ```python
 # Kinematics libraries
 from lib.kinematics.HTM import *
 from lib.kinematics.DQ import *
-
-# Screw vectors stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
-xi = np.array([[0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [1, 1, 1, 1],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0]])
   
 # Geometric Jacobian Matrix (OPTIONAL)
 Jg = geometricJacobian(uRobot)
@@ -1183,7 +1173,7 @@ This is the relation between motion (velocity) in joint space and motion (linear
 
 The rate of change of the end-effector (is not the same as its velocity) can be calculated by deriving its equations that define its pose in an [Axis - Angle vector](#axis---angle-vector) <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{x} \left( t \right) \in \mathbb{R}^{6 \times 1}}">, so this will return an [Analytic Jacobian Matrix](/lib/kinematics/HTM.py#225) <img src="https://render.githubusercontent.com/render/math?math={\color{red}J \left( \mathrm{x} \right) \in \mathbb{R}^{6 \times n}}"> that can be multiplied by the generalized coordinates vector:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial \mathrm{x}}{\partial q} = J \left ( \mathrm{x} \right) \implies \frac{\partial \mathrm{x}}{\partial q} = J \left ( \mathrm{x} \right) \frac{\partial t}{\partial t} \implies \frac{\partial \mathrm{x}}{\partial t} = J \left ( \mathrm{x} \right) \frac{\partial q}{\partial t} \implies \dot{\mathrm{x}} = J \left ( \mathrm{x} \right) \ \ \dot{q}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial \mathrm{x}}{\partial q} = J \left ( \mathrm{x}, q \right) \implies \frac{\partial \mathrm{x}}{\partial q} = J \left ( \mathrm{x}, q \right) \frac{\partial t}{\partial t} \implies \frac{\partial \mathrm{x}}{\partial t} = J \left ( \mathrm{x}, q \right) \frac{\partial q}{\partial t} \implies \dot{\mathrm{x}} = J \left ( \mathrm{x}, q \right) \ \ \dot{q}}">
 
 This calculation can be done as follows:
 
@@ -1245,9 +1235,9 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ### Inertial Velocity
 
-End-effector velocity can be calcualted with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130), because this maps the effect of each joint directly to the end-effector, so linear and angular velocities can be calculated:
+End-effector velocity can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130), because this maps the effect of each joint directly to the end-effector, so linear and angular velocities can be calculated:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v} = \begin{bmatrix} v_{x} \\ v_{y} \\ v_{z} \\ \omega_{x} \\ \omega_{y} \\ \omega_{z} \end{bmatrix} = J \left ( q \right) \ \ \dot{q}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v} = \begin{bmatrix} v_{x} \\ v_{y} \\ v_{z} \\ \omega_{x} \\ \omega_{y} \\ \omega_{z} \end{bmatrix} = J \left ( \vec{r}, \hat{n} \right) \ \ \dot{q}}">
 
 This can be calculated with the library as follows:
 
@@ -1309,9 +1299,9 @@ Please notice that angular velocities are not the same as the angular rate of ch
 
 ### Inertial Velocity to Centers of Mass
 
-**For dynamic modelling, it will be mandatory to know the velocity of each center of mass**. As stated in previous section, inertial velocities can be calcualted with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130). In this case, it maps the effect of each joint directly to the each center of mass, so linear and angular velocities can be calculated:
+**For dynamic modelling, it will be mandatory to know the velocity of each center of mass**. As stated in previous section, inertial velocities can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130). In this case, it maps the effect of each joint directly to the each center of mass, so linear and angular velocities can be calculated:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_i} = \begin{bmatrix} v_{x_{com_i}} \\ v_{y_{com_i}} \\ v_{z_{com_i}} \\ \omega_{x_{com_i}} \\ \omega_{y_{com_i}} \\ \omega_{z_{com_i}} \end{bmatrix} = J_{com_i} \left ( q \right) \ \ \dot{q}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_j} = \begin{bmatrix} v_{x_{com_j}} \\ v_{y_{com_j}} \\ v_{z_{com_j}} \\ \omega_{x_{com_j}} \\ \omega_{y_{com_j}} \\ \omega_{z_{com_j}} \end{bmatrix} = J_{com_j} \left ( \vec{r}, \hat{n} \right) \ \ \dot{q}}">
 
 This can be calculated with the library as follows:
 
@@ -1391,7 +1381,7 @@ Where <img src="https://render.githubusercontent.com/render/math?math={\color{re
 
 In robotics, **this is analyzed with respect to each Center of Mass because the way forces and torques propagates through each rigid body**. To calculate it, previous equations can be rewriten as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau}">, where <img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com} = K_{com} - P_{com}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau_i}">, where <img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com} = K_{com} - P_{com}}">
 
 To calculate each term, [Forward Kinematics](#forward-kinematics) and [Differential Kinematics](#differential-kinematics) will be used, so dynamic modelling won't be too complicated if previous topics were thoroughly studied :smiley:
 
@@ -1403,25 +1393,25 @@ To calculate each term, [Forward Kinematics](#forward-kinematics) and [Different
 
 This is a form of energy that a rigid body has by its motion. If a rigid body is affected by an external force, it speeds up and thereby gains kinetic energy, so the one of the *i* - th element, with respect to its center of mass, is defined as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_i} = \frac{1}{2} m_i v_{com_i}^{T} v_{com_i} %2b \frac{1}{2} \omega_{com_i}^{T} \left( I_{com_i} \right) \omega_{com_i}}">, with <img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_i} \in \mathbb{R}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} = \frac{1}{2} m_j v_{com_j}^{T} v_{com_j} %2b \frac{1}{2} \omega_{com_j}^{T} \left( I_{com_j} \right) \omega_{com_j}}">, with <img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} \in \mathbb{R}}">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{com_i}, \omega_{com_i} \in \mathbb{R}^{3 \times 1}}"> that can be obtained as shown [here](#inertial-velocity-for-centers-of-mass):
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{com_j}, \omega_{com_j} \in \mathbb{R}^{3 \times 1}}"> that can be obtained as shown [here](#inertial-velocity-for-centers-of-mass):
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_i} = \begin{bmatrix} v_{com_i} \\ \omega_{com_i} \end{bmatrix} = }"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} J_{v_{com_i}} \\ J_{\omega_{com_i}} \end{bmatrix} \ \ \dot{q}}">,
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_j} = \begin{bmatrix} v_{com_j} \\ \omega_{com_j} \end{bmatrix} = }"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} J_{v_{com_j}} \\ J_{\omega_{com_j}} \end{bmatrix} \ \ \dot{q}}">,
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{com_i} = J_{v_{com_i}} \ \ \dot{q}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_i} = J_{\omega_{com_i}} \ \ \dot{q}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{com_j} = J_{v_{com_j}} \ \ \dot{q}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j} = J_{\omega_{com_j}} \ \ \dot{q}}">
 
 therefore, first equation can be rewriten as follows:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_i} = \frac{1}{2} m_i \left( J_{v_{com_i}} \ \ \dot{q} \right)^{T} \left( J_{v_{com_i}} \ \ \dot{q} \right) %2b \frac{1}{2} \left( J_{\omega_{com_i}} \dot{q} \right)^{T} I_{com_i} \left( J_{\omega_{com_i}} \dot{q} \right)}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} = \frac{1}{2} m_j \left( J_{v_{com_j}} \ \ \dot{q} \right)^{T} \left( J_{v_{com_j}} \ \ \dot{q} \right) %2b \frac{1}{2} \left( J_{\omega_{com_j}} \dot{q} \right)^{T} I_{com_j} \left( J_{\omega_{com_j}} \dot{q} \right)}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_i} = \frac{1}{2} m_i \cdot \dot{q}^{T} \left( J_{v_{com_i}}^{T} J_{v_{com_i}} \right) \dot{q}^{T} %2b \frac{1}{2} \dot{q}^{T} \left( J_{\omega_{com_i}}^{T} I_{com_i} J_{\omega_{com_i}} \right) \dot{q}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} = \frac{1}{2} m_j \cdot \dot{q}^{T} \left( J_{v_{com_j}}^{T} J_{v_{com_j}} \right) \dot{q}^{T} %2b \frac{1}{2} \dot{q}^{T} \left( J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \right) \dot{q}}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_i} = \frac{1}{2} \dot{q}^{T} \big ( m_i \cdot J_{v_{com_i}}^{T} J_{v_{com_i}} %2b J_{\omega_{com_i}}^{T} I_{com_i} J_{\omega_{com_i}} \big) \ \ \dot{q}}">.
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} = \frac{1}{2} \dot{q}^{T} \big ( m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big) \ \ \dot{q}}">.
 
 Then, total kinetic energy is the sum of all energies, this is:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com} = \frac{1}{2} \dot{q}^{T} \big [ \sum_{i = 1}^{r_b} \big (  m_i \cdot J_{v_{com_i}}^{T} J_{v_{com_i}} %2b J_{\omega_{com_i}}^{T} I_{com_i} J_{\omega_{com_i}} \big ) \big ] \ \ \dot{q}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com} = \frac{1}{2} \dot{q}^{T} \big [ \sum_{j = 1}^{r_b} \big (  m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big ) \big ] \ \ \dot{q}}">
 
 <img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com} = \frac{1}{2} \dot{q}^{T} \left[ \mathrm{D} \left( q \right)\right] \ \ \dot{q}}">,
 
@@ -1482,9 +1472,9 @@ You can also calculate the full symbolic expression by setting ```symbolic``` pa
 
 Basically, this is a representation of the sum of linear and angular momentums in the robot, this leads to a symmetric matrix. As shown in previous section, this matrix can be calculated as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) = \sum_{i = 1}^{m} \big (  m_i \cdot J_{v_{com_i}}^{T} J_{v_{com_i}} %2b J_{\omega_{com_i}}^{T} I_{com_i} J_{\omega_{com_i}} \big )}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) = \sum_{j = 1}^{rb} \big (  m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big )}">
 
-The algorithms in this library requires the calculation of [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass) and Jacobian Matrix to Center of Mass that we discussed in [this section](#inertial-velocity-to-centers-of-mass). Also, given each inertia tensor <img src="https://render.githubusercontent.com/render/math?math={\color{red}I_{i} \in \mathbb{R}^{3 \times 3}}"> on the [attributes section](#attributes), this algorithm will transformate it into <img src="https://render.githubusercontent.com/render/math?math={\color{red}I_{com_i} \in \mathbb{R}^{3 \times 3}}"> automatically :wink:
+The algorithms in this library requires the calculation of [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass) and Jacobian Matrix to Center of Mass that we discussed in [this section](#inertial-velocity-to-centers-of-mass). Also, given each inertia tensor <img src="https://render.githubusercontent.com/render/math?math={\color{red}I_{j} \in \mathbb{R}^{3 \times 3}}"> on the [attributes section](#attributes), this algorithm will transformate it into <img src="https://render.githubusercontent.com/render/math?math={\color{red}I_{com_j} \in \mathbb{R}^{3 \times 3}}"> automatically :wink:
 
 ```python
 """
@@ -1519,11 +1509,11 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 This is the energy stored in an object due to its position relative to the inertial one. This is described as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_i} = m_i \ \ g^T \ \ r_{com_{i}/0}^{0}}">, <img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_i} \in \mathbb{R}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_j} = m_j \ \ g^T \ \ r_{com_{j}/0}^{0}}">, <img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_j} \in \mathbb{R}}">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}g \in \mathbb{R}^{3 \times 1}}"> is the gravity acceleration with respect to inertial frame, usually defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}g^{T} = \big [ 0 \ \ \ 0 \ \ -9.80665 \big]}">; it is constant and have to be defined depending on the orientation of your inertial frame. Moreover <img src="https://render.githubusercontent.com/render/math?math={\color{red}r_{com_{i}/0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the position of the *i* - th center of mass that can be obtained as shown [here](#forward-kinematics-to-centers-of-mass). The total potential energy can be calculated as follows:
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}g \in \mathbb{R}^{3 \times 1}}"> is the gravity acceleration with respect to inertial frame, usually defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}g^{T} = \big [ 0 \ \ \ 0 \ \ -9.80665 \big]}">; it is constant and have to be defined depending on the orientation of your inertial frame. Moreover <img src="https://render.githubusercontent.com/render/math?math={\color{red}r_{com_{j}/0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the position of the *i* - th center of mass that can be obtained as shown [here](#forward-kinematics-to-centers-of-mass). The total potential energy can be calculated as follows:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_i} = \sum_{i = 1}^{r_b} \left(m_i \ \ g^T \ \ r_{com_{i}/0}^{0} \right)}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_j} = \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ r_{com_{j}/0}^{0} \right)}">
 
 You can do this task with the library as shown below:
 
@@ -1560,7 +1550,7 @@ This is as simple as calculating the difference between total kinetic energy <im
 <img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com} = K_{com} - P_{com}}">
 
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com} = \frac{1}{2} \dot{q}^{T} \left[ \mathrm{D} \left( q \right) \right] \ \ \dot{q} - \sum_{i = 1}^{r_b} \left(m_i \ \ g^T \ \ r_{com_{i}/0}^{0} \right)}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com} = \frac{1}{2} \dot{q}^{T} \left[ \mathrm{D} \left( q \right) \right] \ \ \dot{q} - \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ r_{com_{j}/0}^{0} \right)}">
 
 Last equation will be useful to calculate the dynamical representation of a robot :robot:
 
@@ -1572,19 +1562,19 @@ Last equation will be useful to calculate the dynamical representation of a robo
 
 As part of the Euler - Lagrange formulation, it is mandatory to calculate the rate of change of the lagrangian with respect to the joints positions, so this leads to
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial L_{com}}{\partial q} = \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right] \ \ \dot{q} - \sum_{i = 1}^{r_b} \left(m_i \ \ g^T \ \ \frac{\partial r_{com_{i}/0}^{0}}{\partial q} \right)}"> 
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial L_{com}}{\partial q} = \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right] \ \ \dot{q} - \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)}"> 
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\implies \left( \frac{\partial L_{com}}{\partial q} \right)^{T} = \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \ \ \dot{q} - \sum_{i = 1}^{r_b} \left[m_i \ \ \left( \frac{\partial r_{com_{i}/0}^{0}}{\partial q} \right)^{T} \right]  \ \ g }"> 
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\implies \left( \frac{\partial L_{com}}{\partial q} \right)^{T} = \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \ \ \dot{q} - \sum_{j = 1}^{r_b} \left[m_j \ \ \left( \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)^{T} \right]  \ \ g }"> 
 
 Using the equation shown in [this section](#euler---lagrange-formulation), is possible to expand it as
 
 <img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \ \ \dot{q} %2b \sum_{i = 1}^{r_b} \left[m_i \ \ \left( \frac{\partial r_{com_{i}/0}^{0}}{\partial q} \right)^{T} \right]  \ \ g  = \tau}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \ \ \dot{q} %2b \sum_{j = 1}^{r_b} \left[m_j \ \ \left( \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)^{T} \right]  \ \ g  = \tau}">
 
 <img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{G} \left( q \right) \in \mathbb{R}^{n \times 1}}"> is the vector with the gravitational effects, that is the derivative of potential energy with respect to eac joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q \in \mathbb{R}^{n \times 1}}">, who is defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial r_{com_{i}/0}^{0}}{\partial q} \in \mathbb{R}^{3 \times n}}">, that is a rectangular matrix with the derivatives of the centers of mass' positions. The rest of the terms will be discussed in the next section, but in the meantime, calculation of gravitational effects can be performed with this library as follows:
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{G} \left( q \right) \in \mathbb{R}^{n \times 1}}"> is the vector with the gravitational effects, that is the derivative of potential energy with respect to eac joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q \in \mathbb{R}^{n \times 1}}">, who is defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial r_{com_{j}/0}^{0}}{\partial q} \in \mathbb{R}^{3 \times n}}">, that is a rectangular matrix with the derivatives of the centers of mass' positions. The rest of the terms will be discussed in the next section, but in the meantime, calculation of gravitational effects can be performed with this library as follows:
 
 ```python
 """
@@ -1671,7 +1661,7 @@ where each <img src="https://render.githubusercontent.com/render/math?math={\col
 
 <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \sum_{i = 1}^{n} \left( \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} - \frac{1}{2}\left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right] \ \ \dot{q}_{i} \right)\ \ \dot{q}}">
 
-that is easier to calcualte compared with the original result. It can be performed with this library as follows:
+that is easier to calculate compared with the original result. It can be performed with this library as follows:
 
 ```python
 """
