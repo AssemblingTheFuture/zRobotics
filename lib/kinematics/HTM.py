@@ -12,7 +12,7 @@ def forwardHTM(robot, symbolic = False):
     """Using Homogeneous Transformation Matrices, this function computes forward kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
     Args:
-        robot (object): serial robot (this won't work with other type of robots)
+        robot (Serial): serial robot (this won't work with other type of robots)
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
@@ -42,7 +42,7 @@ def forwardHTM(robot, symbolic = False):
     for frame in range(DH.rows) if symbolic else DH:
         
         # Operates matrices symbolically: Rz * Tz * Tx * Rx
-        fkHTM = fkHTM * rz(DH[frame, 0], symbolic = True) * tz(DH[frame, 1], symbolic = True) * tx(DH[frame, 2], symbolic = True) * rx(DH[frame, 3], symbolic = True) if symbolic else fkHTM.dot(rz(frame[0]).dot(tz(frame[1])).dot(tx(frame[2])).dot(rx(frame[3])))
+        fkHTM = fkHTM * rz(DH[frame, 0], symbolic) * tz(DH[frame, 1], symbolic) * tx(DH[frame, 2], symbolic) * rx(DH[frame, 3], symbolic) if symbolic else fkHTM.dot(rz(frame[0]).dot(tz(frame[1])).dot(tx(frame[2])).dot(rx(frame[3])))
 
         # Append each calculated Homogeneous Transformation Matrix
         framesHTM.append(fkHTM)
@@ -53,7 +53,7 @@ def forwardCOMHTM(robot, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes forward kinematics of a serial robot's centers of mass given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
-    robot (object): serial robot (this won't work with other type of robots)
+    robot (Serial): serial robot (this won't work with other type of robots)
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
@@ -78,22 +78,21 @@ def forwardCOMHTM(robot, symbolic = False):
     
     # Get Denavit - Hartenberg Matrix
     comDH = robot.dhParametersCOM
-  
-  # Iterator
-  i = 1
     
-  # Iteration through all the rows in Denavit - Hartenberg Matrix
-  for frame in range(comDH[1 : , :].rows) if symbolic else comDH[1 : , :]:
-          
+  # Iteration through all the Centers of Mass
+  for i in range(robot.symbolicCOMs.shape[0]):
+    
+    # Check where is the current Center of Mass
+    rowCOM, column = robot.whereIsTheCOM(COM = i + 1)
+    
     # Center of Mass Homogeneous Transformation Matrix 
-    COM = rz(comDH[frame + 1, 0], symbolic = True) * tz(comDH[frame + 1, 1], symbolic = True) * tx(comDH[frame + 1, 2], symbolic = True) * rx(comDH[frame + 1, 3], symbolic = True) if symbolic else rz(frame[0]).dot(tz(frame[1])).dot(tx(frame[2])).dot(rx(frame[3]))
+    COM = rz(comDH[rowCOM, 0] if column >= 0 else 0, symbolic) * tz(comDH[rowCOM, 1] if column >= 1 else 0, symbolic) * tx(comDH[rowCOM, 2] if column >= 2 else 0, symbolic) * rx(comDH[rowCOM, 3] if column >= 3 else 0, symbolic) if symbolic else rz(comDH[rowCOM, 0] if column >= 0 else 0).dot(tz(comDH[rowCOM, 1] if column >= 1 else 0)).dot(tx(comDH[rowCOM, 2] if column >= 2 else 0)).dot(rx(comDH[rowCOM, 3] if column >= 3 else 0))
     
     # Forward kinematics to Center of Mass
-    fkCOMHTM = framesHTM[i - 1] * COM if symbolic else framesHTM[i - 1].dot(COM)
-        
-    framesCOMHTM.append(fkCOMHTM)
+    fkCOMHTM = framesHTM[rowCOM - 1] * COM if symbolic else framesHTM[rowCOM - 1].dot(COM)
     
-    i += 1
+    # Append results
+    framesCOMHTM.append(fkCOMHTM)
     
   return framesCOMHTM
 
@@ -128,7 +127,7 @@ def geometricJacobian(robot, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
-    robot (object): serial robot (this won't work with other type of robots)
+    robot (Serial): serial robot (this won't work with other type of robots)
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
@@ -149,13 +148,19 @@ def geometricJacobian(robot, symbolic = False):
   for j in range(n):
     
     # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
-    row = robot.whereIsTheJoint(j + 1)
+    row, column = robot.whereIsTheJoint(j + 1)
     
-    # Get axis of actuation of current joint ("row - 1" represents the reference frame where ONLY the joint is attached)
-    z = fkHTM[row - 1][0: 3, 2]
+    # Get row where joint is stored
+    frame = robot.symbolicDHParameters[4 * (row) : 4 * (row + 1)] if symbolic else robot.dhParameters[row, :]
+    
+    # Get pose of the joint
+    H = fkHTM[row - 1] * rz(frame[0] if column >= 0 else 0, symbolic) * tz(frame[1] if column >= 1 else 0, symbolic) * tx(frame[2] if column >= 2 else 0) * rx(frame[3] if column >= 3 else 0)  if symbolic else fkHTM[row - 1].dot(rz(frame[0] if column >= 0 else 0)).dot(tz(frame[1] if column >= 1 else 0)).dot(tx(frame[2] if column >= 2 else 0, symbolic)).dot(rx(frame[3] if column >= 3 else 0))
+    
+    # Get axis of actuation of current joint
+    z = H[0: 3, 2]
       
     # Calculate distance between end - effector and current joint
-    r = fkHTM[-1][0: 3, 3] - fkHTM[row - 1][0: 3, 3]
+    r = fkHTM[-1][0: 3, 3] - H[0: 3, 3]
     
     # Calculate axes of actuation of Center of Mass or End - Effector caused by current joint
     J[0: 3, j] = z.cross(r) if symbolic else np.cross(z, r)
@@ -169,7 +174,7 @@ def geometricJacobianCOM(robot, COM, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix to a desired Center of Mass of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
-    robot (object): serial robot (this won't work with other type of robots)
+    robot (Serial): serial robot (this won't work with other type of robots)
     COM (int): center of mass that will be analyzed
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
@@ -188,34 +193,40 @@ def geometricJacobianCOM(robot, COM, symbolic = False):
   fkCOMHTM = forwardCOMHTM(robot, symbolic)
     
   # Check in what row of Denavit Hartenberg Parameters Matrix is the Center of Mass (the sum is because of the way Python indexes arrays)
-  rowCOM = robot.whereIsTheCOM(COM)
+  rowCOM = robot.whereIsTheCOM(COM)[0]
   
   # Initializes jacobian matrix with zeros
   J = zeros(6, n) if symbolic else np.zeros((6, n))
   
   # Iterates through all colums (generalized coordinates)
-  for j in range(n):
+  for i in range(n):
     
     # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
-    row = robot.whereIsTheJoint(j + 1)
+    row, column = robot.whereIsTheJoint(i + 1)
     
     # If the current joint is coupled after the desired center of mass, and any Center of Mass is analyzed
     if row > rowCOM:
       
-      # Stop the algorithm, because this joint won't affect the desired center of mass
+      # Stop the algorithm, because current joint won't affect the desired center of mass
       break
     
-    # Get axis of actuation of current joint ("row - 1" represents the reference frame where ONLY the joint is attached)
-    z = fkHTM[row - 1][0: 3, 2]
+    # Get row where joint is stored
+    frame = robot.symbolicDHParameters[4 * (row) : 4 * (row + 1)] if symbolic else robot.dhParameters[row, :]
+    
+    # Get pose of joint
+    H = fkHTM[row - 1] * rz(frame[0] if column >= 0 else 0, symbolic) * tz(frame[1] if column >= 1 else 0, symbolic) * tx(frame[2] if column >= 2 else 0) * rx(frame[3] if column >= 3 else 0) if symbolic else fkHTM[row - 1].dot(rz(frame[0] if column >= 0 else 0)).dot(tz(frame[1] if column >= 1 else 0)).dot(tx(frame[2] if column >= 2 else 0, symbolic)).dot(rx(frame[3] if column >= 3 else 0))
+    
+    # Get axis of actuation of current joint
+    z = H[0: 3, 2]
       
     # Calculate distance between Desired Center of Mass and current joint
-    r = fkCOMHTM[rowCOM][0: 3, 3] - fkHTM[row - 1][0: 3, 3]
+    r = fkCOMHTM[COM][0: 3, 3] - H[0: 3, 3]
     
     # Calculate axes of actuation of Center of Mass or End - Effector caused by current joint
-    J[0: 3, j] = z.cross(r) if symbolic else np.cross(z, r)
+    J[0: 3, i] = z.cross(r) if symbolic else np.cross(z, r)
     
     # Set axis of actuation
-    J[3: 6, j] = z
+    J[3: 6, i] = z
     
   return J
 
@@ -223,7 +234,7 @@ def analyticJacobian(robot, dq = 0.001, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Analytic Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
-    robot (object): serial robot (this won't work with other type of robots)
+    robot (Serial): serial robot (this won't work with other type of robots)
     dq (float, optional): step size for numerical derivative. Defaults to 0.001.
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
@@ -274,11 +285,67 @@ def analyticJacobian(robot, dq = 0.001, symbolic = False):
     
     return J
 
+def analyticJacobianCOM(robot, COM, dq = 0.001, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes Analytic Jacobian Matrix to a Center of Mass of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (Serial): serial robot (this won't work with other type of robots)
+    COM (int): center of mass that will be analyzed
+    dq (float, optional): step size for numerical derivative. Defaults to 0.001.
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    J (np.array): Inertial Analytic Jacobian Matrix to Center of Mass (numerical)
+    J (SymPy Matrix): Inertial Analytic Jacobian Matrix to Center of Masas (symbolical)
+  """
+  
+  # Calculate forward kinematics: f(q)
+  fkCOMHTM = forwardCOMHTM(robot, symbolic)
+  
+  # Convert result into an Axis - Angle vector: x(q)
+  x = axisAngle(fkCOMHTM[COM], symbolic)
+  
+  if symbolic:
+    
+    # Calculate Analytic Jacobian Matrix by differentiating Axis - Angle vector with SymPy functions
+    return x.jacobian(robot.qSymbolic)
+    
+  else:
+        
+    # Get number of joints (generalized coordinates)
+    n = robot.jointsPositions.shape[0]
+  
+    # Initializes jacobian matrix with zeros
+    J = np.zeros((6, n))
+    
+    # Auxiliar variable to keep original joints positions
+    q = robot.jointsPositions.copy()
+    
+    # Iterates through all colums (generalized coordinates)
+    for j in range(n):
+      
+      # Set increment to current generalized coordinate: z[j] = q[j] + dq
+      robot.jointsPositions[j] += dq
+        
+      # Calculate forward kinematics with step size: f(z) = f(q + dq)
+      f = forwardCOMHTM(robot)
+      
+      # Convert result into an Axis - Angle vector: X(q + dq)
+      X = axisAngle(f[COM])
+      
+      # Calculate analytic jacobian matrix: [X(q + dq) - x(q)] / dq
+      J[: , j] = ((X - x) / dq).flatten()
+      
+      # Eliminates step size by copying original values from auxiliar variable
+      robot.jointsPositions[:, :] = q
+    
+    return J
+
 def inverseHTM(robot, q0, Hd, K, jacobian = 'geometric'):
   """Using Homogeneous Transformation Matrices, this function computes Inverse Kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
-    robot (object): serial robot (this won't work with other type of robots)
+    robot (Serial): serial robot (this won't work with other type of robots)
     q0 (np.array): initial conditions of joints
     Hd (np.array): desired pose represented with an Homogeneous Transformation Matrix or Axis - Angle vector
     K (np.array): gain matrix to guarantee stability

@@ -42,7 +42,7 @@ def forwardDQ(robot, symbolic = False):
   for frame in range(DH.rows) if symbolic else DH:
     
     # Operates dual quaternions symbolically: Rz * Tz * Tx * Rx
-    fkDQ = leftOperator(fkDQ, symbolic = True) * rightOperator(dqRx(DH[frame, 3], symbolic = True), symbolic = True) * leftOperator(dqRz(DH[frame, 0], symbolic = True), symbolic = True) * rightOperator(dqTx(DH[frame, 2], symbolic = True), symbolic = True) * dqTz(DH[frame, 1], symbolic = True) if symbolic else leftOperator(fkDQ).dot(rightOperator(dqRx(frame[3]))).dot(leftOperator(dqRz(frame[0]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
+    fkDQ = leftOperator(fkDQ, symbolic) * rightOperator(dqRx(DH[frame, 3], symbolic), symbolic) * leftOperator(dqRz(DH[frame, 0], symbolic), symbolic) * rightOperator(dqTx(DH[frame, 2], symbolic), symbolic) * dqTz(DH[frame, 1], symbolic) if symbolic else leftOperator(fkDQ).dot(rightOperator(dqRx(frame[3]))).dot(leftOperator(dqRz(frame[0]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
 
     # Append each calculated Homogeneous Transformation Matrix
     framesDQ.append(fkDQ)
@@ -78,22 +78,21 @@ def forwardCOMDQ(robot, symbolic = False):
     
     # Get Denavit - Hartenberg Matrix
     comDH = robot.dhParametersCOM
-
-  # Iterator
-  i = 1
     
-  # Iteration through all the rows in Denavit - Hartenberg Matrix
-  for frame in range(comDH[1 : , :].rows) if symbolic else comDH[1 : , :]:
-          
+  # Iteration through all the rows in Denavit - Hartenberg Matrix for Centers of Mass
+  for i in range(robot.symbolicCOMs.shape[0]):
+        
+    # Check where is the current Center of Mass
+    rowCOM, column = robot.whereIsTheCOM(COM = i + 1)
+    
     # Center of Mass Homogeneous Transformation Matrix
-    COM = leftOperator(dqRz(comDH[frame + 1, 0], symbolic = True), symbolic = True) * rightOperator(dqRx(comDH[frame + 1, 3], symbolic = True), symbolic = True) * rightOperator(dqTx(comDH[frame + 1, 2], symbolic = True), symbolic = True) * dqTz(comDH[frame + 1, 1], symbolic = True) if symbolic else leftOperator(dqRz(frame[0])).dot(rightOperator(dqRx(frame[3]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
+    COM = leftOperator(dqRz(comDH[rowCOM, 0] if column >= 0 else 0, symbolic), symbolic) * rightOperator(dqRx(comDH[rowCOM, 3] if column >= 3 else 0, symbolic), symbolic) * rightOperator(dqTx(comDH[rowCOM, 2] if column >= 2 else 0, symbolic), symbolic) * dqTz(comDH[rowCOM, 1] if column >= 1 else 0, symbolic) if symbolic else leftOperator(dqRz(comDH[rowCOM, 0] if column >= 0 else 0)).dot(rightOperator(dqRx(comDH[rowCOM, 3] if column >= 3 else 0))).dot(rightOperator(dqTx(comDH[rowCOM, 2] if column >= 2 else 0))).dot(dqTz(comDH[rowCOM, 1] if column >= 1 else 0))
 
     # Forward kinematics to Center of Mass
-    fkCOMDQ = leftOperator(framesDQ[i - 1], symbolic = True) * COM if symbolic else leftOperator(framesDQ[i - 1]).dot(COM)
+    fkCOMDQ = leftOperator(framesDQ[rowCOM - 1], symbolic) * COM if symbolic else leftOperator(framesDQ[rowCOM - 1]).dot(COM)
 
+    # Append results
     framesCOMDQ.append(fkCOMDQ)
-    
-    i += 1
       
   return framesCOMDQ
 
@@ -122,10 +121,10 @@ def jacobianDQ(robot, symbolic = False):
   for j in range(n):
     
     # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
-    row = robot.whereIsTheJoint(j + 1)
+    row, column = robot.whereIsTheJoint(j + 1)
         
     # Calculate Jacobian Matrix
-    J[:, j] = 0.5 * leftOperator(fkDQ[row - 1], symbolic = True) * rightOperator(fkDQ[-1], symbolic = True) * rightOperator(conjugateDQ(fkDQ[row - 1], symbolic = True), symbolic = True) * Matrix(robot.xi[:, j]) if symbolic else 0.5 * leftOperator(fkDQ[row - 1]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[row - 1]))).dot(robot.xi[:, j])
+    J[:, j] = 0.5 * leftOperator(fkDQ[row - 1], symbolic) * rightOperator(fkDQ[-1], symbolic) * rightOperator(conjugateDQ(fkDQ[row - 1], symbolic), symbolic) * Matrix(robot.xi[:, j]) if symbolic else 0.5 * leftOperator(fkDQ[row - 1]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[row - 1]))).dot(robot.xi[:, j])
   
   return J
 

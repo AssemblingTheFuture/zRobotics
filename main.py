@@ -38,7 +38,7 @@ if __name__ == '__main__':
   xid = np.zeros((n, 1))
   
   # Links
-  L = [np.random.rand() for i in range(rb)]
+  L = [np.random.rand() for body in range(rb)]
   
   # Center of Mass of each link
   Lcom = [value / 2 for value in L]
@@ -46,8 +46,9 @@ if __name__ == '__main__':
   # Mass of each link
   m = [np.random.rand() for i in range(rb)]
   
-  # Inertia of each link (with respect to the Center of Mass)
-  Inertia = [np.random.rand(3, 3) for i in range(rb)]
+  # Inertia of each link (with respect to the Center of Mass; it has to be a SYMMETRIC matrix)
+  Inertia = np.random.rand(3, 3)
+  Inertia = [0.5 * (Inertia + Inertia.T) for i in range(rb)]
 
   # Robot initialization as an object
   uRobot = Serial(jointsPositions = q, jointsVelocities = qd, linksLengths = L, COMs = Lcom, mass = m, inertia = Inertia, name = 'uRobot', xi = xi, xid = xid)
@@ -100,6 +101,10 @@ if __name__ == '__main__':
   Ja = analyticJacobian(uRobot)
   # symbolicJa = analyticJacobian(uRobot, symbolic = True)
   
+  # Analytic Jacobian Matrix to a Center of Mass(OPTIONAL)
+  JaCOM = analyticJacobianCOM(uRobot, COM = 2)
+  # symbolicJa = analyticJacobianCOM(uRobot, COM = 1, symbolic = True)
+  
   # Dual Jacobian Matrix (OPTIONAL)
   Jdq = jacobianDQ(uRobot)
   # symbolicJdq = jacobianDQ(uRobot, symbolic = True)
@@ -129,6 +134,10 @@ if __name__ == '__main__':
   # Velocity of each Center of Mass using Geometric Jacobian Matrix
   XdCOM = geometricCOMStateSpace(uRobot, COM = 1)
   # symbolicXdCOM = geometricCOMStateSpace(uRobot, COM = 1, symbolic = True)
+  
+  # Velocity of each Center of Mass using Analytic Jacobian Matrix
+  XdCOM = analyticCOMStateSpace(uRobot, COM = 1)
+  # symbolicXdCOM = analyticCOMStateSpace(uRobot, COM = 1, symbolic = True)
   
   """
     5. DYNAMICS

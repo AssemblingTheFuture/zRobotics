@@ -19,8 +19,8 @@ def inertiaMatrix(robot, symbolic = False):
         D (SymPy Matrix): inertia matrix (symbolical)
     """
     
-    # Calculate forward kinematics
-    fkHTM = forwardHTM(robot, symbolic)
+    # Calculate forward kinematics to each center of mass
+    fkCOMHTM = forwardCOMHTM(robot, symbolic)
     
     # Kinetic matrix initialization
     D = zeros(robot.jointsPositions.shape[0]) if symbolic else np.zeros((robot.jointsPositions.shape[0], robot.jointsPositions.shape[0]))
@@ -37,11 +37,8 @@ def inertiaMatrix(robot, symbolic = False):
         # Angular velocity mapping of current center of mass
         Jw = JgCOM[3 : 6, :]
         
-        # Check in what row of Denavit Hartenberg Parameters Matrix is the current Center of Mass (the sum is because of the way Python indexes arrays)
-        rowCOM = robot.whereIsTheCOM(j + 1)
-        
-        # Rotation Matrix of the reference frame related to the current Center of Mass
-        R = (fkHTM[rowCOM - 1] * rz(z = robot.symbolicDHParameters[rowCOM, 0], symbolic = True))[0 : 3, 0 : 3] if symbolic else (fkHTM[rowCOM - 1].dot(rz(z = robot.dhParameters[rowCOM, 0])))[0 : 3, 0 : 3]
+        # Rotation matrix of the current Center of Mass
+        R = fkCOMHTM[j + 1][0 : 3, 0 : 3]
         
         # Inertia with respect to center of mass: Icom = R^T * I * R
         Icom = R.T * robot.symbolicInertia[j] * R if symbolic else R.T.dot(robot.inertia[j]).dot(R)
@@ -89,11 +86,8 @@ def potentialEnergyCOM(robot, g = np.array([[0], [0], [-9.80665]]), symbolic = F
     # Iteration through each center of mass
     for j in range(len(robot.COMs)):
         
-        # Get the row of Denavit - Hartenberg Parameters Matrix where current COM is stored
-        COM = robot.whereIsTheCOM(j + 1)
-        
         # Position of current Center of Mass
-        r = fkCOMHTM[COM][0 : 3, -1]
+        r = fkCOMHTM[j + 1][0 : 3, -1]
         
         # m * g^T * r
         P += robot.symbolicMass[j] * ((g.T) * r) if symbolic else robot.mass[j] * ((g.T).dot(r))

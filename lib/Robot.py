@@ -104,7 +104,6 @@ class Serial(Robot):
                                     [self.jointsPositions[3, 0], self.linksLengths[2], 0.000000000000000000, 0.0000000]])
       
       """
-      
       # Set numeric Denavit Hartenberg Parameters Matrix
       self.dhParameters = np.array([[0, 0, 0, 0],
                                     [self.jointsPositions[0, 0], 0, self.linksLengths[0], 0],
@@ -126,8 +125,8 @@ class Serial(Robot):
       self.symbolicDHParametersCOM = Matrix([[0, 0, 0, 0],
                                              [self.qSymbolic[0, 0], 0, self.symbolicCOMs[0], 0],
                                              [self.qSymbolic[1, 0], 0, self.symbolicCOMs[1], 0]])
-      
       """
+      
       self.symbolicDHParametersCOM = Matrix([[0, 0, 0, 0],
                                              [self.qSymbolic[0, 0], self.symbolicCOMs[0], 0.000000000000000000, np.pi / 2],
                                              [self.qSymbolic[1, 0], 0.000000000000000000, self.symbolicCOMs[1], 0.0000000],
@@ -147,7 +146,7 @@ class Serial(Robot):
                                       [self.jointsPositions[1, 0], 0.0000000000, self.COMs[1], 0.0000000],
                                       [self.jointsPositions[2, 0], 0.0000000000, 0.0000000000, np.pi / 2],
                                       [self.jointsPositions[3, 0], self.COMs[2], 0.0000000000, 0.0000000]])
-      
+     
   def whereIsTheJoint(self, joint):
     """This method allows to know in which reference frame is attached any joint based on symbolic Denavit - Hartenberg Parameters Matrix, so this have to be set before calling this method
 
@@ -159,17 +158,17 @@ class Serial(Robot):
     """        
         
     # Check what frame has the i-th joint attached by iteration through all the rows in Denavit - Hartenberg symbolic matrix
-    for i in range(self.dhParameters.shape[0]):
+    for row in range(self.dhParameters.shape[0]):
         
       # Get the current row from the symbolic Denavit - Hartenberg parameters
-      frame = self.symbolicDHParameters[4 * i : 4 * (i + 1)]
+      frame = self.symbolicDHParameters[4 * row : 4 * (row + 1)]
         
       # If joint qi is in current reference frame
-      if r'q' + str(joint) in str(frame):
+      if Symbol('q' + str(joint)) in frame:
         break
     
     # Returns the frame
-    return i
+    return row, frame.index(Symbol('q' + str(joint)))
   
   def whereIsTheCOM(self, COM):
     """This method allows to know in which reference frame is attached any Center of Mass based on symbolic Denavit - Hartenberg Parameters Matrix, so this have to be set before calling this method
@@ -182,17 +181,17 @@ class Serial(Robot):
     """        
         
     # Check what frame has the i-th joint attached by iteration through all the rows in Denavit - Hartenberg symbolic matrix
-    for i in range(self.dhParameters.shape[0]):
+    for row in range(self.dhParameters.shape[0]):
         
       # Get the current row from the symbolic Denavit - Hartenberg parameters
-      frame = self.symbolicDHParametersCOM[4 * i : 4 * (i + 1)]
+      frame = self.symbolicDHParametersCOM[4 * row : 4 * (row + 1)]
         
       # If Center of Máss Lcomi is in current reference frame
-      if r'Lcom' + str(COM) in str(frame):
+      if Symbol('Lcom' + str(COM)) in frame:
         break
     
     # Returns the frame
-    return i
+    return row, frame.index(Symbol('Lcom' + str(COM)))
   
 if __name__ == '_main__':
   

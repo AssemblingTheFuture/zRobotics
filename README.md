@@ -63,9 +63,9 @@ We hope this library will help you to start your journey in these amazing discip
 
 ## Features :sparkles:
 
-You can set your robot attributes and analyze its behavior; also, you'll be able to see its end - effector displacement in a 3D animation (*comming soon*). To achieve this, all the algorithms were developed using Homogeneous Transformation Matrices and Dual Quaternions algebra, however, **the logic used to develop them will allow you to adapt it to almost any embedded system!**
+You can set your robot attributes and analyze its behavior. To achieve this, all the algorithms were developed using Homogeneous Transformation Matrices and Dual Quaternions algebra, however, **the logic used to develop them will allow you to adapt it to almost any embedded system!**
 
-**For serial robots**, some interesting functionalities are listed below:
+**For serial robots** (we will include new ones in the future :wink:), some interesting functionalities are listed below:
 
 - [x] [Forward Kinematics](#forward-kinematics)
   - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/HTM.py#11) (numerical and symbolical)
@@ -373,7 +373,7 @@ Qz = dqTz(z = 0.5, symbolic = True)
 
 ---
 
-## Rotation
+### Rotation
 
 You can compute rotational movements on each axis of euclidian space: (x, y, z)
 
@@ -654,125 +654,7 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ## Robot Creation and Setup :mechanical_leg:
 
-A robot can be created as an object, but this library only works with serial manipulators (we will add other type of robots soon :wink:). Before creating your system, it is necessary to set some attributes.
-
-### Attributes
-
-These are generated randomly as an example, but you can use your own values for each attribute :smiley:
-
-```python
-# NumPy library is necessary for joints positions
-import numpy as np
-
-# Number of rigid bodies
-rb = 3
-  
-# Number of Generalized Coordinates
-n = 4
-  
-# Generalized coordinates (created randomly)
-q = np.random.randn(n, 1)
-  
-# Joints velocities (created randomly)
-qd = np.random.randn(n, 1)
-  
-# Screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
-xi = np.array([[0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [1, 1, 1, 1],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0]])
-  
-# Derivative of previous screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
-xid = np.zeros((n, 1))
-  
-# Links (created randomly)
-L = [np.random.rand() for i in range(rb)]
-  
-# Center of Mass of each link (created randomly)
-Lcom = [value / 2 for value in L]
-
-# Mass of each link (created randomly)
-m = [np.random.rand() for i in range(rb)]
-  
-# Inertia of each link (created randomly)
-Inertia = [np.random.rand(3, 3) for i in range(rb)]
-```
-
-Where each attribute is described below:
-
-- Joints positions and velocities (generalized coordinates): <img src="https://render.githubusercontent.com/render/math?math={\color{red} q, \dot{q} \in \mathbb{R}^{n \times 1}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} rad}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red} \frac{rad}{sec}}">) 
-- Links Lengths and distance to Centers of Mass: <img src="https://render.githubusercontent.com/render/math?math={\color{red} L, L_{com} \in \mathbb{R}^{r_b}}"> (set in meters)
-- Screw vectors for Dual Quaternions operations: <img src="https://render.githubusercontent.com/render/math?math={\color{red} \xi, \dot{\xi} \in \mathbb{H}}">
-- Mass of each link: <img src="https://render.githubusercontent.com/render/math?math={\color{red} m_j \in \mathbb{R}, m_j > 0}"> (set in kilograms)
-- Inertia tensor of each link with respect to its origin: <img src="https://render.githubusercontent.com/render/math?math={\color{red} I_j \in \mathbb{R}^{3 \times 3}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} kg \cdot m^2}">)
-
-[*Return to top*](#zrobotics-02)
-
----
-
-### [Creation](/lib/Robot.py)
-
-It is really simple to create a robot object:
-
-```python
-"""
-  Create a robot as an object
-"""
-
-# Robot's library
-from lib.Robot import *
-
-# Returns robot as an object
-uRobot = Serial(jointsPositions = q, jointsVelocities = qd, linksLengths = L, COMs = Lcom, mass = m, inertia = Inertia, name = 'uRobot', xi = xi, xid = xid)
-```
-
-After this, it is possible to access to its attributes as follows:
-
-```bash
-# NumPy Array
->>> uRobot.jointsPositions
-array([[0.46727453],
-       [0.54455365],
-       [0.4350795 ],
-       [0.28259213]])
-
-# SymPy Matrix
->>> uRobot.qSymbolic
-Matrix([[q1],
-        [q2],
-        [q3],
-        [q4]])
-
-# List
->>> uRobot.linksLengths
-[0.3, 0.4, 0.2]
-
-# SymPy Matrix
->>> uRobot.symbolicLinks
-Matrix([[L1],
-        [L2],
-        [L3]])
-
-# List
->>> uRobot.COMs
-[0.3, 0.4, 0.2]
-
-# SymPy Matrix
->>> uRobot.symbolicCOMs
-Matrix([[Lcom1],
-        [Lcom2],
-        [Lcom3]])
-```
-
-The rest of attributes were ommitted, but you can check them in [Robot.py](/lib/Robot.py). You can also add new attributes if they are necessary for your project :smiley:
-
-[*Return to top*](#zrobotics-02)
-
----
+A **SERIAL ROBOT** can be created as an object (we will add other type of robots soon :wink:). Before creating your system, it is necessary to set some attributes.
 
 ### Denavit - Hartenberg Parameters
 
@@ -867,6 +749,125 @@ def denavitHartenbergCOM(self, symbolic = False):
 ```
 
 As it happens with conventional Denavit - Hartenbger Parameters, it is not necessary to compute this matrix for centers of mass before executing any kinematics task. **For future releases, we will work on a simpler way to create this matrices** :wink:
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Attributes
+
+These are generated randomly as an example, but you can use your own values for each attribute :smiley:
+
+```python
+# NumPy library is necessary for joints positions
+import numpy as np
+
+# Number of rigid bodies
+rb = 3
+  
+# Number of Generalized Coordinates
+n = 4
+  
+# Generalized coordinates (created randomly)
+q = np.random.randn(n, 1)
+  
+# Joints velocities (created randomly)
+qd = np.random.randn(n, 1)
+  
+# Screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
+xi = np.array([[0, 0, 0, 0],
+               [0, 0, 0, 0],
+               [0, 0, 0, 0],
+               [1, 1, 1, 1],
+               [0, 0, 0, 0],
+               [0, 0, 0, 0],
+               [0, 0, 0, 0],
+               [0, 0, 0, 0]])
+  
+# Derivative of previous screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
+xid = np.zeros((n, 1))
+  
+# Links (created randomly)
+L = [np.random.rand() for body in range(rb)]
+  
+# Center of Mass of each links
+Lcom = [value / 2 for value in L]
+
+# Mass of each link (created randomly)
+m = [np.random.rand() for i in range(rb)]
+  
+# Inertia of each link (with respect to the Center of Mass; it has to be a SYMMETRIC matrix)
+Inertia = np.random.rand(3, 3)
+Inertia = [0.5 * (Inertia + Inertia.T) for i in range(rb)]
+```
+
+Where each attribute is described below:
+
+- Joints positions and velocities (generalized coordinates): <img src="https://render.githubusercontent.com/render/math?math={\color{red} q, \dot{q} \in \mathbb{R}^{n \times 1}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} rad}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red} \frac{rad}{sec}}">) 
+- Links Lengths and distance to Centers of Mass: <img src="https://render.githubusercontent.com/render/math?math={\color{red} L, L_{com} \in \mathbb{R}^{r_b}}"> (set in meters)
+- Screw vectors for Dual Quaternions operations: <img src="https://render.githubusercontent.com/render/math?math={\color{red} \xi, \dot{\xi} \in \mathbb{H}}">
+- Mass of each link: <img src="https://render.githubusercontent.com/render/math?math={\color{red} m_j \in \mathbb{R}, m_j > 0}"> (set in kilograms)
+- Inertia tensor of each link with respect to its origin: <img src="https://render.githubusercontent.com/render/math?math={\color{red} I_j \in \mathbb{R}^{3 \times 3}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} kg \cdot m^2}">)
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### [Creation](/lib/Robot.py)
+
+It is really simple to create a robot object:
+
+```python
+"""
+  Create a robot as an object
+"""
+
+# Robot's library
+from lib.Robot import *
+
+# Returns robot as an object
+uRobot = Serial(jointsPositions = q, jointsVelocities = qd, linksLengths = L, COMs = Lcom, mass = m, inertia = Inertia, name = 'uRobot', xi = xi, xid = xid)
+```
+
+After this, it is possible to access to its attributes as follows:
+
+```bash
+# NumPy Array
+>>> uRobot.jointsPositions
+array([[0.46727453],
+       [0.54455365],
+       [0.4350795 ],
+       [0.28259213]])
+
+# SymPy Matrix
+>>> uRobot.qSymbolic
+Matrix([[q1],
+        [q2],
+        [q3],
+        [q4]])
+
+# List
+>>> uRobot.linksLengths
+[0.3, 0.4, 0.2]
+
+# SymPy Matrix
+>>> uRobot.symbolicLinks
+Matrix([[L1],
+        [L2],
+        [L3]])
+
+# List
+>>> uRobot.COMs
+[0.3, 0.4, 0.2]
+
+# SymPy Matrix
+>>> uRobot.symbolicCOMs
+Matrix([[Lcom1],
+        [Lcom2],
+        [Lcom3]])
+```
+
+The rest of attributes were ommitted, but you can check them in [Robot.py](/lib/Robot.py). You can also add new attributes if they are necessary for your project :smiley:
 
 [*Return to top*](#zrobotics-02)
 
@@ -1434,7 +1435,7 @@ So the output will be
 ```bash
 # SymPy Matrix
 >>> K
-Matrix([[0.5*qd1*(2.35567329480557*qd1 + 0.729013360756529*qd2 + 0.729013360756529*qd3 + 0.729013360756529*qd4) + 0.5*qd2*(0.729013360756529*qd1 + 0.744181737772742*qd2 + 0.744181737772742*qd3 + 0.744181737772742*qd4) + 0.5*qd3*(0.729013360756529*qd1 + 0.744181737772742*qd2 + 0.744181737772742*qd3 + 0.744181737772742*qd4) + 0.5*qd4*(0.729013360756529*qd1 + 0.744181737772742*qd2 + 0.744181737772742*qd3 + 0.744181737772742*qd4)]])
+Matrix([[0.5*qd1*(1.73561594321417*qd1 + 1.23248093741685*qd2 + 0.61313663099757*qd3 - 0.777383210893546*qd4) + 0.5*qd2*(1.23248093741685*qd1 + 2.54573557767803*qd2 + 0.91515058225959*qd3 - 0.585217150798144*qd4) + 0.5*qd3*(0.61313663099757*qd1 + 0.91515058225959*qd2 + 0.860255360816805*qd3 - 0.585217150798144*qd4) + 0.5*qd4*(-0.777383210893546*qd1 - 0.585217150798144*qd2 - 0.585217150798144*qd3 + 0.73863435073761*qd4)]])
 ```
 
 Please notice that this result is partially numerical because it includes joints velocities <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_i}"> in symbolic form; they are stored in ```uRobot.qdSymbolic```. If you need the numerical value, just use the following modules:
@@ -1459,7 +1460,7 @@ So the output will be
 ```bash
 # NumPy Array
 >>> K(qd)
-array([[[2.73887698]]])
+array([[[0.76626615]]])
 ```
 
 You can also calculate the full symbolic expression by setting ```symbolic``` parameter to ```True``` and also evaluate it as shown previously, but don't forget to include both ```uRobot.qSymbolic``` and ```uRobot.qdSymbolic``` in ```lambdify``` function (e.g. ```K = lambdify([uRobot.qSymbolic, uRobot.qdSymbolic], kineticEnergyCOM(uRobot, symbolic = True))```)
@@ -1493,10 +1494,10 @@ So the output will be
 ```bash
 # NumPy Array
 >>> D
-array([[2.35567329, 0.72901336, 0.72901336, 0.72901336],
-       [0.72901336, 0.74418174, 0.74418174, 0.74418174],
-       [0.72901336, 0.74418174, 0.74418174, 0.74418174],
-       [0.72901336, 0.74418174, 0.74418174, 0.74418174]])
+array([[ 1.73561594,  1.23248094,  0.61313663, -0.77738321],
+       [ 1.23248094,  2.54573558,  0.91515058, -0.58521715],
+       [ 0.61313663,  0.91515058,  0.86025536, -0.58521715],
+       [-0.77738321, -0.58521715, -0.58521715,  0.73863435]])
 ```
 
 You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1534,7 +1535,7 @@ So the output will be
 ```bash
 # NumPy Array
 >>> P
-array([-8.07374147])
+array([-1.60453458])
 ```
 
 You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1593,10 +1594,10 @@ So the output will be
 ```bash
 # NumPy Array
 >>> G
-array([[ 3.55271368e-12],
-       [-3.61902277e+00],
-       [-1.01074665e+00],
-       [ 0.00000000e+00]])
+array([[ 0.        ],
+       [-5.26452724],
+       [ 0.41728099],
+       [ 0.        ]])
 ```
 
 The step size ```dq``` is equal to ```0.001``` by default, but it can be changed. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1680,10 +1681,10 @@ So the output will be
 ```bash
 # NumPy Array
 >>> C
-Matrix([[  -0.618152052584975*qd1 - 0.564482455020554*qd2 - 0.0577985427178684*qd3 + 0.223895165630011*qd4,       0.463657477355467*qd1 + 1.00842141164073*qd2 + 0.61806361689562*qd3 + 0.42489161682141*qd4, -0.337091545654228*qd1 + 0.618063616895731*qd2 + 0.618063616895759*qd3 + 0.424891616821521*qd4, -0.182088676131495*qd1 - 0.599235898777251*qd2 - 0.599235898777251*qd3 + 0.470855385560631*qd4],
-        [      -1.5055586284583*qd1 - 1.146941637273*qd2 + 0.0793147703247732*qd3 - 0.0685484995306684*qd4,      0.1194286937867*qd1 - 0.433630253926592*qd2 + 0.10480498941931*qd3 + 0.0424319441549303*qd4, 0.643155327055084*qd1 + 0.230481824120582*qd2 + 0.167643406769724*qd3 + 0.0424319441545973*qd4,    -0.38343513766928*qd1 + 2.19873645908059*qd2 + 2.19873645908059*qd3 + 0.220623599539171*qd4],
-        [0.0973470812040689*qd1 + 0.0793147703247177*qd2 + 0.0793147703246622*qd3 - 0.0685484995307239*qd4, 0.643155327055084*qd1 + 0.0419665720686746*qd2 + 0.0733857807440619*qd3 + 0.0424319441550969*qd4, 0.643155327055084*qd1 + 0.136224198094503*qd2 + 0.104804989419116*qd3 + 0.0424319441548193*qd4,    -0.383435137669225*qd1 + 2.1987364590807*qd2 + 2.19873645908064*qd3 + 0.220623599539171*qd4],
-        [     0.36417735226299*qd1 + 0.348822302627311*qd2 + 0.348822302627311*qd3 - 0.671452168169523*qd4,       1.04922490633624*qd1 - 1.12378187749529*qd2 - 1.12378187749529*qd3 - 0.405146107788135*qd4,      1.04922490633613*qd1 - 1.12378187749551*qd2 - 1.1237818774954*qd3 - 0.405146107788135*qd4, 0.0654390037965885*qd1 + 0.351195007681382*qd2 + 0.351195007681382*qd3 - 0.349413682718458*qd4]])
+Matrix([[-0.563394958947194*qd1 - 0.482907615058648*qd2 + 0.00643707025327345*qd3 - 0.109972919396739*qd4,    0.106729895782198*qd1 - 0.622297467844923*qd2 + 0.0955632109240212*qd3 + 0.60196611298502*qd4, -0.818579741736103*qd1 + 0.0955632109241322*qd2 + 0.0955632109241322*qd3 + 0.601966112984686*qd4, 0.109972919396795*qd1 + 0.0306009160448983*qd2 + 0.0306009160450094*qd3 + 0.0183686074755607*qd4],
+        [  -0.777726370479237*qd1 + 0.784913836308743*qd2 - 0.189094852486471*qd3 - 0.324327738080332*qd4,   -0.153227033127146*qd1 + 0.451347948423164*qd2 + 0.475076628523252*qd3 - 0.142097713725031*qd4, 0.000677189787134935*qd1 + 0.685569570972044*qd2 + 0.580323099747482*qd3 - 0.142097713725142*qd4, -0.278163700977052*qd1 + 0.0576996654184647*qd2 + 0.0576996654181317*qd3 + 0.297389079113086*qd4],
+        [   0.418945476247878*qd1 - 0.189094852486527*qd2 - 0.189094852486527*qd3 - 0.324327738080166*qd4, 0.000677189787134935*qd1 + 0.369830157298856*qd2 + 0.422453392911137*qd3 - 0.142097713724976*qd4, 0.000677189787134935*qd1 + 0.527699864135367*qd2 + 0.475076628523252*qd3 - 0.142097713725087*qd4, -0.278163700976719*qd1 + 0.0576996654182982*qd2 + 0.0576996654182982*qd3 + 0.297389079112975*qd4],
+        [-0.219945838793589*qd1 - 0.0386451396102716*qd2 - 0.0386451396103271*qd3 + 0.184050209755426*qd4,    0.578884094433296*qd1 - 0.241996403296696*qd2 - 0.241996403296529*qd3 - 0.196096913128663*qd4,    0.578884094432963*qd1 - 0.241996403296862*qd2 - 0.241996403296862*qd3 - 0.196096913128441*qd4,   0.0735958082355159*qd1 + 0.132893748365781*qd2 + 0.132893748365781*qd3 - 0.140455547376406*qd4]])
 ```
 
 Please notice that this result is partially numerical because it includes joints velocities <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_i}"> in symbolic form; they are stored in ```uRobot.qdSymbolic```. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1726,10 +1727,10 @@ So the output will be
 ```bash
 # NumPy Array
 >>> T
-Matrix([[       qd1*(-0.618152052584975*qd1 - 0.564482455020554*qd2 - 0.0577985427178684*qd3 + 0.223895165630011*qd4) + qd2*(0.463657477355467*qd1 + 1.00842141164073*qd2 + 0.61806361689562*qd3 + 0.42489161682141*qd4) + qd3*(-0.337091545654228*qd1 + 0.618063616895731*qd2 + 0.618063616895759*qd3 + 0.424891616821521*qd4) + qd4*(-0.182088676131495*qd1 - 0.599235898777251*qd2 - 0.599235898777251*qd3 + 0.470855385560631*qd4) + 1.65146311011492*qdd1 + 0.311316394904209*qdd2 - 0.41079804995292*qdd3 - 0.466135535323417*qdd4 - 3.46565257334497],
-        [          qd1*(-1.5055586284583*qd1 - 1.146941637273*qd2 + 0.0793147703247732*qd3 - 0.0685484995306684*qd4) + qd2*(0.1194286937867*qd1 - 0.433630253926592*qd2 + 0.10480498941931*qd3 + 0.0424319441549303*qd4) + qd3*(0.643155327055084*qd1 + 0.230481824120582*qd2 + 0.167643406769724*qd3 + 0.0424319441545973*qd4) + qd4*(-0.38343513766928*qd1 + 2.19873645908059*qd2 + 2.19873645908059*qd3 + 0.220623599539171*qd4) + 0.00301312131809162*qdd1 + 0.43156901701603*qdd2 + 0.481614533815544*qdd3 + 0.840562866695839*qdd4 - 0.58996754327767],
-        [qd1*(0.0973470812040689*qd1 + 0.0793147703247177*qd2 + 0.0793147703246622*qd3 - 0.0685484995307239*qd4) + qd2*(0.643155327055084*qd1 + 0.0419665720686746*qd2 + 0.0733857807440619*qd3 + 0.0424319441550969*qd4) + qd3*(0.643155327055084*qd1 + 0.136224198094503*qd2 + 0.104804989419116*qd3 + 0.0424319441548193*qd4) + qd4*(-0.383435137669225*qd1 + 2.1987364590807*qd2 + 2.19873645908064*qd3 + 0.220623599539171*qd4) - 0.298705317952409*qdd1 + 0.481614533815544*qdd2 + 0.45128442684012*qdd3 + 0.840562866695839*qdd4 - 0.593408548682284],
-        [                                qd1*(0.36417735226299*qd1 + 0.348822302627311*qd2 + 0.348822302627311*qd3 - 0.671452168169523*qd4) + qd2*(1.04922490633624*qd1 - 1.12378187749529*qd2 - 1.12378187749529*qd3 - 0.405146107788135*qd4) + qd3*(1.04922490633613*qd1 - 1.12378187749551*qd2 - 1.1237818774954*qd3 - 0.405146107788135*qd4) + qd4*(0.0654390037965885*qd1 + 0.351195007681382*qd2 + 0.351195007681382*qd3 - 0.349413682718458*qd4) - 0.135347630253658*qdd1 + 0.753517849349884*qdd2 + 0.753517849349884*qdd3 + 0.501982210385397*qdd4]])
+Matrix([[                     qd1*(-0.563394958947194*qd1 - 0.482907615058648*qd2 + 0.00643707025327345*qd3 - 0.109972919396739*qd4) + qd2*(0.106729895782198*qd1 - 0.622297467844923*qd2 + 0.0955632109240212*qd3 + 0.60196611298502*qd4) + qd3*(-0.818579741736103*qd1 + 0.0955632109241322*qd2 + 0.0955632109241322*qd3 + 0.601966112984686*qd4) + qd4*(0.109972919396795*qd1 + 0.0306009160448983*qd2 + 0.0306009160450094*qd3 + 0.0183686074755607*qd4) + 1.73561594321417*qdd1 + 1.23248093741685*qdd2 + 0.61313663099757*qdd3 - 0.777383210893546*qdd4],
+        [   qd1*(-0.777726370479237*qd1 + 0.784913836308743*qd2 - 0.189094852486471*qd3 - 0.324327738080332*qd4) + qd2*(-0.153227033127146*qd1 + 0.451347948423164*qd2 + 0.475076628523252*qd3 - 0.142097713725031*qd4) + qd3*(0.000677189787134935*qd1 + 0.685569570972044*qd2 + 0.580323099747482*qd3 - 0.142097713725142*qd4) + qd4*(-0.278163700977052*qd1 + 0.0576996654184647*qd2 + 0.0576996654181317*qd3 + 0.297389079113086*qd4) + 1.23248093741685*qdd1 + 2.54573557767803*qdd2 + 0.91515058225959*qdd3 - 0.585217150798144*qdd4 - 5.26452723797721],
+        [qd1*(0.418945476247878*qd1 - 0.189094852486527*qd2 - 0.189094852486527*qd3 - 0.324327738080166*qd4) + qd2*(0.000677189787134935*qd1 + 0.369830157298856*qd2 + 0.422453392911137*qd3 - 0.142097713724976*qd4) + qd3*(0.000677189787134935*qd1 + 0.527699864135367*qd2 + 0.475076628523252*qd3 - 0.142097713725087*qd4) + qd4*(-0.278163700976719*qd1 + 0.0576996654182982*qd2 + 0.0576996654182982*qd3 + 0.297389079112975*qd4) + 0.61313663099757*qdd1 + 0.91515058225959*qdd2 + 0.860255360816805*qdd3 - 0.585217150798144*qdd4 + 0.417280986369395],
+        [                        qd1*(-0.219945838793589*qd1 - 0.0386451396102716*qd2 - 0.0386451396103271*qd3 + 0.184050209755426*qd4) + qd2*(0.578884094433296*qd1 - 0.241996403296696*qd2 - 0.241996403296529*qd3 - 0.196096913128663*qd4) + qd3*(0.578884094432963*qd1 - 0.241996403296862*qd2 - 0.241996403296862*qd3 - 0.196096913128441*qd4) + qd4*(0.0735958082355159*qd1 + 0.132893748365781*qd2 + 0.132893748365781*qd3 - 0.140455547376406*qd4) - 0.777383210893546*qdd1 - 0.585217150798144*qdd2 - 0.585217150798144*qdd3 + 0.73863435073761*qdd4]])
 ```
 
 Please notice that this result is partially numerical because it includes joints velocities and accelerations (<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_i}, \ddot{q}_i}">) in symbolic form; they are stored in ```uRobot.qdSymbolic``` and ```uRobot.qddSymbolic``` respectively. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow

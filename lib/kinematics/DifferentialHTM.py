@@ -33,7 +33,6 @@ def geometricCOMStateSpace(robot, COM, symbolic = False):
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
-    qd (np.array): joints velocities
     COM (int): center of mass that will be analyzed
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
@@ -55,7 +54,6 @@ def analyticStateSpace(robot, dq = 0.001, symbolic = False):
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
-    qd (np.array): joints velocities
     dq (float, optional): step size for numerical derivative. Defaults to 0.001.
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
@@ -64,8 +62,30 @@ def analyticStateSpace(robot, dq = 0.001, symbolic = False):
     Xd (SymPy Matrix): state-space equation (X'(t), symbolic)
   """
 
-  # Calculate Inertial Geometric Jacobian Matrix 
+  # Calculate Inertial Analytic Jacobian Matrix 
   J = analyticJacobian(robot, dq, symbolic)
+    
+  # Calculate state-space equation (symbolic or numerical)
+  Xd = J * robot.qdSymbolic if symbolic else J.dot(robot.jointsVelocities)
+    
+  return Xd
+
+def analyticCOMStateSpace(robot, COM, dq = 0.001, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes state-space equation (using Analytic Jacobian Matrix for Centers of Mass) of a serial robot given joints velocities. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    COM (int): center of mass that will be analyzed
+    dq (float, optional): step size for numerical derivative. Defaults to 0.001
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    Xd (np.array): state-space equation (X'(t), numerical)
+    Xd (SymPy Matrix): state-space equation (X'(t), symbolic)
+  """
+
+  # Calculate Inertial Analytic Jacobian Matrix to Center of Mass
+  J = analyticJacobianCOM(robot, COM, dq, symbolic)
     
   # Calculate state-space equation (symbolic or numerical)
   Xd = J * robot.qdSymbolic if symbolic else J.dot(robot.jointsVelocities)
