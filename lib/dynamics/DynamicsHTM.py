@@ -20,9 +20,9 @@ def inertiaMatrix(robot, symbolic = False):
     """
     
     # Calculate forward kinematics to each center of mass
-    fkCOMHTM = forwardCOMHTM(robot, symbolic)
+    fkCOMHTM = forwardCOMHTM(robot, symbolic = symbolic)
     
-    # Kinetic matrix initialization
+    # Inertia matrix initialization
     D = zeros(robot.jointsPositions.shape[0]) if symbolic else np.zeros((robot.jointsPositions.shape[0], robot.jointsPositions.shape[0]))
     
     # Iteration through each center of mass
@@ -44,8 +44,8 @@ def inertiaMatrix(robot, symbolic = False):
         Icom = R.T * robot.symbolicInertia[j] * R if symbolic else R.T.dot(robot.inertia[j]).dot(R)
         
         # (m * Jv^T * JV) + (m * Jw^T * Icom * Jw)
-        D += (robot.symbolicMass[j] * (Jv.T * Jv) )+ ((Jw.T * Icom * Jw)) if symbolic else (robot.mass[j] * (Jv.T).dot(Jv)) + ((Jw.T).dot(Icom).dot(Jw))
-
+        D += (robot.symbolicMass[j] * (Jv.T * Jv) )+ ((Jw.T * Icom * Jw)) if symbolic else (robot.mass[j] * (Jv.T.dot(Jv))) + ((Jw.T.dot(Icom).dot(Jw)))
+        
     return D
 
 def kineticEnergyCOM(robot, symbolic = False):
@@ -117,31 +117,22 @@ def dPdq(robot, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = Fal
     
     else:
         
-        # Get number of joints (generalized coordinates)
+        # Get number of joints
         n = robot.jointsPositions.shape[0]
-    
-        # Initializes Gradient with zeros
-        V = np.zeros((n, 1))
         
-        # Auxiliar variable to keep original joints positions
-        q = robot.jointsPositions.copy()
+        # Initialize differential term with zeros
+        dP_dq = np.zeros((n, 1))
         
-        # Iterates through all colums (generalized coordinates)
-        for j in range(n):
+        # Iteration through each center of mass
+        for j in range(len(robot.COMs)):
             
-            # Set increment to current generalized coordinate: z[j] = q[j] + dq
-            robot.jointsPositions[j] += dq
+            # Jacobian matrix to current center of mass
+            JgCOM = geometricJacobianCOM(robot, COM = j + 1, symbolic = symbolic)
             
-            # Calculate potential energy with current step size
-            P = potentialEnergyCOM(robot, g)
-            
-            # Calculate gradient: [P(q + dq) - P(q)] / dq
-            V[j, :] = ((P - p) / dq)
-            
-            # Eliminates step size by copying original values from auxiliar variable
-            robot.jointsPositions[:, :] = q
+            # m * (JvCOM)^T * g
+            dP_dq += robot.symbolicMass[j] * JgCOM[0 : 3, :].T * g if symbolic else robot.mass[j] * (JgCOM[0 : 3, :].T).dot(g)
         
-        return V
+        return dP_dq
 
 def centrifugalCoriolis(robot, dq = 0.001, symbolic = False):
     """This function calculates the Centrifugal and Coriolis matrix for dynamic model

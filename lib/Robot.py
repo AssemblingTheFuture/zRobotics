@@ -57,7 +57,9 @@ class Serial(Robot):
     
     # Symbolic Physical Properties
     self.symbolicMass = Matrix([[f"m{i + 1}",] for i in range(len(self.mass))])
-    self.symbolicInertia = [Matrix([[f"Ixx{i + 1}", f"Ixy{i + 1}", f"Ixz{i + 1}"], [f"Iyx{i + 1}", f"Iyy{i + 1}", f"Iyz{i + 1}"], [f"Izx{i + 1}", f"Izy{i + 1}", f"Izz{i + 1}"]]) for i in range(len(self.inertia))]
+    self.symbolicInertia = [Matrix([[f"+Ixx{i + 1}", f"-Ixy{i + 1}", f"-Ixz{i + 1}"],
+                                    [f"-Ixy{i + 1}", f"+Iyy{i + 1}", f"-Iyz{i + 1}"],
+                                    [f"-Ixz{i + 1}", f"-Iyz{i + 1}", f"+Izz{i + 1}"]]) for i in range(len(self.mass))]
     
     # Set Denavit - Hartenberg Parameters Matrix (numerical and symbolical)
     self.denavitHartenberg()
