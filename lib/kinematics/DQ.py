@@ -42,10 +42,10 @@ def forwardDQ(robot, symbolic = False):
   for frame in range(DH.rows) if symbolic else DH:
     
     # Operates dual quaternions symbolically: Rz * Tz * Tx * Rx
-    fkDQ = leftOperator(fkDQ, symbolic) * rightOperator(dqRx(DH[frame, 3], symbolic), symbolic) * leftOperator(dqRz(DH[frame, 0], symbolic), symbolic) * rightOperator(dqTx(DH[frame, 2], symbolic), symbolic) * dqTz(DH[frame, 1], symbolic) if symbolic else leftOperator(fkDQ).dot(rightOperator(dqRx(frame[3]))).dot(leftOperator(dqRz(frame[0]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
+    fkDQ = nsimplify(leftOperator(fkDQ, symbolic) * rightOperator(dqRx(DH[frame, 3], symbolic), symbolic) * leftOperator(dqRz(DH[frame, 0], symbolic), symbolic) * rightOperator(dqTx(DH[frame, 2], symbolic), symbolic) * dqTz(DH[frame, 1], symbolic), tolerance = 1e-10) if symbolic else leftOperator(fkDQ).dot(rightOperator(dqRx(frame[3]))).dot(leftOperator(dqRz(frame[0]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
 
     # Append each calculated Homogeneous Transformation Matrix
-    framesDQ.append(fkDQ)
+    framesDQ.append(trigsimp(fkDQ) if symbolic else fkDQ)
     
   return framesDQ
 
@@ -89,10 +89,10 @@ def forwardCOMDQ(robot, symbolic = False):
     COM = leftOperator(dqRz(comDH[rowCOM, 0] if column >= 0 else 0, symbolic), symbolic) * rightOperator(dqRx(comDH[rowCOM, 3] if column >= 3 else 0, symbolic), symbolic) * rightOperator(dqTx(comDH[rowCOM, 2] if column >= 2 else 0, symbolic), symbolic) * dqTz(comDH[rowCOM, 1] if column >= 1 else 0, symbolic) if symbolic else leftOperator(dqRz(comDH[rowCOM, 0] if column >= 0 else 0)).dot(rightOperator(dqRx(comDH[rowCOM, 3] if column >= 3 else 0))).dot(rightOperator(dqTx(comDH[rowCOM, 2] if column >= 2 else 0))).dot(dqTz(comDH[rowCOM, 1] if column >= 1 else 0))
 
     # Forward kinematics to Center of Mass
-    fkCOMDQ = leftOperator(framesDQ[rowCOM - 1], symbolic) * COM if symbolic else leftOperator(framesDQ[rowCOM - 1]).dot(COM)
+    fkCOMDQ = nsimplify(leftOperator(framesDQ[rowCOM - 1], symbolic) * COM, tolerance = 1e-10) if symbolic else leftOperator(framesDQ[rowCOM - 1]).dot(COM)
 
     # Append results
-    framesCOMDQ.append(fkCOMDQ)
+    framesCOMDQ.append(trigsimp(fkCOMDQ) if symbolic else fkCOMDQ)
       
   return framesCOMDQ
 
@@ -124,7 +124,7 @@ def jacobianDQ(robot, symbolic = False):
     row, column = robot.whereIsTheJoint(j + 1)
         
     # Calculate Jacobian Matrix
-    J[:, j] = 0.5 * leftOperator(fkDQ[row - 1], symbolic) * rightOperator(fkDQ[-1], symbolic) * rightOperator(conjugateDQ(fkDQ[row - 1], symbolic), symbolic) * Matrix(robot.xi[:, j]) if symbolic else 0.5 * leftOperator(fkDQ[row - 1]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[row - 1]))).dot(robot.xi[:, j])
+    J[:, j] = nsimplify(trigsimp(0.5 * leftOperator(fkDQ[row - 1], symbolic) * rightOperator(fkDQ[-1], symbolic) * rightOperator(conjugateDQ(fkDQ[row - 1], symbolic), symbolic) * Matrix(robot.xi[:, j])), tolerance = 1e-10) if symbolic else 0.5 * leftOperator(fkDQ[row - 1]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[row - 1]))).dot(robot.xi[:, j])
   
   return J
 
