@@ -165,11 +165,8 @@ def linearVelocityPropagation(robot, v0, W, symbolic = False):
     # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
     row, column = robot.whereIsTheJoint(i + 1)
     
-    # Calculate relative pose of rigid body
-    H = (fkHTM[row - 1].inv()) * fkHTM[row] if symbolic else (fkHTM[row - 1].T).dot(fkHTM[row])
-    
     # Get relative position of rigid body
-    r = trigsimp(H[0: 3, -1]) if symbolic else H[0: 3, -1].reshape((3, 1))
+    r = trigsimp(fkHTM[row][0 : 3, - 1] - fkHTM[row - 1][0 : 3, - 1]) if symbolic else fkHTM[row][0 : 3, - 1] - fkHTM[row - 1][0 : 3, - 1]
     
     # Calculate linear velocity up to this point
     v = nsimplify(V[-1] + (W[i + 1].cross(r)), tolerance = 1e-10) if symbolic else V[-1] + (np.cross(W[i + 1], r, axis = 0))
