@@ -32,8 +32,10 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Jacobian Matrix](#jacobian-matrix)
       - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
     - [Differential Kinematics](#differential-kinematics)
-      - [Inertial Rate of Change](#inertial-rate-of-change)
-      - [Inertial Velocity](#inertial-velocity)
+      - [Total Inertial Rate of Change](#total-inertial-rate-of-change)
+      - [Total Inertial Velocity](#total-inertial-velocity)
+      - [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation)
+      - [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation)
       - [Inertial Velocity to Centers of Mass](#inertial-velocity-to-centers-of-mass)
     - [Dynamics](#dynamics)
       - [Euler - Lagrange Formulation](#euler---lagrange-formulation)
@@ -1170,7 +1172,7 @@ qDQ = inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ[-1], K = 50 * np.ey
 
 This is the relation between motion (velocity) in joint space and motion (linear/angular velocity) in task space (e.g., Cartesian space), but it is known that time derivative of end-effector pose won't lead to its inertial velocity
 
-### Inertial Rate of Change
+### Total Inertial Rate of Change
 
 The rate of change of the end-effector (is not the same as its velocity) can be calculated by deriving its equations that define its pose in an [Axis - Angle vector](#axis---angle-vector) <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{x} \left( t \right) \in \mathbb{R}^{6 \times 1}}">, so this will return an [Analytic Jacobian Matrix](/lib/kinematics/HTM.py#225) <img src="https://render.githubusercontent.com/render/math?math={\color{red}J \left( \mathrm{x} \right) \in \mathbb{R}^{6 \times n}}"> that can be multiplied by the generalized coordinates vector:
 
@@ -1234,7 +1236,7 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
-### Inertial Velocity
+### Total Inertial Velocity
 
 End-effector velocity can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130), because this maps the effect of each joint directly to the end-effector, so linear and angular velocities can be calculated:
 
@@ -1244,7 +1246,7 @@ This can be calculated with the library as follows:
 
 ```python
 """
-  Inertial Velocity
+  Total Inertial Velocity
 """
 
 # Differential Kinematics library
@@ -1256,10 +1258,10 @@ import numpy as np
 # Geometric Jacobian Matrix
 Jg = geometricJacobian(uRobot, symbolic = False)
 
-# Inertial Velocity (calculated by geometric jacobian and joints velocities)
+# Total Inertial Velocity (calculated by geometric jacobian and joints velocities)
 Xd1 = Jg.dot(uRobot.jointsVelocities)
 
-# Inertial Velocity (calculated by library's module)
+# Total Inertial Velocity (calculated by library's module)
 Xd2 = geometricStateSpace(uRobot, symbolic = False)
 ```
 
@@ -1292,7 +1294,125 @@ array([[ 0.20830251],
        [ 2.91790934]])
 ```
 
-Please notice that angular velocities are not the same as the angular rate of change on [Inertial Rate of Change](#inertial-rate-of-change) results. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that angular velocities are not the same as the angular rate of change on [Total Inertial Rate of Change](#total-inertial-rate-of-change) results. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Angular Velocity Propagation
+
+The simplest and fastest way to know the velocity of the reference frames attached to each joint can be calculated with a recursive algorithm, whose premise is to analyze the velocity from the base of the robot to the end-effector. This can be calculated with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0} = \omega_{i / 0}^{0} %2b \hat{n}_{i} q_{i}}">,
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{n}_{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Angular Velocity Propagation
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPy
+import numpy as np
+
+# Angular velocity propagation of each reference frame attached to joints
+W = angularVelocityPropagation(uRobot, w0 = np.zeros((3, 1)), qd = qd, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> W[0]
+array([[0.],
+       [0.],
+       [0.]])
+
+>>> W[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [-0.59937499]])
+
+>>> W[2]
+array([[ 0.2177906 ],
+       [ 0.30616051],
+       [-0.59937499]])
+
+>>> W[3]
+array([[ 0.57725442],
+       [ 0.81147901],
+       [-0.59937499]])
+
+>>> W[4]
+array([[ 0.42580976],
+       [ 0.91921081],
+       [-0.83326063]])
+```
+
+Please notice that initial angular velocity was set to zero because the base of the robot doesn't move; also consider that Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Linear Velocity Propagation
+
+As shown in previous section, velocities can be calculated recursively. In this case, linear velocity propagation can be analyzed from the base of the robot to the end-effector with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i %2b 1 / 0}^{0} = v_{i / 0}^{0} %2b \omega_{i / 0}^{0} \times \vec{r}_{i %2b 1 / i}^{0}}">,
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i / 0}^{0}, v_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i} \in \mathbb{R}^{3 \times 1}}"> is the angular velocity calculated as shown in previous section, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i %2b 0 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). This velocities be calculated with the library as follows:
+
+```python
+"""
+  Inertial Linear Velocity Propagation
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPy
+import numpy as np
+
+# Linear velocity propagation of each reference frame attached to joints
+V = linearVelocityPropagation(uRobot, v0 = np.zeros((3, 1)), W = W)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> V[0]
+array([[0.],
+       [0.],
+       [0.]])
+
+>>> V[1]
+array([[0.],
+       [0.],
+       [0.]])
+
+>>> V[2]
+array([[-0.34192265],
+       [-0.35018338],
+       [-0.30311552]])
+
+>>> V[3]
+array([[-0.34192265],
+       [-0.35018338],
+       [-0.30311552]])
+
+>>> V[4]
+array([[-0.40533343],
+       [-0.23584906],
+       [-0.20939165]])
+```
+
+Please notice that initial linear velocity was set to zero because the base of the robot doesn't move; also the list with the angular velocities ```W``` has to be sent as a parameter of this function, so [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) has to be computed before calling this function. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
