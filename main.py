@@ -91,7 +91,7 @@ if __name__ == '__main__':
   
   # Geometric Jacobian Matrix (OPTIONAL)
   Jg = geometricJacobian(uRobot)
-  symbolicJg = geometricJacobian(uRobot, symbolic = True)
+  # symbolicJg = geometricJacobian(uRobot, symbolic = True)
   
   # Geometric Jacobian Matrix to any Center of Mass (OPTIONAL)
   JgCOM = geometricJacobianCOM(uRobot, COM = 2)
@@ -125,7 +125,7 @@ if __name__ == '__main__':
   
   # End-effector inertial velocity (using geometric jacobian matrix) with Homogeneous Transformation Matrices
   geometricXd = geometricStateSpace(uRobot)
-  symbolicXd = geometricStateSpace(uRobot, symbolic = True)
+  # symbolicXd = geometricStateSpace(uRobot, symbolic = True)
   
   # End-effector inertial linear velocity + inertial rate of change of its rotations (using analytic jacobian matrix) with Homogeneous Transformation Matrices
   analyticXd = analyticStateSpace(uRobot)
@@ -133,11 +133,11 @@ if __name__ == '__main__':
   
   # Angular velocity propagation of each reference frame attached to joints
   W = angularVelocityPropagation(uRobot, w0 = np.zeros((3, 1)), qd = qd)
-  symbolicW = angularVelocityPropagation(uRobot, w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
+  # symbolicW = angularVelocityPropagation(uRobot, w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
   
   # Linear velocity propagation of each reference frame attached to joints
   V = linearVelocityPropagation(uRobot, v0 = np.zeros((3, 1)), W = W)
-  symbolicV = linearVelocityPropagation(uRobot, v0 = zeros(3, 1), W = symbolicW, symbolic = True)
+  # symbolicV = linearVelocityPropagation(uRobot, v0 = zeros(3, 1), W = symbolicW, symbolic = True)
   
   # Velocity of each Center of Mass using Geometric Jacobian Matrix
   XdCOM = geometricCOMStateSpace(uRobot, COM = 1)
