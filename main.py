@@ -24,6 +24,9 @@ if __name__ == '__main__':
   # Joints velocities
   qd = np.random.randn(n, 1)
   
+  # Joints accelerations
+  qdd = np.random.randn(n, 1)
+  
   # Screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
   xi = np.array([[0, 0, 0, 0],
                  [0, 0, 0, 0],
@@ -51,7 +54,7 @@ if __name__ == '__main__':
   Inertia = [0.5 * (Inertia + Inertia.T) for i in range(rb)]
 
   # Robot initialization as an object
-  uRobot = Serial(jointsPositions = q, jointsVelocities = qd, linksLengths = L, COMs = Lcom, mass = m, inertia = Inertia, name = 'uRobot', xi = xi, xid = xid)
+  uRobot = Serial(jointsPositions = q, jointsVelocities = qd, jointsAccelerations = qdd, linksLengths = L, COMs = Lcom, mass = m, inertia = Inertia, name = 'uRobot', xi = xi, xid = xid)
 
   # Set robot's Denavit - Hartenberg Matrix (numerical and symbolic, OPTIONAL)
   uRobot.denavitHartenberg()
@@ -135,9 +138,17 @@ if __name__ == '__main__':
   W = angularVelocityPropagation(uRobot, w0 = np.zeros((3, 1)), qd = qd)
   # symbolicW = angularVelocityPropagation(uRobot, w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
   
+  # Angular acceleration propagation of each reference frame attached to joints
+  dW = angularAccelerationPropagation(uRobot, dw0 = np.zeros((3, 1)), W = W, qd = qd, qdd = qdd)
+  # symbolicdW = angularAccelerationPropagation(uRobot, dw0 = zeros(3, 1), W = symbolicW, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  
   # Linear velocity propagation of each reference frame attached to joints
   V = linearVelocityPropagation(uRobot, v0 = np.zeros((3, 1)), W = W)
   # symbolicV = linearVelocityPropagation(uRobot, v0 = zeros(3, 1), W = symbolicW, symbolic = True)
+  
+  # Linear acceleration propagation of each reference frame attached to joints
+  dV = linearAccelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), W = W, dW = dW)
+  # symbolicV = linearAccelerationPropagation(uRobot, dv0 = zeros(3, 1), W = symbolicW, dW = symbolicdW, symbolic = True)
   
   # Velocity of each Center of Mass using Geometric Jacobian Matrix
   XdCOM = geometricCOMStateSpace(uRobot, COM = 1)

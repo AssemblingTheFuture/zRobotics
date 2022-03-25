@@ -7,7 +7,7 @@ import numpy as np
 from lib.kinematics.HTM import *
 from sympy import *
 
-def inertiaMatrix(robot, symbolic = False):
+def inertiaMatrix(robot : object, symbolic = False):
     """This function calculates the inertia matrix, with respect to each center of mass, given joints positions for dynamic model D(q) * q''(t) + C(q, q') * q'(t) + g(q) = τ
 
     Args:
@@ -48,7 +48,7 @@ def inertiaMatrix(robot, symbolic = False):
         
     return D
 
-def kineticEnergyCOM(robot, symbolic = False):
+def kineticEnergyCOM(robot : object, symbolic = False):
     """This function calculates the total kinetic energy, with respect to each center of mass, given linear and angular velocities
 
     Args:
@@ -64,7 +64,7 @@ def kineticEnergyCOM(robot, symbolic = False):
     
     return 0.5 * (robot.qdSymbolic.T * D * robot.qdSymbolic)
 
-def potentialEnergyCOM(robot, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
+def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
     """This function calculates the potential energy, with respect to each center of mass, given linear and angular velocities
 
     Args:
@@ -94,7 +94,7 @@ def potentialEnergyCOM(robot, g = np.array([[0], [0], [-9.80665]]), symbolic = F
 
     return P
 
-def dPdq(robot, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = False):
+def dPdq(robot : object, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = False):
     """This function calculates the derivative of COMs' potential energy with respect to joints positions for dynamic model D(q) * q''(t) + C(q, q') * q'(t) + g(q) = τ
 
     Args:
@@ -134,7 +134,7 @@ def dPdq(robot, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = Fal
         
         return dP_dq
 
-def centrifugalCoriolis(robot, dq = 0.001, symbolic = False):
+def centrifugalCoriolis(robot : object, dq = 0.001, symbolic = False):
     """This function calculates the Centrifugal and Coriolis matrix for dynamic model
 
     Args:

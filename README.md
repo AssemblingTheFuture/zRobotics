@@ -35,7 +35,9 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Total Inertial Rate of Change](#total-inertial-rate-of-change)
       - [Total Inertial Velocity](#total-inertial-velocity)
       - [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation)
+      - [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation)
       - [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation)
+      - [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation)
       - [Inertial Velocity to Centers of Mass](#inertial-velocity-to-centers-of-mass)
     - [Dynamics](#dynamics)
       - [Euler - Lagrange Formulation](#euler---lagrange-formulation)
@@ -70,17 +72,17 @@ You can set your robot attributes and analyze its behavior. To achieve this, all
 **For serial robots** (we will include new ones in the future :wink:), some interesting functionalities are listed below:
 
 - [x] [Forward Kinematics](#forward-kinematics)
-  - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/HTM.py#11) (numerical and symbolical)
-  - [x] [Using Dual Quaternions](/lib/kinematics/DQ.py#11) (numerical and symbolical)
+  - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/HTM.py#11) (numerical and symbolic)
+  - [x] [Using Dual Quaternions](/lib/kinematics/DQ.py#11) (numerical and symbolic)
 - [x] [Numerical Inverse Kinematics](#inverse-kinematics-error-feedback)
   - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/HTM.py#280)
   - [x] [Using Dual Quaternions](/lib/kinematics/DQ.py#135)
 - [ ] [Differential Kinematics](#differential-kinematics)
-  - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/DifferentialHTM.py) (numerical and symbolical)
+  - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/DifferentialHTM.py) (numerical and symbolic)
   - [ ] Using Dual Quaternions (:warning: **UNDER DEVELOPMENT** :warning:)
 - [ ] Robot Dynamics
-  - [x] Differential Equation using Homogeneous Transformation Matrices (numerical and symbolical)
-  - [ ] Differential Equation using Dual Quaternions (numerical and symbolical)
+  - [x] Differential Equation using Homogeneous Transformation Matrices (numerical and symbolic)
+  - [ ] Differential Equation using Dual Quaternions (numerical and symbolic)
 
 Feel free to modify, adjust and extend our work to your necessities :smiley:; this library allows you to get a first approach to robot analysis, synthesis and control, however, we will be adding new interesting features, also, **you can request new features or create new ones!**
 
@@ -99,7 +101,7 @@ We are working, or will start working soon, on the following tasks for future re
   - [x] Using Homogeneous Transformation Matrices
   - [ ] Using Dual Quaternions
 - [ ] Newton - Euler Recursive Algorithm:
-  - [ ] Using Homogeneous Transformation Matrices
+  - [x] Using Homogeneous Transformation Matrices
   - [ ] Using Dual Quaternions
 - [ ] Acceleration Analysis using Homogeneous Transformation Matrices
 
@@ -134,12 +136,12 @@ If these modules were installed correctly, you will be able to use our library :
 
 ### Symbolic Computation :warning:
 
-You can get your robot's equations in a symbolical form, however, please consider that **this computation is slower than numerical one**, also **resulting equations won't be simplified as we do in paper**. If you need to simplify the obtained results, you can use ```trigsimp()``` function as follows:
+You can get your robot's equations in a symbolic form, however, please consider that **this computation is slower than numerical one**, also **resulting equations won't be simplified as we do in paper**. If you need to simplify the obtained results, you can use ```trigsimp()``` function as follows:
 
 ```python
 
 """
-  Example of symbolical simplification
+  Example of symbolic simplification
 """
 
 # Homogeneous Transformation Matrix library
@@ -148,7 +150,7 @@ from lib.movements.HTM import *
 # SymPy library
 from sympy import *
 
-# Symbolical Homogeneous Transformation Matrix (multiplication is done with * because is a symbolical matrix)
+# Symbolical Homogeneous Transformation Matrix (multiplication is done with * because is a symbolic matrix)
 H = rz(z = "q1", symbolic = True) * tx(x = "L1", symbolic = True) * rz(z = "q2", symbolic = True) * tx(x = "L2", symbolic = True)
 
 # Simplified Homogeneous Transformation Matrix
@@ -185,7 +187,6 @@ This library includes the following files:
 ```
 zRobotics
 ├── img                 # Images for README.md file and related ones
-├── MATLAB              # MATLAB files (DEPRECATED)
 ├── lib                 # Python source files
 |   ├── Robot.py        # Robot constructor
 |   ├── movements
@@ -1302,11 +1303,11 @@ Please notice that angular velocities are not the same as the angular rate of ch
 
 ### Inertial Angular Velocity Propagation
 
-The simplest and fastest way to know the velocity of the reference frames attached to each joint can be calculated with a recursive algorithm, whose premise is to analyze the velocity from the base of the robot to the end-effector. This can be calculated with the following equation:
+The simplest and fastest way to know the velocity of the reference frames attached to each joint can be calculated with a recursive algorithm, whose premise is to analyze the velocity from the base of the robot to the end-effector with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0} = \omega_{i / 0}^{0} %2b \hat{n}_{i} q_{i}}">,
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0} = \omega_{i / 0}^{0} %2b \hat{n}_{i / 0}^{0} q_{i}}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{n}_{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{n}_{i / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}"> with respect to the inertial frame. This can be calculated with the library as follows:
 
 ```python
 """
@@ -1353,7 +1354,66 @@ array([[ 0.42580976],
        [-0.83326063]])
 ```
 
-Please notice that initial angular velocity was set to zero because the base of the robot doesn't move; also consider that Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial angular velocity was set to zero because the base of the robot doesn't move; on the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Angular Acceleration Propagation
+
+Angular accelerations can also be calculated recursively. In this case, angular acceleration propagation can be analyzed from the base of the robot to the end-effector with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{i / 0}^{0} \times \hat{n}_{i / 0}^{0} \right) \cdot \dot{q}_{i} %2b \left( \hat{n}_{i / 0}^{0} \cdot \ddot{q}_{i} \right)}">,
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{n}_{i / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}"> with respect to the inertial frame. This can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Angular Velocity Propagation
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPy
+import numpy as np
+
+# Angular acceleration propagation of each reference frame attached to joints
+dW = angularAccelerationPropagation(uRobot, dw0 = np.zeros((3, 1)), W = W, qd = qd, qdd = qdd, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> dW[0]
+array([[0.],
+       [0.],
+       [0.]])
+
+>>> dW[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [-1.64254793]])
+
+>>> dW[2]
+array([[ 0.26041347],
+       [ 1.03593656],
+       [-1.64254793]])
+
+>>> dW[3]
+array([[ 0.34806391],
+       [ 1.39053104],
+       [-1.64254793]])
+
+>>> dW[4]
+array([[ 0.28718396],
+       [ 1.39124994],
+       [-1.80487773]])
+```
+
+Please notice that initial angular acceleration was set to zero because the base of the robot doesn't move; on the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -1365,7 +1425,7 @@ As shown in previous section, velocities can be calculated recursively. In this 
 
 <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i %2b 1 / 0}^{0} = v_{i / 0}^{0} %2b \omega_{i / 0}^{0} \times \vec{r}_{i %2b 1 / i}^{0}}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i / 0}^{0}, v_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i} \in \mathbb{R}^{3 \times 1}}"> is the angular velocity calculated as shown in previous section, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i %2b 0 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). This velocities be calculated with the library as follows:
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i / 0}^{0}, v_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the angular velocity calculated as shown in previous section, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i %2b 0 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). These velocities be calculated with the library as follows:
 
 ```python
 """
@@ -1379,7 +1439,7 @@ from lib.kinematics.DifferentialHTM import *
 import numpy as np
 
 # Linear velocity propagation of each reference frame attached to joints
-V = linearVelocityPropagation(uRobot, v0 = np.zeros((3, 1)), W = W)
+V = linearVelocityPropagation(uRobot, v0 = np.zeros((3, 1)), W = W, symbolic = False)
 ```
 
 So the outputs will be
@@ -1413,6 +1473,65 @@ array([[-0.40533343],
 ```
 
 Please notice that initial linear velocity was set to zero because the base of the robot doesn't move; also the list with the angular velocities ```W``` has to be sent as a parameter of this function, so [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) has to be computed before calling this function. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Linear Acceleration Propagation
+
+As shown in previous section, accelertions can be calculated recursively. In this case, linear acceleration propagation can be analyzed from the base of the robot to the end-effector with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{v}_{i %2b 1 / 0}^{0} = \dot{v}_{i / 0}^{0} %2b \left( \dot{\omega}_{i / 0}^{0} \times \vec{r}_{i %2b 1 / i}^{0} \right) %2b \omega \times \left( \omega_{i / 0}^{0} \times \vec{r}_{i %2b 1 / i}^{0} \right)}">,
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{v}_{i / 0}^{0}, \dot{v}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \dot{\omega}_{i / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the angular velocities and accelerations calculated as shown in previous section, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i %2b 0 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). These accelerations be calculated with the library as follows:
+
+```python
+"""
+  Inertial Linear Acceleration Propagation
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPy
+import numpy as np
+
+# Linear acceleration propagation of each reference frame attached to joints
+  dV = linearAccelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), W = W, dW = dW, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> dV[0]
+array([[0.],
+       [0.],
+       [0.]])
+
+>>> dV[1]
+array([[0.],
+       [0.],
+       [0.]])
+
+>>> dV[2]
+array([[-0.16335787],
+       [-0.46886726],
+       [-0.32029839]])
+
+>>> dV[3]
+array([[-0.16335787],
+       [-0.46886726],
+       [-0.32029839]])
+
+>>> dV[4]
+array([[-0.03910056],
+       [ 0.86998831],
+       [ 0.84627911]])
+```
+
+Please notice that initial linear acceleration was set to zero because the base of the robot doesn't move; also the list with the angular velocities ```W``` and accelerations ```dW``` has to be sent as a parameter of this function, so [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Angular Velocity Acceleration](#inertial-angular-velocity-acceleration) have to be computed before calling this function. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 

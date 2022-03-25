@@ -23,7 +23,7 @@ class Serial(Robot):
       Robot (obj): robot as object
   """  
   
-  def __init__(self, jointsPositions, jointsVelocities, linksLengths, COMs, mass, inertia, xi = [], xid = [], name = ''):
+  def __init__(self, jointsPositions : np.array, jointsVelocities : np.array, jointsAccelerations : np.array, linksLengths : list, COMs : list, mass : list, inertia : list, xi = [], xid = [], name = ''):
     
     """Object constructor
 
@@ -43,6 +43,7 @@ class Serial(Robot):
     
     # Dynamic Parameters
     self.jointsVelocities = jointsVelocities
+    self.jointsAccelerations = jointsAccelerations
     self.mass = mass
     self.inertia = inertia
     
@@ -149,7 +150,7 @@ class Serial(Robot):
                                       [self.jointsPositions[2, 0], 0.0000000000, 0.0000000000, np.pi / 2],
                                       [self.jointsPositions[3, 0], self.COMs[2], 0.0000000000, 0.0000000]])
      
-  def whereIsTheJoint(self, joint):
+  def whereIsTheJoint(self, joint : int):
     """This method allows to know in which reference frame is attached any joint based on symbolic Denavit - Hartenberg Parameters Matrix, so this have to be set before calling this method
 
     Args:
@@ -172,7 +173,7 @@ class Serial(Robot):
     # Returns the frame
     return row, frame.index(Symbol('q' + str(joint)))
   
-  def whereIsTheCOM(self, COM):
+  def whereIsTheCOM(self, COM : int):
     """This method allows to know in which reference frame is attached any Center of Mass based on symbolic Denavit - Hartenberg Parameters Matrix, so this have to be set before calling this method
 
     Args:
