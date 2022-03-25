@@ -1,6 +1,6 @@
 import numpy as np
 
-def rungeKutta4(f, F, dt = 0.001):
+def rungeKutta4(f : np.array, F : np.array, dt = 0.001):
     """This function solves numerically a differential equation using Runge - Kutta (4th order)
 
     Args:

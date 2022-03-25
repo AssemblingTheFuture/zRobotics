@@ -169,7 +169,7 @@ def dqRz(z = 0, symbolic = False):
                                                     [0],
                                                     [0]])
 
-def leftOperator(Q, symbolic = False):
+def leftOperator(Q : np.array, symbolic = False):
     """Left operator for Dual Quaternions multiplication
 
     Args:
@@ -231,7 +231,7 @@ def leftOperator(Q, symbolic = False):
     
         return np.append(a, b, axis = 0)
 
-def rightOperator(Q, symbolic = False):
+def rightOperator(Q : np.array, symbolic = False):
     """Right operator for Dual Quaternions multiplication
 
     Args:
@@ -293,7 +293,7 @@ def rightOperator(Q, symbolic = False):
     
     return np.append(a, b, axis = 0)
 
-def crossOperator(q, symbolic = False):
+def crossOperator(q : np.array, symbolic = False):
     """Cross operator for quaternions' real part
 
     Args:
@@ -311,7 +311,7 @@ def crossOperator(q, symbolic = False):
                                                                      [float(+q[3]), 0.0000000000, float(-q[1])],
                                                                      [float(-q[2]), float(+q[1]), 0.0000000000]])
 
-def dualCrossOperator(Q, symbolic = False):
+def dualCrossOperator(Q : np.array, symbolic = False):
     """Dual Cross operator for Dual Quaternions' real part
 
     Args:
@@ -352,7 +352,7 @@ def dualCrossOperator(Q, symbolic = False):
         
         return np.append(a, b, axis = 0)
 
-def crossOperatorExtension(q, symbolic = False):
+def crossOperatorExtension(q : np.array, symbolic = False):
     """Cross operator extension for quaternions' multiplication
 
     Args:
@@ -372,7 +372,7 @@ def crossOperatorExtension(q, symbolic = False):
                                                                          [0, float(+q[3]), 0.0000000000, float(-q[1])],
                                                                          [0, float(-q[2]), float(+q[1]), 0.0000000000]])
 
-def conjugateDQ(Q, symbolic = False):
+def conjugateDQ(Q : np.array, symbolic = False):
     """Conjugate operator for Dual Quaternions
 
     Args:
@@ -400,7 +400,7 @@ def conjugateDQ(Q, symbolic = False):
                                                             [- float(Q[6, 0])],
                                                             [- float(Q[7, 0])]])
     
-def dqToR3(Q, symbolic = False):
+def dqToR3(Q : np.array, symbolic = False):
     """Transformation from Dual Quaternion to Euclidian Space Coordinates
 
     Args:

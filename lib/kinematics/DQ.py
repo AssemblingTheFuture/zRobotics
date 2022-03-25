@@ -8,7 +8,7 @@ from lib.movements.DQ import *
 from lib.dynamics.Solver import *
 from sympy import *
 
-def forwardDQ(robot, symbolic = False):
+def forwardDQ(robot : object, symbolic = False):
   """Using Dual Quaternions, this function computes forward kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -49,7 +49,7 @@ def forwardDQ(robot, symbolic = False):
     
   return framesDQ
 
-def forwardCOMDQ(robot, symbolic = False):
+def forwardCOMDQ(robot : object, symbolic = False):
   """Using Dual Quaternions, this function computes forward kinematics of a serial robot's centers of mass given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -96,7 +96,7 @@ def forwardCOMDQ(robot, symbolic = False):
       
   return framesCOMDQ
 
-def jacobianDQ(robot, symbolic = False):
+def jacobianDQ(robot : object, symbolic = False):
   """Using Dual Quaternions, this function computes Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -128,7 +128,7 @@ def jacobianDQ(robot, symbolic = False):
   
   return J
 
-def inverseDQ(robot, q0, Qd, K):
+def inverseDQ(robot : object, q0 : np.array, Qd : np.array, K : np.array):
   """Using Dual Quaternions, this function computes Inverse Kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:

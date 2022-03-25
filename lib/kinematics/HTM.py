@@ -1,5 +1,7 @@
 # Access to parent folder to get its files
 import sys, os
+
+from pandas import array
 sys.path.append(sys.path[0].replace(r'/lib/kinematics', r''))
 
 # Libraries
@@ -8,7 +10,7 @@ from lib.movements.HTM import *
 from lib.dynamics.Solver import *
 from sympy import *
 
-def forwardHTM(robot, symbolic = False):
+def forwardHTM(robot : object, symbolic = False):
     """Using Homogeneous Transformation Matrices, this function computes forward kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
     Args:
@@ -49,7 +51,7 @@ def forwardHTM(robot, symbolic = False):
 
     return framesHTM
 
-def forwardCOMHTM(robot, symbolic = False):
+def forwardCOMHTM(robot : object, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes forward kinematics of a serial robot's centers of mass given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -96,7 +98,7 @@ def forwardCOMHTM(robot, symbolic = False):
     
   return framesCOMHTM
 
-def axisAngle(H, symbolic = False):
+def axisAngle(H : np.array, symbolic = False):
   """This function computes the axis - angle vector «X» using the Homogeneous Transformation Matrix of a reference frame
 
   Args:
@@ -123,7 +125,7 @@ def axisAngle(H, symbolic = False):
   
   return nsimplify(X, tolerance = 1e-10) if symbolic else X.reshape((6, 1))
 
-def geometricJacobian(robot, symbolic = False):
+def geometricJacobian(robot : object, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -170,7 +172,7 @@ def geometricJacobian(robot, symbolic = False):
     
   return J
 
-def geometricJacobianCOM(robot, COM, symbolic = False):
+def geometricJacobianCOM(robot : object, COM: int, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix to a desired Center of Mass of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -230,7 +232,7 @@ def geometricJacobianCOM(robot, COM, symbolic = False):
     
   return J
 
-def analyticJacobian(robot, dq = 0.001, symbolic = False):
+def analyticJacobian(robot : object, dq = 0.001, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Analytic Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -285,7 +287,7 @@ def analyticJacobian(robot, dq = 0.001, symbolic = False):
     
     return J
 
-def analyticJacobianCOM(robot, COM, dq = 0.001, symbolic = False):
+def analyticJacobianCOM(robot : object, COM : int, dq = 0.001, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Analytic Jacobian Matrix to a Center of Mass of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
@@ -341,7 +343,7 @@ def analyticJacobianCOM(robot, COM, dq = 0.001, symbolic = False):
     
     return J
 
-def inverseHTM(robot, q0, Hd, K, jacobian = 'geometric'):
+def inverseHTM(robot : object, q0 : np.array, Hd : np.array, K : np.array, jacobian = 'geometric'):
   """Using Homogeneous Transformation Matrices, this function computes Inverse Kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
