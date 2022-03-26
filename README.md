@@ -1241,7 +1241,7 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 End-effector velocity can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130), because this maps the effect of each joint directly to the end-effector, so linear and angular velocities can be calculated:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v} = \begin{bmatrix} v_{x} \\ v_{y} \\ v_{z} \\ \omega_{x} \\ \omega_{y} \\ \omega_{z} \end{bmatrix} = J \left ( \vec{r}, \hat{n} \right) \ \ \dot{q}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v} = \begin{bmatrix} v_{x} \\ v_{y} \\ v_{z} \\ \omega_{x} \\ \omega_{y} \\ \omega_{z} \end{bmatrix} = J \left ( \vec{r}, \vec{n} \right) \ \ \dot{q}}">
 
 This can be calculated with the library as follows:
 
@@ -1305,9 +1305,9 @@ Please notice that angular velocities are not the same as the angular rate of ch
 
 The simplest and fastest way to know the velocity of the reference frames attached to each joint can be calculated with a recursive algorithm, whose premise is to analyze the velocity from the base of the robot to the end-effector with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0} = \omega_{i / 0}^{0} %2b \hat{n}_{i / 0}^{0} q_{i}}">,
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0} = \omega_{i / 0}^{0} %2b \vec{n}_{i / 0}^{0} q_{i}}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{n}_{i / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}"> with respect to the inertial frame. This can be calculated with the library as follows:
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}"> with respect to the inertial frame. This can be calculated with the library as follows:
 
 ```python
 """
@@ -1364,9 +1364,9 @@ Please notice that initial angular velocity was set to zero because the base of 
 
 Angular accelerations can also be calculated recursively. In this case, angular acceleration propagation can be analyzed from the base of the robot to the end-effector with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{i / 0}^{0} \times \hat{n}_{i / 0}^{0} \right) \cdot \dot{q}_{i} %2b \left( \hat{n}_{i / 0}^{0} \cdot \ddot{q}_{i} \right)}">,
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{i / 0}^{0} \times \vec{n}_{i / 0}^{0} \right) \cdot \dot{q}_{i} %2b \left( \vec{n}_{i / 0}^{0} \cdot \ddot{q}_{i} \right)}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{n}_{i / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}"> with respect to the inertial frame. This can be calculated with the library as follows:
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}"> with respect to the inertial frame. This can be calculated with the library as follows:
 
 ```python
 """
@@ -1541,7 +1541,7 @@ Please notice that initial linear acceleration was set to zero because the base 
 
 **For dynamic modelling, it will be mandatory to know the velocity of each center of mass**. As stated in previous section, inertial velocities can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130). In this case, it maps the effect of each joint directly to the each center of mass, so linear and angular velocities can be calculated:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_j} = \begin{bmatrix} v_{x_{com_j}} \\ v_{y_{com_j}} \\ v_{z_{com_j}} \\ \omega_{x_{com_j}} \\ \omega_{y_{com_j}} \\ \omega_{z_{com_j}} \end{bmatrix} = J_{com_j} \left ( \vec{r}, \hat{n} \right) \ \ \dot{q}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_j} = \begin{bmatrix} v_{x_{com_j}} \\ v_{y_{com_j}} \\ v_{z_{com_j}} \\ \omega_{x_{com_j}} \\ \omega_{y_{com_j}} \\ \omega_{z_{com_j}} \end{bmatrix} = J_{com_j} \left ( \vec{r}, \vec{n} \right) \ \ \dot{q}}">
 
 This can be calculated with the library as follows:
 
