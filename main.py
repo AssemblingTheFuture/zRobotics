@@ -13,10 +13,10 @@ if __name__ == '__main__':
   """
   
   # Number of rigid bodies
-  rb = 3
+  rb = 5
   
   # Number of Generalized Coordinates
-  n = 4
+  n = 3
   
   # Generalized coordinates
   q = np.random.randn(n, 1)
@@ -123,7 +123,7 @@ if __name__ == '__main__':
   qDQ = inverseDQ(uRobot, q0 = np.random.rand(n, 1), Qd = fkDQ[-1], K = 50 * np.eye(8))
   
   """
-    4. DIFFERENTIAL KINEMATICS (Velocities)
+    4. DIFFERENTIAL KINEMATICS (Velocities and Accelerations)
   """
   
   # End-effector inertial velocity (using geometric jacobian matrix) with Homogeneous Transformation Matrices
@@ -134,29 +134,45 @@ if __name__ == '__main__':
   analyticXd = analyticStateSpace(uRobot)
   # symbolicXd = analyticStateSpace(uRobot, symbolic = True)
   
-  # Angular velocity propagation of each reference frame attached to joints
+  # Inertial angular velocity propagation to each reference frame 
   W = angularVelocityPropagation(uRobot, w0 = np.zeros((3, 1)), qd = qd)
   # symbolicW = angularVelocityPropagation(uRobot, w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
   
-  # Angular acceleration propagation of each reference frame attached to joints
+  # Inertial angular acceleration propagation to each reference frame
   dW = angularAccelerationPropagation(uRobot, dw0 = np.zeros((3, 1)), W = W, qd = qd, qdd = qdd)
   # symbolicdW = angularAccelerationPropagation(uRobot, dw0 = zeros(3, 1), W = symbolicW, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
-  # Linear velocity propagation of each reference frame attached to joints
+  # Inertial linear velocity propagation to each reference frame
   V = linearVelocityPropagation(uRobot, v0 = np.zeros((3, 1)), W = W)
   # symbolicV = linearVelocityPropagation(uRobot, v0 = zeros(3, 1), W = symbolicW, symbolic = True)
   
-  # Linear acceleration propagation of each reference frame attached to joints
+  # Inertial linear acceleration propagation to each reference frame attached to joints
   dV = linearAccelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), W = W, dW = dW)
-  # symbolicV = linearAccelerationPropagation(uRobot, dv0 = zeros(3, 1), W = symbolicW, dW = symbolicdW, symbolic = True)
+  # symbolicdV = linearAccelerationPropagation(uRobot, dv0 = zeros(3, 1), W = symbolicW, dW = symbolicdW, symbolic = True)
   
-  # Velocity of each Center of Mass using Geometric Jacobian Matrix
-  XdCOM = geometricCOMStateSpace(uRobot, COM = 1)
-  # symbolicXdCOM = geometricCOMStateSpace(uRobot, COM = 1, symbolic = True)
+  # Inertial Velocity of each Center of Mass using Geometric Jacobian Matrix
+  geometricXdCOM = geometricCOMStateSpace(uRobot, COM = 1)
+  # symbolicGeometricXdCOM = geometricCOMStateSpace(uRobot, COM = 1, symbolic = True)
   
-  # Velocity of each Center of Mass using Analytic Jacobian Matrix
-  XdCOM = analyticCOMStateSpace(uRobot, COM = 1)
-  # symbolicXdCOM = analyticCOMStateSpace(uRobot, COM = 1, symbolic = True)
+  # Inertial Velocity of each Center of Mass using Analytic Jacobian Matrix
+  analyticXdCOM = analyticCOMStateSpace(uRobot, COM = 1)
+  # symbolicAnalyticXdCOM = analyticCOMStateSpace(uRobot, COM = 1, symbolic = True)
+  
+  # Inertial angular velocity propagation to each center of mass
+  Wcom = angularVelocityPropagationCOM(uRobot, wCOM0 = np.zeros((3, 1)), W = W, qd = qd)
+  # symbolicWcom = angularVelocityPropagationCOM(uRobot, wCOM0 = zeros(3, 1), W = symbolicW, qd = uRobot.qdSymbolic, symbolic = True)
+  
+  # Inertial angular acceleration propagation to each reference frame
+  dWcom = angularAccelerationPropagationCOM(uRobot, dwCOM0 = np.zeros((3, 1)), Wcom = Wcom, dW = dW, qd = qd, qdd = qdd)
+  # symbolicdWcom = angularAccelerationPropagationCOM(uRobot, dwCOM0 = zeros(3, 1), Wcom = symbolicWcom, dW = symbolicdW, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  
+  # Inertial linear velocity propagation to each center of mass
+  Vcom = linearVelocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), Wcom  = Wcom, V = V)
+  # symbolicVcom = linearVelocityPropagationCOM(uRobot, vCOM0 = zeros(3, 1), Wcom  = symbolicWcom, V = symbolicV, symbolic = True)
+  
+  # Inertial linear acceleration propagation to each center of mass
+  dVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = np.zeros((3, 1)), Wcom = Wcom, dWcom = dWcom, dV = dV)
+  # symbolicdVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = zeros(3, 1), Wcom = symbolicWcom, dWcom = symbolicdWcom, dV = symbolicdV, symbolic = True)
   
   """
     5. DYNAMICS
