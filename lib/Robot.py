@@ -142,8 +142,7 @@ class Serial(Robot):
                                     [self.jointsPositions[1, 0], 0.000000000000000000, self.linksLengths[1], 0.0000000],
                                     [self.jointsPositions[2, 0], 0.000000000000000000, 0.000000000000000000, np.pi / 2],
                                     [self.jointsPositions[3, 0], self.linksLengths[2], 0.000000000000000000, 0.0000000]])
-      
-      
+
   def denavitHartenbergCOM(self, symbolic = False):
     """Denavit - Hartenberg parameters for j - th rigid body, ordered as follows:
 
