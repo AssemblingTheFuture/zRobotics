@@ -454,7 +454,7 @@ def angularAccelerationPropagationCOM(robot : object, dwCOM0 : np.array, Wcom : 
       z = fkCOMHTM[COM][0: 3, 2]
       
       # Relative angular acceleration calculation equals to ((w x z) * qdi) + (z * qddi)
-      dwCOMJoint = ((Wcom[k].cross(z)) * qd[joint]) + (z * qdd[joint]) if symbolic else (np.cross(Wcom[k], z, axis = 0) * qd[joint]) + (z * qdd[joint]).reshape((3, 1))
+      dwCOMJoint = ((Wcom[COM].cross(z)) * qd[joint]) + (z * qdd[joint]) if symbolic else (np.cross(Wcom[COM], z, axis = 0) * qd[joint]) + (z * qdd[joint]).reshape((3, 1))
       
       # Calculate angular velocity up to this point
       dwCOM = nsimplify(dW[k - 1] + dwCOMJoint, tolerance = 1e-10) if symbolic else dW[k - 1] + dwCOMJoint.reshape((3, 1))
