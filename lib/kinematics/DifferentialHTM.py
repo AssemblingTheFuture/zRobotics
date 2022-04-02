@@ -144,10 +144,10 @@ def angularVelocityPropagation(robot : object, w0 : np.array, qd : np.array, sym
       wJoint = zeros(3, 1) if symbolic else np.zeros((3, 1))
           
     # Calculate angular velocity up to this point
-    w = nsimplify(W[-1] + wJoint, tolerance = 1e-10) if symbolic else W[-1] + wJoint.reshape((3, 1))
+    w = trigsimp(W[-1] + wJoint) if symbolic else W[-1] + wJoint.reshape((3, 1))
 
     # Append each calculated angular velocity
-    W.append(trigsimp(w) if symbolic else w)
+    W.append(nsimplify(w.evalf(), tolerance = 1e-10) if symbolic else w)
       
   return W
 
@@ -181,10 +181,10 @@ def linearVelocityPropagation(robot : object, v0 : np.array, W : np.array, symbo
     r = fkHTM[k][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
   
     # Calculate linear velocity up to this point
-    v = nsimplify(V[-1] + (W[k].cross(r)), tolerance = 1e-10) if symbolic else V[-1] + (np.cross(W[k], r, axis = 0))
+    v = trigsimp(V[-1] + (W[k].cross(r))) if symbolic else V[-1] + (np.cross(W[k], r, axis = 0))
 
     # Append each calculated linear velocity
-    V.append(trigsimp(v) if symbolic else v)
+    V.append(nsimplify(v.evalf(), tolerance = 1e-10) if symbolic else v)
       
   return V
 
@@ -240,10 +240,10 @@ def angularAccelerationPropagation(robot : object, dw0 : np.array, W : list, qd 
       dwJoint = zeros(3, 1) if symbolic else np.zeros((3, 1))
           
     # Calculate angular acceleration up to this point
-    dw = nsimplify(dW[-1] + dwJoint, tolerance = 1e-10) if symbolic else dW[-1] + dwJoint.reshape((3, 1))
+    dw = trigsimp(dW[-1] + dwJoint) if symbolic else dW[-1] + dwJoint.reshape((3, 1))
 
     # Append each calculated angular acceleration
-    dW.append(trigsimp(dw) if symbolic else dw)
+    dW.append(nsimplify(dw.evalf(), tolerance = 1e-10) if symbolic else dw)
       
   return dW
 
@@ -278,10 +278,11 @@ def linearAccelerationPropagation(robot : object, dv0 : np.array, W : list, dW :
     r = fkHTM[k][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
   
     # Calculate linear velocity up to this point
-    dv = nsimplify(dV[-1] + (dW[k].cross(r)) + (W[k].cross(W[k].cross(r))), tolerance = 1e-10) if symbolic else dV[-1] + (np.cross(dW[k], r, axis = 0)) + (np.cross(W[k], np.cross(W[k], r, axis = 0), axis = 0))
+    
+    dv = trigsimp(dV[-1] + (dW[k].cross(r)) + (W[k].cross(W[k].cross(r)))) if symbolic else dV[-1] + (np.cross(dW[k], r, axis = 0)) + (np.cross(W[k], np.cross(W[k], r, axis = 0), axis = 0))
 
     # Append each calculated linear velocity
-    dV.append(trigsimp(dv) if symbolic else dv)
+    dV.append(nsimplify(dv.evalf(), tolerance = 1e-10) if symbolic else dv)
       
   return dV
 
@@ -337,10 +338,10 @@ def angularVelocityPropagationCOM(robot : object, wCOM0 : np.array, W : list, qd
       wJoint = z * qd[joint]
       
       # Calculate angular velocity up to this point
-      wCOM = nsimplify(W[k - 1] + wJoint, tolerance = 1e-10) if symbolic else W[k - 1] + wJoint.reshape((3, 1))
+      wCOM = trigsimp(W[k - 1] + wJoint) if symbolic else W[k - 1] + wJoint.reshape((3, 1))
 
       # Append each calculated angular velocity
-      Wcom.append(trigsimp(wCOM) if symbolic else wCOM)
+      Wcom.append(nsimplify(wCOM.evalf(), tolerance = 1e-10) if symbolic else wCOM)
     
     # Else, if there's no joint but a center of mass only
     elif any(element == True for element in containedCOMs):
@@ -396,10 +397,10 @@ def linearVelocityPropagationCOM(robot : object, vCOM0 : np.array, Wcom : np.arr
       rCOM = fkCOMHTM[COM][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
       
       # Calculate linear velocity up to this point
-      vCOM = nsimplify(V[k -1] + (Wcom[COM].cross(rCOM)), tolerance = 1e-10) if symbolic else V[k - 1] + (np.cross(Wcom[COM], rCOM, axis = 0))
+      vCOM = trigsimp(V[k -1] + (Wcom[COM].cross(rCOM))) if symbolic else V[k - 1] + (np.cross(Wcom[COM], rCOM, axis = 0))
 
       # Append each calculated linear velocity
-      Vcom.append(trigsimp(vCOM) if symbolic else vCOM)
+      Vcom.append(nsimplify(vCOM.evalf(), tolerance = 1e-10) if symbolic else vCOM)
       
   return Vcom
 
@@ -457,16 +458,17 @@ def angularAccelerationPropagationCOM(robot : object, dwCOM0 : np.array, Wcom : 
       dwCOMJoint = ((Wcom[COM].cross(z)) * qd[joint]) + (z * qdd[joint]) if symbolic else (np.cross(Wcom[COM], z, axis = 0) * qd[joint]) + (z * qdd[joint]).reshape((3, 1))
       
       # Calculate angular velocity up to this point
-      dwCOM = nsimplify(dW[k - 1] + dwCOMJoint, tolerance = 1e-10) if symbolic else dW[k - 1] + dwCOMJoint.reshape((3, 1))
+      
+      dwCOM = trigsimp(dW[k - 1] + dwCOMJoint) if symbolic else dW[k - 1] + dwCOMJoint.reshape((3, 1))
 
       # Append each calculated angular velocity
-      dWcom.append(trigsimp(dwCOM) if symbolic else dwCOM)
+      dWcom.append(nsimplify(dwCOM.evalf(), tolerance = 1e-10) if symbolic else dwCOM)
     
     # Else, if there's no joint but a center of mass only
     elif any(element == True for element in containedCOMs):
       
       # Append previously calculated angular velocity
-      dWcom.append(trigsimp(dwCOM) if symbolic else dwCOM)
+      dWcom.append(nsimplify(dwCOM.evalf(), tolerance = 1e-10) if symbolic else dwCOM)
   
   return dWcom
 
@@ -517,10 +519,10 @@ def linearAccelerationPropagationCOM(robot : object, dvCOM0 : np.array, Wcom : n
       rCOM = fkCOMHTM[COM][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
       
       # Calculate linear velocity up to this point
-      dvCOM = nsimplify(dV[k -1] + (dWcom[COM].cross(rCOM)) + (Wcom[COM].cross(Wcom[COM].cross(rCOM))), tolerance = 1e-10) if symbolic else dV[k - 1] + (np.cross(dWcom[COM], rCOM, axis = 0)) + (np.cross(Wcom[COM], np.cross(Wcom[COM], rCOM, axis = 0), axis = 0))
+      dvCOM = trigsimp(dV[k -1] + (dWcom[COM].cross(rCOM)) + (Wcom[COM].cross(Wcom[COM].cross(rCOM)))) if symbolic else dV[k - 1] + (np.cross(dWcom[COM], rCOM, axis = 0)) + (np.cross(Wcom[COM], np.cross(Wcom[COM], rCOM, axis = 0), axis = 0))
 
       # Append each calculated linear velocity
-      dVcom.append(trigsimp(dvCOM) if symbolic else dvCOM)
+      dVcom.append(nsimplify(dvCOM.evalf(), tolerance = 1e-10) if symbolic else dvCOM)
       
   return dVcom
 

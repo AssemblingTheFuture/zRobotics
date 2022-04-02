@@ -82,7 +82,7 @@ if __name__ == '__main__':
   
   # Robot's forward kinematics to each center of mass using Dual Quaternions (numerical and symbolic)
   fkCOMDQ = forwardCOMDQ(uRobot)
-  # symbolicDQCOMHTM = forwardCOMDQ(uRobot, symbolic = True)
+  # symbolicCOMDQ = forwardCOMDQ(uRobot, symbolic = True)
 
   # Axis - Angle vector based on Homogeneous Transformation Matrix obtained by Forward Kinematics calculation
   X = axisAngle(fkHTM[-1])
