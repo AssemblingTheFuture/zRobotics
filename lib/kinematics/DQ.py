@@ -40,12 +40,12 @@ def forwardDQ(robot : object, symbolic = False):
   
   # Iteration through all the rows in Denavit - Hartenberg Matrix
   for frame in range(DH.rows) if symbolic else DH:
-    
-    # Operates dual quaternions symbolically: Rz * Tz * Tx * Rx
-    fkDQ = nsimplify(leftOperator(fkDQ, symbolic) * rightOperator(dqRx(DH[frame, 3], symbolic), symbolic) * leftOperator(dqRz(DH[frame, 0], symbolic), symbolic) * rightOperator(dqTx(DH[frame, 2], symbolic), symbolic) * dqTz(DH[frame, 1], symbolic), tolerance = 1e-10) if symbolic else leftOperator(fkDQ).dot(rightOperator(dqRx(frame[3]))).dot(leftOperator(dqRz(frame[0]))).dot(rightOperator(dqTx(frame[2]))).dot(dqTz(frame[1]))
+
+    # Operates dual quaternions: Rz * Tz * Tx * Rx
+    fkDQ = trigsimp(dqMultiplication(dqMultiplication(dqMultiplication(dqMultiplication(fkDQ, dqRz(DH[frame, 0], symbolic), symbolic), dqTz(DH[frame, 1], symbolic), symbolic), dqTx(DH[frame, 2], symbolic), symbolic), dqRx(DH[frame, 3], symbolic), symbolic)) if symbolic else dqMultiplication(dqMultiplication(dqMultiplication(dqMultiplication(fkDQ, dqRz(frame[0])), dqTz(frame[1])), dqTx(frame[2])), dqRx(frame[3]))
 
     # Append each calculated Homogeneous Transformation Matrix
-    framesDQ.append(trigsimp(fkDQ) if symbolic else fkDQ)
+    framesDQ.append(nsimplify(fkDQ.evalf()) if symbolic else fkDQ)
     
   return framesDQ
 
@@ -86,13 +86,13 @@ def forwardCOMDQ(robot : object, symbolic = False):
     rowCOM, column = robot.whereIsTheCOM(COM = i + 1)
     
     # Center of Mass Homogeneous Transformation Matrix
-    COM = leftOperator(dqRz(comDH[rowCOM, 0] if column >= 0 else 0, symbolic), symbolic) * rightOperator(dqRx(comDH[rowCOM, 3] if column >= 3 else 0, symbolic), symbolic) * rightOperator(dqTx(comDH[rowCOM, 2] if column >= 2 else 0, symbolic), symbolic) * dqTz(comDH[rowCOM, 1] if column >= 1 else 0, symbolic) if symbolic else leftOperator(dqRz(comDH[rowCOM, 0] if column >= 0 else 0)).dot(rightOperator(dqRx(comDH[rowCOM, 3] if column >= 3 else 0))).dot(rightOperator(dqTx(comDH[rowCOM, 2] if column >= 2 else 0))).dot(dqTz(comDH[rowCOM, 1] if column >= 1 else 0))
+    COM = dqMultiplication(dqMultiplication(dqMultiplication(dqRz(comDH[rowCOM, 0] if column >= 0 else 0, symbolic), dqTz(comDH[rowCOM, 1] if column >= 1 else 0, symbolic), symbolic), dqTx(comDH[rowCOM, 2] if column >= 2 else 0, symbolic), symbolic), dqRx(comDH[rowCOM, 3] if column >= 3 else 0, symbolic), symbolic) if symbolic else dqMultiplication(dqMultiplication(dqMultiplication(dqRz(comDH[rowCOM, 0] if column >= 0 else 0), dqTz(comDH[rowCOM, 1] if column >= 1 else 0)), dqTx(comDH[rowCOM, 2] if column >= 2 else 0)), dqRx(comDH[rowCOM, 3] if column >= 3 else 0))
 
     # Forward kinematics to Center of Mass
-    fkCOMDQ = nsimplify(leftOperator(framesDQ[rowCOM - 1], symbolic) * COM, tolerance = 1e-10) if symbolic else leftOperator(framesDQ[rowCOM - 1]).dot(COM)
+    fkCOMDQ = trigsimp(dqMultiplication(framesDQ[rowCOM - 1], COM, symbolic)) if symbolic else dqMultiplication(framesDQ[rowCOM - 1], COM)
 
     # Append results
-    framesCOMDQ.append(trigsimp(fkCOMDQ) if symbolic else fkCOMDQ)
+    framesCOMDQ.append(nsimplify(fkCOMDQ.evalf(), tolerance = 1e-10) if symbolic else fkCOMDQ)
       
   return framesCOMDQ
 

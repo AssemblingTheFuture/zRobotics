@@ -9,8 +9,8 @@ def dqTx(x = 0, symbolic = False):
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        Q (NumPy Array): Dual Quaternion (numerical)
-        Q (SymPy Matrix): Dual Quaternion (symbolical)
+        Q (np.array): Dual Quaternion (numeric)
+        Q (SymPy Matrix): Dual Quaternion (symbolic)
     """
     
     return Matrix([[1],
@@ -37,8 +37,8 @@ def dqTy(y = 0, symbolic = False):
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        Q (NumPy Array): Dual Quaternion (numerical)
-        Q (SymPy Matrix): Dual Quaternion (symbolical)
+        Q (np.array): Dual Quaternion (numeric)
+        Q (SymPy Matrix): Dual Quaternion (symbolic)
     """
     
     return Matrix([[1],
@@ -65,8 +65,8 @@ def dqTz(z = 0, symbolic = False):
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        Q (NumPy Array): Dual Quaternion (numerical)
-        Q (SymPy Matrix): Dual Quaternion (symbolical)
+        Q (np.array): Dual Quaternion (numeric)
+        Q (SymPy Matrix): Dual Quaternion (symbolic)
     """
     
     return Matrix([[1],
@@ -93,8 +93,8 @@ def dqRx(x = 0, symbolic = False):
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        Q (NumPy Array): Dual Quaternion (numerical)
-        Q (SymPy Matrix): Dual Quaternion (symbolical)
+        Q (np.array): Dual Quaternion (numeric)
+        Q (SymPy Matrix): Dual Quaternion (symbolic)
     """
     
     return Matrix([[cos(x / 2)],
@@ -121,8 +121,8 @@ def dqRy(y = 0, symbolic = False):
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        Q (NumPy Array): Dual Quaternion (numerical)
-        Q (SymPy Matrix): Dual Quaternion (symbolical)
+        Q (np.array): Dual Quaternion (numeric)
+        Q (SymPy Matrix): Dual Quaternion (symbolic)
     """
     
     return Matrix([[cos(y / 2)],
@@ -149,8 +149,8 @@ def dqRz(z = 0, symbolic = False):
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        Q (NumPy Array): Dual Quaternion (numerical)
-        Q (SymPy Matrix): Dual Quaternion (symbolical)
+        Q (np.array): Dual Quaternion (numeric)
+        Q (SymPy Matrix): Dual Quaternion (symbolic)
     """
     
     return Matrix([[cos(z / 2)],
@@ -169,16 +169,67 @@ def dqRz(z = 0, symbolic = False):
                                                     [0],
                                                     [0]])
 
+def quaternionMultiplication(q1 : np.array, q2 : np.array, symbolic = False):
+    """Quaternion multiplication: q = a * b
+
+    Args:
+        q1 (np.array) : quaternion
+        q2 (np.array) : quaternion
+        symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+        q (np.array): quaternion result (numeric)
+        q (SymPy Matrix): quaternion result (symbolic)
+    """
+    
+    # Real part of quaternion
+    r = (q1[0, :] * q2[0, :]) - (q1[1, :] * q2[1, :]) - (q1[2, :] * q2[2, :]) - (q1[3, :] * q2[3, :])
+    
+    # i
+    i = (q1[0, :] * q2[1, :]) + (q1[1, :] * q2[0, :]) + (q1[2, :] * q2[3, :]) - (q1[3, :] * q2[2, :])
+    
+    # j
+    j = (q1[0, :] * q2[2, :]) - (q1[1, :] * q2[3, :]) + (q1[2, :] * q2[0, :]) + (q1[3, :] * q2[1, :])
+    
+    # k
+    k = (q1[0, :] * q2[3, :]) + (q1[1, :] * q2[2, :]) - (q1[2, :] * q2[1, :]) + (q1[3, :] * q2[0, :])
+    
+    return Matrix([[r], [i], [j], [k]]) if symbolic else np.array([r, i, j, k])
+
+def dqMultiplication(Qa : np.array, Qb : np.array, symbolic = False):
+    """Dual Quaternion multiplication: Q = Qa * Qb
+
+    Args:
+        Qa (np.array) : Dual Quaternion
+        Qb (np.array) : Dual Quaternion
+        symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+        Q (np.array): Dual Quaternion result (numeric)
+        Q (SymPy Matrix): Dual Quaternion result (symbolic)
+    """
+    
+    # Real part of Dual Quaternion
+    r = quaternionMultiplication(Qa[0 : 4, :], Qb[0 : 4, :], symbolic)
+    
+    # First term of dual part
+    x = quaternionMultiplication(Qa[0 : 4, :], Qb[4 : 8, :], symbolic)
+    
+    # Second term of dual part
+    y = quaternionMultiplication(Qa[4 : 8, :], Qb[0 : 4, :], symbolic)
+    
+    return Matrix([[r], [x + y]]) if symbolic else np.array([r, x + y]).reshape((8, 1))
+
 def leftOperator(Q : np.array, symbolic = False):
     """Left operator for Dual Quaternions multiplication
 
     Args:
-        Q (NumPy Array  or SymPy Symbol): Dual Quaternion
+        Q (np.array  or SymPy Symbol): Dual Quaternion
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        L (NumPy Array): Left Operator (numerical)
-        L (SymPy Matrix): Left Operator (symbolical)
+        L (np.array): Left Operator (numeric)
+        L (SymPy Matrix): Left Operator (symbolic)
     """
     
     if symbolic:
@@ -235,12 +286,12 @@ def rightOperator(Q : np.array, symbolic = False):
     """Right operator for Dual Quaternions multiplication
 
     Args:
-        Q (NumPy Array  or SymPy Symbol): Dual Quaternion
+        Q (np.array  or SymPy Symbol): Dual Quaternion
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        R (NumPy Array): Right Operator (numerical)
-        R (SymPy Matrix): Right Operator (symbolical)
+        R (np.array): Right Operator (numeric)
+        R (SymPy Matrix): Right Operator (symbolic)
     """
     
     if symbolic:
@@ -297,12 +348,12 @@ def crossOperator(q : np.array, symbolic = False):
     """Cross operator for quaternions' real part
 
     Args:
-        q (NumPy Array  or SymPy Symbol): quaternion
+        q (np.array  or SymPy Symbol): quaternion
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        c (NumPy Array): Cross Operator (numerical)
-        c (SymPy Matrix): Cross Operator Matrix (symbolical)
+        c (np.array): Cross Operator (numeric)
+        c (SymPy Matrix): Cross Operator Matrix (symbolic)
     """
 
     return Matrix([[0.000, -q[3], +q[2]],
@@ -315,12 +366,12 @@ def dualCrossOperator(Q : np.array, symbolic = False):
     """Dual Cross operator for Dual Quaternions' real part
 
     Args:
-        Q (NumPy Array  or SymPy Symbol): Dual Quaternion
+        Q (np.array  or SymPy Symbol): Dual Quaternion
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        C (NumPy Array): Cross Operator (numerical)
-        C (SymPy Matrix): Cross Operator Matrix (symbolical)
+        C (np.array): Cross Operator (numeric)
+        C (SymPy Matrix): Cross Operator Matrix (symbolic)
     """
     
     if symbolic:
@@ -356,12 +407,12 @@ def crossOperatorExtension(q : np.array, symbolic = False):
     """Cross operator extension for quaternions' multiplication
 
     Args:
-        q (NumPy Array  or SymPy Symbol): quaternion
+        q (np.array  or SymPy Symbol): quaternion
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        ce (NumPy Array): Cross Operator Extension (numerical)
-        ce (SymPy Matrix): Cross Operator Extension (symbolical)
+        ce (np.array): Cross Operator Extension (numeric)
+        ce (SymPy Matrix): Cross Operator Extension (symbolic)
     """
     
     return Matrix([[0, 0.000, 0.000, 0.000],
@@ -376,12 +427,12 @@ def conjugateDQ(Q : np.array, symbolic = False):
     """Conjugate operator for Dual Quaternions
 
     Args:
-        Q (NumPy Array  or SymPy Symbol): Dual Quaternion
+        Q (np.array  or SymPy Symbol): Dual Quaternion
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        Q* (NumPy Array): Conjugate Dual Quaternion (numerical)
-        Q* (SymPy Matrix): Conjugate Dual Quaternion (symbolical)
+        Q* (np.array): Conjugate Dual Quaternion (numeric)
+        Q* (SymPy Matrix): Conjugate Dual Quaternion (symbolic)
     """
 
     return Matrix([[+ Q[0, 0]],
@@ -404,12 +455,12 @@ def dqToR3(Q : np.array, symbolic = False):
     """Transformation from Dual Quaternion to Euclidian Space Coordinates
 
     Args:
-        Q (NumPy Array  or SymPy Symbol): Dual Quaternion
+        Q (np.array  or SymPy Symbol): Dual Quaternion
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
-        r (NumPy Array): Position in R3 coordinates (numerical)
-        r (SymPy Matrix): Position in R3 coordinates (symbolical)
+        r (np.array): Position in R3 coordinates (numeric)
+        r (SymPy Matrix): Position in R3 coordinates (symbolic)
     """
     
     # Extract rotation part to a dual quaternion
@@ -426,10 +477,13 @@ if __name__ == '__main__':
     THIS SECTION IS FOR TESTING PURPOSES ONLY
   """
   
-  # Numerical representation of a rotation
+  # Numeric representation of a rotation
   Q = leftOperator(dqRz(z = np.pi / 4)).dot(dqTx(x = 0.5))
   
-  # Symbolical representation of a rotation
+  # Fast dual quaternion multiplication
+  Qmult = dqMultiplication(dqRz(z = np.pi / 4), dqTx(x = 0.5))
+  
+  # Symbolic representation of a rotation
   symbolicQ = dqRz(z = 1, symbolic = True)
   
   # Dual Left Operator

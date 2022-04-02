@@ -43,11 +43,11 @@ def forwardHTM(robot : object, symbolic = False):
     # Iteration through all the rows in Denavit - Hartenberg Matrix
     for frame in range(DH.rows) if symbolic else DH:
         
-      # Operates matrices symbolically: Rz * Tz * Tx * Rx
-      fkHTM = nsimplify(fkHTM * rz(DH[frame, 0], symbolic) * tz(DH[frame, 1], symbolic) * tx(DH[frame, 2], symbolic) * rx(DH[frame, 3], symbolic), tolerance = 1e-10) if symbolic else fkHTM.dot(rz(frame[0]).dot(tz(frame[1])).dot(tx(frame[2])).dot(rx(frame[3])))
+      # Operates matrices: Rz * Tz * Tx * Rx
+      fkHTM = trigsimp(fkHTM * rz(DH[frame, 0], symbolic) * tz(DH[frame, 1], symbolic) * tx(DH[frame, 2], symbolic) * rx(DH[frame, 3], symbolic)) if symbolic else fkHTM.dot(rz(frame[0]).dot(tz(frame[1])).dot(tx(frame[2])).dot(rx(frame[3])))
 
       # Append each calculated Homogeneous Transformation Matrix
-      framesHTM.append(trigsimp(fkHTM) if symbolic else fkHTM)
+      framesHTM.append(nsimplify(fkHTM.evalf(), tolerance = 1e-10) if symbolic else fkHTM)
 
     return framesHTM
 
@@ -91,10 +91,10 @@ def forwardCOMHTM(robot : object, symbolic = False):
     COM = rz(comDH[rowCOM, 0] if column >= 0 else 0, symbolic) * tz(comDH[rowCOM, 1] if column >= 1 else 0, symbolic) * tx(comDH[rowCOM, 2] if column >= 2 else 0, symbolic) * rx(comDH[rowCOM, 3] if column >= 3 else 0, symbolic) if symbolic else rz(comDH[rowCOM, 0] if column >= 0 else 0).dot(tz(comDH[rowCOM, 1] if column >= 1 else 0)).dot(tx(comDH[rowCOM, 2] if column >= 2 else 0)).dot(rx(comDH[rowCOM, 3] if column >= 3 else 0))
     
     # Forward kinematics to Center of Mass
-    fkCOMHTM = nsimplify(framesHTM[rowCOM - 1] * COM, tolerance = 1e-10) if symbolic else framesHTM[rowCOM - 1].dot(COM)
+    fkCOMHTM = trigsimp(framesHTM[rowCOM - 1] * COM) if symbolic else framesHTM[rowCOM - 1].dot(COM)
     
     # Append results
-    framesCOMHTM.append(trigsimp(fkCOMHTM) if symbolic else fkCOMHTM)
+    framesCOMHTM.append(nsimplify(fkCOMHTM.evalf(), tolerance = 1e-10) if symbolic else fkCOMHTM)
     
   return framesCOMHTM
 
@@ -123,7 +123,7 @@ def axisAngle(H : np.array, symbolic = False):
   # Append position and orientation in one single vector
   X = H[0 : 3, 3].row_insert(3, trigsimp(theta * n)) if symbolic else np.append(H[0 : 3, 3], theta * n)
   
-  return nsimplify(X, tolerance = 1e-10) if symbolic else X.reshape((6, 1))
+  return nsimplify(X.evalf(), tolerance = 1e-10) if symbolic else X.reshape((6, 1))
 
 def geometricJacobian(robot : object, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
@@ -165,10 +165,10 @@ def geometricJacobian(robot : object, symbolic = False):
     r = fkHTM[-1][0: 3, 3] - H[0: 3, 3]
     
     # Calculate axes of actuation of Center of Mass or End - Effector caused by current joint
-    J[0: 3, j] = nsimplify(trigsimp(z.cross(r)), tolerance = 1e-10) if symbolic else np.cross(z, r)
+    J[0: 3, j] = nsimplify(trigsimp(z.cross(r)).evalf(), tolerance = 1e-10) if symbolic else np.cross(z, r)
     
     # Set axis of actuation
-    J[3: 6, j] = nsimplify(trigsimp(z), tolerance = 1e-10) if symbolic else z
+    J[3: 6, j] = nsimplify(trigsimp(z).evalf(), tolerance = 1e-10) if symbolic else z
     
   return J
 
@@ -225,10 +225,10 @@ def geometricJacobianCOM(robot : object, COM: int, symbolic = False):
     r = fkCOMHTM[COM][0: 3, 3] - H[0: 3, 3]
     
     # Calculate axes of actuation of Center of Mass or End - Effector caused by current joint
-    J[0: 3, i] = nsimplify(trigsimp(z.cross(r)), tolerance = 1e-10) if symbolic else np.cross(z, r)
+    J[0: 3, i] = nsimplify(trigsimp(z.cross(r)).evalf(), tolerance = 1e-10) if symbolic else np.cross(z, r)
     
     # Set axis of actuation
-    J[3: 6, i] = nsimplify(trigsimp(z), tolerance = 1e-10) if symbolic else z
+    J[3: 6, i] = nsimplify(trigsimp(z).evalf(), tolerance = 1e-10) if symbolic else z
     
   return J
 
@@ -254,7 +254,7 @@ def analyticJacobian(robot : object, dq = 0.001, symbolic = False):
   if symbolic:
     
     # Calculate Analytic Jacobian Matrix by differentiating Axis - Angle vector with SymPy functions
-    return nsimplify(trigsimp(x.jacobian(robot.qSymbolic)), tolerance = 1e-10)
+    return nsimplify(trigsimp(x.jacobian(robot.qSymbolic)).evalf(), tolerance = 1e-10)
     
   else:
         
@@ -310,7 +310,7 @@ def analyticJacobianCOM(robot : object, COM : int, dq = 0.001, symbolic = False)
   if symbolic:
     
     # Calculate Analytic Jacobian Matrix by differentiating Axis - Angle vector with SymPy functions
-    return nsimplify(trigsimp(x.jacobian(robot.qSymbolic)), tolerance = 1e-10)
+    return nsimplify(trigsimp(x.jacobian(robot.qSymbolic)).evalf(), tolerance = 1e-10)
     
   else:
         
