@@ -16,7 +16,7 @@ def forwardDQ(robot : object, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    framesDQ (list): Dual Quaternions with frames' poses (numerical or symbolical)
+    framesDQ (list): Dual Quaternions with frames' poses (numeric or symbolic)
   """
   
   # Initial conditions
@@ -57,7 +57,7 @@ def forwardCOMDQ(robot : object, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    framesHTM (list): Dual Quaternions with COMs' poses (numerical or symbolical)
+    framesHTM (list): Dual Quaternions with COMs' poses (numeric or symbolic)
   """
   
   # Calculate forward kinematics
@@ -104,8 +104,8 @@ def jacobianDQ(robot : object, symbolic = False):
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    J (NumPy Array): Inertial Jacobian Matrix (numerical)
-    J (SymPy Matrix): Inertial Jacobian Matrix (symbolical)
+    J (NumPy Array): Inertial Jacobian Matrix for Quaternion's Rate of Change (numeric)
+    J (SymPy Matrix): Inertial Jacobian Matrix for Quaternion's Rate of Change (symbolic)
   """
 
   # Get number of joints (generalized coordinates)
@@ -122,9 +122,12 @@ def jacobianDQ(robot : object, symbolic = False):
     
     # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
     row, column = robot.whereIsTheJoint(j + 1)
-        
+    
+    # Axis of actuation of current joint
+    xi = Matrix(robot.xi[:, j]) if symbolic else robot.xi[:, j].reshape((8, 1))
+    
     # Calculate Jacobian Matrix
-    J[:, j] = nsimplify(trigsimp(0.5 * leftOperator(fkDQ[row - 1], symbolic) * rightOperator(fkDQ[-1], symbolic) * rightOperator(conjugateDQ(fkDQ[row - 1], symbolic), symbolic) * Matrix(robot.xi[:, j])), tolerance = 1e-10) if symbolic else 0.5 * leftOperator(fkDQ[row - 1]).dot(rightOperator(fkDQ[-1])).dot(rightOperator(conjugateDQ(fkDQ[row - 1]))).dot(robot.xi[:, j])
+    J[:, j] = nsimplify(trigsimp(0.5 * dqMultiplication(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1]), symbolic), fkDQ[-1], symbolic)).evalf(), tolerance = 1e-10) if symbolic else 0.5 * dqMultiplication(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])), fkDQ[-1]).flatten()
   
   return J
 
