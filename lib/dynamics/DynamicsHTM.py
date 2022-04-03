@@ -7,7 +7,7 @@ import numpy as np
 from lib.kinematics.HTM import *
 from sympy import *
 
-def inertiaMatrix(robot : object, symbolic = False):
+def inertiaMatrixCOM(robot : object, symbolic = False):
     """This function calculates the inertia matrix, with respect to each center of mass, given joints positions for dynamic model D(q) * q''(t) + C(q, q') * q'(t) + g(q) = τ
 
     Args:
@@ -37,7 +37,7 @@ def inertiaMatrix(robot : object, symbolic = False):
         # Angular velocity mapping of current center of mass
         Jw = JgCOM[3 : 6, :]
         
-        # Rotation matrix of the current Center of Mass
+        # Rotation matrix of the current Center of Mass (the sum is because of the way Python indexes)
         R = fkCOMHTM[j + 1][0 : 3, 0 : 3]
         
         # Inertia with respect to center of mass: Icom = R^T * I * R
@@ -60,9 +60,9 @@ def kineticEnergyCOM(robot : object, symbolic = False):
     """
     
     # Kinetic Matrix calculation
-    D = inertiaMatrix(robot, symbolic)
+    D = inertiaMatrixCOM(robot, symbolic)
     
-    return 0.5 * (robot.qdSymbolic.T * D * robot.qdSymbolic)
+    return 0.5 * (robot.qdSymbolic.T * D * robot.qdSymbolic) if symbolic else 0.5 * (robot.jointsVelocities.T.dot(D).dot(robot.jointsVelocities))
 
 def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
     """This function calculates the potential energy, with respect to each center of mass, given linear and angular velocities
@@ -86,7 +86,7 @@ def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), sym
     # Iteration through each center of mass
     for j in range(len(robot.COMs)):
         
-        # Position of current Center of Mass
+        # Position of current Center of Mass (the sum is because of the way Python indexes)
         r = fkCOMHTM[j + 1][0 : 3, -1]
         
         # m * g^T * r
@@ -94,7 +94,7 @@ def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), sym
 
     return P
 
-def dPdq(robot : object, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = False):
+def dPdqCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = False):
     """This function calculates the derivative of COMs' potential energy with respect to joints positions for dynamic model D(q) * q''(t) + C(q, q') * q'(t) + g(q) = τ
 
     Args:
@@ -134,7 +134,7 @@ def dPdq(robot : object, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbo
         
         return dP_dq
 
-def centrifugalCoriolis(robot : object, dq = 0.001, symbolic = False):
+def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
     """This function calculates the Centrifugal and Coriolis matrix for dynamic model
 
     Args:
@@ -147,12 +147,12 @@ def centrifugalCoriolis(robot : object, dq = 0.001, symbolic = False):
     """
     
     # Inertia Matrix
-    d = inertiaMatrix(robot, symbolic)
+    d = inertiaMatrixCOM(robot, symbolic)
     
     # Get number of joints (generalized coordinates)
     n = robot.jointsPositions.shape[0]
     
-    # Initializes derivtive matrix with zeros
+    # Initializes derivative matrix with zeros
     V = zeros(n)
         
     # Initialize Centrifugal and Coriolis matrix with zeros 
@@ -180,7 +180,7 @@ def centrifugalCoriolis(robot : object, dq = 0.001, symbolic = False):
                 robot.jointsPositions[k] += dq
                     
                 # Calculate inertia matrix with current step size
-                D = inertiaMatrix(robot)
+                D = inertiaMatrixCOM(robot)
                     
                 # Calculate derivative: [D[:, j](q + dq) - d[:, j](q)] / dq
                 V[:, k] = ((D[:, j] - d[:, j]) / dq)

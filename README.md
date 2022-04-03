@@ -534,7 +534,6 @@ QcLeft = leftOperator(Q = Qa, symbolic = False).dot(Qb)
 
 # Multiplication with Right Operator
 QcRight = rightOperator(Q = Qb, symbolic = False).dot(Qa)
-
 ```
 
 So the outputs will be
@@ -553,6 +552,44 @@ array([[0.96891242],
 
 # NumPy Array
 >>> QcRight
+array([[0.96891242],
+       [0.        ],
+       [0.        ],
+       [0.24740396],
+       [0.        ],
+       [0.06185099],
+       [0.24222811],
+       [0.        ]])
+```
+
+This can be operated using symbolic expressions by setting ```symbolic``` parameter to ```True```. however, it might be slow because it has to create an 8x8 matrix, so we recommend to use the following command that is faster (for both numeric and symbolic calculation):
+
+```python
+"""
+  Faster Dual Quaternions Multiplication
+"""
+
+# Dual Quaternions library
+from lib.movements.DQ import *
+
+# NumPy Library for Matrix multiplication
+import numpy as np
+
+# Dual Quaternion 
+Qa = dqTy(y = 0.5)
+
+# Dual Quaternion 
+Qb = dqRz(z = 0.5)
+
+# Multiplication between two dual quaternions
+Qc = dqMultiplication(Qa, Qb, symbolic = False)
+```
+
+So the output will be
+
+```bash
+# NumPy Array
+>>> Qc
 array([[0.96891242],
        [0.        ],
        [0.        ],
@@ -1963,7 +2000,7 @@ The algorithms in this library requires the calculation of [Forward Kinematics t
 from lib.dynamics.DynamicsHTM import *
 
 # Inertia Matrix for Kinetic Energy equation: D(q)
-D = inertiaMatrix(uRobot, symbolic = False)
+D = inertiaMatrixCOM(uRobot, symbolic = False)
 ```
 
 So the output will be
@@ -2063,7 +2100,7 @@ where <img src="https://render.githubusercontent.com/render/math?math={\color{re
 from lib.dynamics.DynamicsHTM import *
 
 # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
-G = dPdq(robot, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = False)
+G = dPdqCOM(robot, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = False)
 ```
 
 So the output will be
@@ -2150,7 +2187,7 @@ that is easier to calculate compared with the original result. It can be perform
 from lib.dynamics.DynamicsHTM import *
 
 # Centrifugal and Coriolis Matrix: C(q, q')
-C = centrifugalCoriolis(uRobot, symbolic = False)
+C = centrifugalCoriolisCOM(uRobot, symbolic = False)
 ```
 
 So the output will be
@@ -2187,13 +2224,13 @@ it is possible to build the robot dynamic model by calculating each term individ
 from lib.dynamics.DynamicsHTM import *
 
 # Inertia Matrix for Kinetic Energy equation: D(q)
-D = inertiaMatrix(uRobot, symbolic = False)
+D = inertiaMatrixCOM(uRobot, symbolic = False)
  
 # Centrifugal and Coriolis Matrix: C(q, q')
-C = centrifugalCoriolis(uRobot, symbolic = False)
+C = centrifugalCoriolisCOM(uRobot, symbolic = False)
   
 # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
-G = dPdq(uRobot, g = np.array([[0], [-9.80665], [0]]), symbolic = False)
+G = dPdqCOM(uRobot, g = np.array([[0], [-9.80665], [0]]), symbolic = False)
 
 # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
 T = (D * uRobot.qddSymbolic) + (C * uRobot.qdSymbolic) + G
