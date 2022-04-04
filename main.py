@@ -189,7 +189,11 @@ if __name__ == '__main__':
   
   # Inertia Matrix for Kinetic Energy equation: D(q)
   D = inertiaMatrixCOM(uRobot)
+<<<<<<< HEAD
   # symbolicD = inertiaMatrixCOM(uRobot, symbolic = True)  
+=======
+  symbolicD = inertiaMatrixCOM(uRobot, symbolic = True)  
+>>>>>>> release
   
   # Kinetic Energy of the robot in the Centers of Mass: 0.5 * q'(t)^T * D * q'(t) (OPTIONAL)
   K = kineticEnergyCOM(uRobot)
@@ -201,11 +205,19 @@ if __name__ == '__main__':
   
   # Centrifugal and Coriolis Matrix: C(q, q')
   C = centrifugalCoriolisCOM(uRobot)
+<<<<<<< HEAD
   # symbolicC = centrifugalCoriolisCOM(uRobot, symbolic = True)
   
   # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
   G = dPdqCOM(uRobot)
   # symbolicG = dPdqCOM(uRobot, symbolic = True)
+=======
+  symbolicC = centrifugalCoriolisCOM(uRobot, symbolic = True)
+  
+  # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
+  G = dPdqCOM(uRobot)
+  symbolicG = dPdqCOM(uRobot, symbolic = True)
+>>>>>>> release
   
   # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
   T = (D * uRobot.qddSymbolic) + (C * uRobot.qdSymbolic) + G
