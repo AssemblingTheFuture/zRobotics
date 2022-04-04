@@ -104,8 +104,8 @@ def angularVelocityPropagation(robot : object, w0 : np.array, qd : np.array, sym
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    W (np.array): velocity to each reference frame attached to joints (numerical)
-    W (SymPy Matrix): velocity to each reference frame attached to joints (symbolic)
+    W (np.array): velocity to each reference frame (numerical)
+    W (SymPy Matrix): velocity to each reference frame (symbolic)
   """
   
   # Initial conditions
@@ -161,8 +161,8 @@ def linearVelocityPropagation(robot : object, v0 : np.array, W : np.array, symbo
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    V (np.array): velocity to each reference frame attached to joints (numerical)
-    V (SymPy Matrix): velocity to each reference frame attached to joints (symbolic)
+    V (np.array): velocity to each reference frame (numerical)
+    V (SymPy Matrix): velocity to each reference frame (symbolic)
   """
   
   # Initial conditions
@@ -177,7 +177,7 @@ def linearVelocityPropagation(robot : object, v0 : np.array, W : np.array, symbo
   # Iterates through all reference frames (excepting inertial one)
   for k in range(1, m):
         
-    # Get relative position of rigid body
+    # Get relative position of frames
     r = fkHTM[k][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
   
     # Calculate linear velocity up to this point
@@ -200,8 +200,8 @@ def angularAccelerationPropagation(robot : object, dw0 : np.array, W : list, qd 
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    dW (np.array): angular acceleration to each reference frame attached to joints (numerical)
-    dW (SymPy Matrix): angular acceleration to each reference frame attached to joints (symbolic)
+    dW (np.array): angular acceleration to each reference frame (numerical)
+    dW (SymPy Matrix): angular acceleration to each reference frame (symbolic)
   """
   
   # Initial conditions
@@ -258,8 +258,8 @@ def linearAccelerationPropagation(robot : object, dv0 : np.array, W : list, dW :
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    dV (np.array): linear acceleration to each reference frame attached to joints (numerical)
-    dV (SymPy Matrix): linear acceleration to each reference frame attached to joints (symbolic)
+    dV (np.array): linear acceleration to each reference frame (numerical)
+    dV (SymPy Matrix): linear acceleration to each reference frame (symbolic)
   """
   
   # Initial conditions

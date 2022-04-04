@@ -3,6 +3,7 @@ from lib.dynamics.DynamicsHTM import *
 from lib.kinematics.HTM import *
 from lib.kinematics.DifferentialHTM import *
 from lib.kinematics.DQ import *
+from lib.kinematics.DifferentialDQ import *
 from lib.Robot import *
 from sympy import *
 
@@ -123,7 +124,7 @@ if __name__ == '__main__':
   qDQ = inverseDQ(uRobot, q0 = np.random.rand(n, 1), Qd = fkDQ[-1], K = 50 * np.eye(8))
   
   """
-    4. DIFFERENTIAL KINEMATICS (Velocities and Accelerations)
+    4. DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Homogeneous Transformation Matrices)
   """
   
   # End-effector inertial velocity (using geometric jacobian matrix) with Homogeneous Transformation Matrices
@@ -175,12 +176,24 @@ if __name__ == '__main__':
   # symbolicdVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = zeros(3, 1), Wcom = symbolicWcom, dWcom = symbolicdWcom, dV = symbolicdV, symbolic = True)
   
   """
+    4.1 DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Dual Quaternions)
+  """
+
+  # Inertial dual velocity propagation
+  Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
+  # symbolicWdq = dqVelocityPropagation(uRobot, w0 = zeros(8, 1), qd = uRobot.qdSymbolic, symbolic = True)
+  
+  """
     5. DYNAMICS
   """
   
   # Inertia Matrix for Kinetic Energy equation: D(q)
   D = inertiaMatrixCOM(uRobot)
+<<<<<<< HEAD
+  # symbolicD = inertiaMatrixCOM(uRobot, symbolic = True)  
+=======
   symbolicD = inertiaMatrixCOM(uRobot, symbolic = True)  
+>>>>>>> release
   
   # Kinetic Energy of the robot in the Centers of Mass: 0.5 * q'(t)^T * D * q'(t) (OPTIONAL)
   K = kineticEnergyCOM(uRobot)
@@ -192,11 +205,19 @@ if __name__ == '__main__':
   
   # Centrifugal and Coriolis Matrix: C(q, q')
   C = centrifugalCoriolisCOM(uRobot)
+<<<<<<< HEAD
+  # symbolicC = centrifugalCoriolisCOM(uRobot, symbolic = True)
+  
+  # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
+  G = dPdqCOM(uRobot)
+  # symbolicG = dPdqCOM(uRobot, symbolic = True)
+=======
   symbolicC = centrifugalCoriolisCOM(uRobot, symbolic = True)
   
   # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
   G = dPdqCOM(uRobot)
   symbolicG = dPdqCOM(uRobot, symbolic = True)
+>>>>>>> release
   
   # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
   T = (D * uRobot.qddSymbolic) + (C * uRobot.qdSymbolic) + G

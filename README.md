@@ -38,6 +38,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
         - [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation)
         - [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation)
         - [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation)
+        - [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions)
       - [Inertial Velocity to Centers of Mass](#inertial-velocity-to-centers-of-mass)
         - [Inertial Angular Velocity Propagation to Centers of Mass](#inertial-angular-velocity-propagation-to-centers-of-mass)
         - [Inertial Angular Acceleration Propagation to Centers of Mass](#inertial-angular-acceleration-propagation-to-centers-of-mass)
@@ -1591,6 +1592,95 @@ array([[ 0.90471426],
 ```
 
 Please notice that initial linear acceleration ```dW0``` was set to zero because the base of the robot doesn't move; also the list with the angular velocities ```W``` and accelerations ```dW``` has to be sent as a parameter of this function, so [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Angular Velocity Acceleration](#inertial-angular-velocity-acceleration) have to be computed before calling this function. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Velocity Propagation using Dual Quaternions
+
+Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the end-effector, in a single result with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i %2b 1 / 0}^{0} \\ \mathbf{v}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}
+\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[\hat{\mathrm{q}}_{i / 0}^{0}\right]_{\mathrm{L}} \left[\hat{\mathrm{q}}_{i / 0}^{*}\right]_{\mathrm{R}} \xi_{i %2b 1 / i}^{i}\dot{q}_{i}}">
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0}, \mathbf{v}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear velocities of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{H}^{v}}"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i} \in \mathbb{H}}"> is the screw vector that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any).
+
+On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternion to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
+
+With the aforementioned terms, velocity propagation using dual quaternions can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Velocity Propagation using Dual Quaternions
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Inertial velocity propagation to each reference frame using dual quaternions
+Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Wdq[0]
+array([[0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.]])
+
+>>> Wdq[1]
+array([[0.        ],
+       [0.        ],
+       [0.        ],
+       [0.48977176],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ]])
+
+>>> Wdq[2]
+array([[ 0.00000000e+00],
+       [ 3.87634786e-01],
+       [-1.23426483e+00],
+       [ 4.89771764e-01],
+       [-2.80527367e-19],
+       [-2.32115888e-01],
+       [ 7.82537097e-02],
+       [ 3.80916188e-01]])
+
+>>> Wdq[3]
+array([[ 0.00000000e+00],
+       [ 1.02044652e-01],
+       [-3.24919563e-01],
+       [ 4.89771764e-01],
+       [-2.80527367e-19],
+       [-2.32115888e-01],
+       [ 7.82537097e-02],
+       [ 3.80916188e-01]])
+
+>>> Wdq[4]
+array([[ 0.00000000e+00],
+       [ 5.49085657e-02],
+       [-3.39723182e-01],
+       [ 3.93382175e-01],
+       [-2.80527367e-19],
+       [-1.60013170e-01],
+       [ 5.34839176e-02],
+       [ 3.49460952e-01]])
+```
+
+Please notice that initial velocity ```w0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
