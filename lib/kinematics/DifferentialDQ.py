@@ -4,8 +4,6 @@ sys.path.append(sys.path[0].replace(r'/lib/kinematics', r''))
 
 # Libraries
 import numpy as np
-from lib.kinematics.HTM import *
-from lib.kinematics.DifferentialHTM import *
 from lib.kinematics.DQ import *
 from lib.movements.DQ import *
 from sympy import *
