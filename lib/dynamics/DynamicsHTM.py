@@ -153,10 +153,10 @@ def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
     n = robot.jointsPositions.shape[0]
     
     # Initializes derivative matrix with zeros
-    V = zeros(n)
+    V = zeros(n) if symbolic else np.zeros((n, n))
         
     # Initialize Centrifugal and Coriolis matrix with zeros 
-    C = zeros(n)
+    C = zeros(n) if symbolic else np.zeros((n, n))
         
     # Auxiliar variable to keep original joints positions
     q = robot.jointsPositions.copy()
@@ -189,7 +189,7 @@ def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
                 robot.jointsPositions[:, :] = q
 
         # Sum the previous derivative to get the "C" matrix and multiply it by qi'(t)
-        C += (V - (0.5 * V.T)) * robot.qdSymbolic[j]
+        C += (V - (0.5 * V.T)) * robot.qdSymbolic[j] if symbolic else (V - (0.5 * V.T)) * robot.jointsVelocities[j]
             
     return C
 
