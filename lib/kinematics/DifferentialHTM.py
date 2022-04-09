@@ -323,7 +323,6 @@ def linearAccelerationPropagation(robot : object, dv0 : np.array, W : list, dW :
     r = fkHTM[k][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
   
     # Calculate linear velocity up to this point
-    
     dv = trigsimp(dV[-1] + (dW[k].cross(r)) + (W[k].cross(W[k].cross(r)))) if symbolic else dV[-1] + (np.cross(dW[k], r, axis = 0)) + (np.cross(W[k], np.cross(W[k], r, axis = 0), axis = 0))
 
     # Append each calculated linear velocity

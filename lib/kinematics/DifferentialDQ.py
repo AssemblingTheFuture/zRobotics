@@ -4,8 +4,6 @@ sys.path.append(sys.path[0].replace(r'/lib/kinematics', r''))
 
 # Libraries
 import numpy as np
-from lib.kinematics.HTM import *
-from lib.kinematics.DifferentialHTM import *
 from lib.kinematics.DQ import *
 from lib.movements.DQ import *
 from sympy import *
@@ -75,16 +73,12 @@ def dqVelocityPropagation(robot : object, w0 : np.array, qd : np.array, symbolic
     M = Matrix([[eye(4), zeros(4)], [-r, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-r, np.eye(4), axis = 1), axis = 0)
     
     # Calculate angular velocity up to this point
-    w = trigsimp((Mi * W[-1]) + (M* wJoint)) if symbolic else Mi.dot(W[-1]) + M.dot(wJoint.reshape((8, 1)))
+    w = trigsimp((Mi * W[-1]) + (M * wJoint)) if symbolic else Mi.dot(W[-1]) + M.dot(wJoint)
     
     # Append each calculated angular velocity
     W.append(nsimplify(w.evalf(), tolerance = 1e-10) if symbolic else w)
       
   return W
-
-"""
-  UNDER DEVELOPMENT
-"""
 
 def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd : np.array, qdd : np.array, symbolic = False):
   """Using Dual Quaternions, this function computes acceleration (both linear and angular) to the i-th reference frame of a serial robot given initial acceleration. Serial robot's kinematic parameters have to be set before using this function
@@ -101,11 +95,6 @@ def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd
     dW (np.array): acceleration to each reference frame (numerical)
     dW (SymPy Matrix): acceleration to each reference frame (symbolic)
   """
-  
-  Whtm = angularVelocityPropagation(robot, w0 = np.zeros((3, 1)), qd = qd)
-  Vhtm = linearVelocityPropagation(robot, v0 = np.zeros((3, 1)), W = Whtm)
-  dWhtm = angularAccelerationPropagation(robot, dw0 = np.zeros((3, 1)), W = Whtm, qd = qd, qdd = qdd)
-  dVhtm = linearAccelerationPropagation(robot, dv0 = np.zeros((3, 1)), W = Whtm, dW = dWhtm)
   
   # Initial conditions
   dW = [dw0]
@@ -140,11 +129,20 @@ def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd
       # Get derivative of axis of actuation of the joint (screw vector)
       xid = robot.xid[:, joint].reshape((8, 1))
            
-      # Relative acceleration calculation equals to left(Q) * right(conjugate(Q)) * xi * qdi
+      # Relative acceleration calculation equals to left(Q) * right(conjugate(Q)) * (xid * qdi + xi * qddi)
       dwJoint = dqMultiplication(dqMultiplication(Q, (xid * qd[joint]) + (xi * qdd[joint]), symbolic), conjugateDQ(Q, symbolic), symbolic) if symbolic else dqMultiplication(dqMultiplication(Q, (xid * qd[joint]) + (xi * qdd[joint])), conjugateDQ(Q))
       
-      # Centripetal acceleration calculation of i-th frame (occassionated by joint) equals to W x left(Q) * right(conjugate(Q)) * xi * qdi
-      dwCentripetal = dualCrossOperator(Wdq[k - 1], symbolic) * dqMultiplication(dqMultiplication(Q, xi * qd[joint], symbolic), conjugateDQ(Q, symbolic), symbolic) if symbolic else dualCrossOperator(Wdq[k - 1]).dot(dqMultiplication(dqMultiplication(Q, xi * qd[joint]), conjugateDQ(Q)))
+      # Create cross operator for the position of the i-th reference frame
+      ri = crossOperatorExtension(dqToR3(fkDQ[k - 1], symbolic), symbolic)
+      
+      # Create inverse position matrix for i-th reference frame
+      Mi = Matrix([[eye(4), zeros(4, 1)], [ri, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(ri, np.eye(4), axis = 1), axis = 0)
+      
+      # Dual velocity of the i-th frame seen from itself
+      dualW = dqMultiplication(dqMultiplication(conjugateDQ(Q, symbolic), Mi * Wdq[k - 1], symbolic), Q, symbolic) if symbolic else dqMultiplication(dqMultiplication(conjugateDQ(Q), Mi.dot(Wdq[k - 1])), Q)
+      
+      # Centripetal effect of the joint with respect to the inertial frame
+      dwCentripetalJoint = dqMultiplication(dqMultiplication(Q, dualCrossOperator(dualW, symbolic) * xi * qd[joint], symbolic), conjugateDQ(Q, symbolic), symbolic) if symbolic else dqMultiplication(dqMultiplication(Q, dualCrossOperator(dualW).dot(xi * qd[joint])), conjugateDQ(Q))
       
     else:
       
@@ -166,19 +164,20 @@ def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd
     # Create inverse position matrix for i + 1 reference frame
     M = Matrix([[eye(4), zeros(4, 1)], [-r, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-r, np.eye(4), axis = 1), axis = 0)
     
-    # Relative centripetal acceleration with respect to i-th and i+1 frames
-    dwCentripetalRelative = zeros(4).row_insert(4, -(crossOperatorExtension(Wdq[k][0 : 4, :], symbolic) * crossOperatorExtension(Wdq[k][0 : 4, :], symbolic) * (dqToR3(fkDQ[k], symbolic) - dqToR3(fkDQ[k - 1], symbolic)))) if symbolic else np.append(np.zeros((4, 1)), -(crossOperatorExtension(Wdq[k][0 : 4, :]).dot(dqToR3(fkDQ[k], symbolic) - dqToR3(fkDQ[k - 1]))).reshape((4, 1)), axis = 0)
+    # Centripetal effects
+    dwCentripetal = np.append(np.zeros((4, 1)), crossOperatorExtension(Wdq[k][0 : 4, :]).dot(Wdq[k][4 : 8, :]) - crossOperatorExtension(Wdq[k - 1][0 : 4, :]).dot(Wdq[k - 1][4 : 8, :]), axis = 0)
     
     # Calculate angular velocity up to this point
-    dw = trigsimp((Mi * (dW[-1] + dwCentripetal)) + dwCentripetalRelative + (M * dwJoint)) if symbolic else Mi.dot(dW[-1] + dwCentripetal) + dwCentripetalRelative + M.dot(dwJoint.reshape((8, 1)))
-    
-    dw[abs(dw) <= 1e-15] = 0
+    dw = trigsimp((Mi * dW[-1]) + dwCentripetal + M * (dwCentripetalJoint + dwJoint)) if symbolic else Mi.dot(dW[-1]) + dwCentripetal + M.dot(dwCentripetalJoint + dwJoint)
     
     # Append each calculated angular velocity
     dW.append(nsimplify(dw.evalf(), tolerance = 1e-10) if symbolic else dw)
       
   return dW
 
+"""
+  UNDER DEVELOPMENT
+"""
 
 if __name__ == '__main__':
   

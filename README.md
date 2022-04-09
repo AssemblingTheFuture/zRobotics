@@ -37,10 +37,11 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Total Inertial Velocity](#total-inertial-velocity)
         - [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation)
         - [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation)
+        - [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions)
       - [Total Inertial Acceleration](#total-inertial-acceleration)
         - [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation)
         - [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation)
-      - [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions)
+        - [Inertial Acceleration Propagation Using Dual Quaternions](#inertial-acceleration-propagation-using-dual-quaternions)
       - [Inertial Velocity to Centers of Mass](#inertial-velocity-to-centers-of-mass)
         - [Inertial Angular Velocity Propagation to Centers of Mass](#inertial-angular-velocity-propagation-to-centers-of-mass)
         - [Inertial Linear Velocity Propagation to Centers of Mass](#inertial-linear-velocity-propagation-to-centers-of-mass)
@@ -1517,6 +1518,94 @@ Please notice that initial linear velocity ```v0``` was set to zero because the 
 
 ---
 
+### Inertial Velocity Propagation using Dual Quaternions
+
+Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the end-effector, in a single result with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i %2b 1 / 0}^{0} \\ \mathbf{v}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[\hat{\mathrm{q}}_{i / 0}^{0}\right]_{\mathrm{L}} \left[\hat{\mathrm{q}}_{i / 0}^{*}\right]_{\mathrm{R}} \xi_{i %2b 1 / i}^{i}\dot{q}_{i}}">
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0}, \mathbf{v}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear velocities of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}}"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i} \in \mathbb{H}}"> is the screw vector that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any).
+
+On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
+
+With the aforementioned terms, velocity propagation using dual quaternions can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Velocity Propagation using Dual Quaternions
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Inertial velocity propagation to each reference frame using dual quaternions
+Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Wdq[0]
+array([[0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.]])
+
+>>> Wdq[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-1.05732882],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ]])
+
+>>> Wdq[2]
+array([[ 0.        ],
+       [-0.57402137],
+       [-0.18194517],
+       [-1.05732882],
+       [ 0.        ],
+       [ 0.88978159],
+       [ 0.01053544],
+       [-0.48487331]])
+
+>>> Wdq[3]
+array([[ 0.        ],
+       [-1.34473028],
+       [-0.42623356],
+       [-1.05732882],
+       [ 0.        ],
+       [ 0.88978159],
+       [ 0.01053544],
+       [-0.48487331]])
+
+>>> Wdq[4]
+array([[ 0.        ],
+       [-1.30851066],
+       [-0.54050335],
+       [-1.1174245 ],
+       [ 0.        ],
+       [ 1.1483786 ],
+       [ 0.33405631],
+       [-0.94418045]])
+```
+
+Please notice that initial velocity ```w0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
 ### Total Inertial Acceleration
 
 End-effector acceleration can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130) and its [derivative](#derivative-of-geometric-jacobian-matrix), because this maps the effect of each joint directly to the end-effector, so linear and angular accelerations can be calculated:
@@ -1677,21 +1766,21 @@ Please notice that initial linear acceleration ```dW0``` was set to zero because
 
 ---
 
-### Inertial Velocity Propagation using Dual Quaternions
+### Inertial Acceleration Propagation using Dual Quaternions
 
-Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the end-effector, in a single result with the following equation:
+Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its acceleration. In this case, a dual quaternion contains the angular and linear accelerations, from the base to the end-effector, in a single result with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i %2b 1 / 0}^{0} \\ \mathbf{v}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[\hat{\mathrm{q}}_{i / 0}^{0}\right]_{\mathrm{L}} \left[\hat{\mathrm{q}}_{i / 0}^{*}\right]_{\mathrm{R}} \xi_{i %2b 1 / i}^{i}\dot{q}_{i}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{i %2b 1 / 0}^{0} \\ \dot{\mathbf{v}}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{i / 0}^{0} \\ \dot{\mathbf{v}}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathcal{O} \\ \omega_{i %2b 1 / 0}^{0} \times \mathbf{v}_{i %2b 1 / 0}^{0} - \omega_{i / 0}^{0} \times \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red} \Bigg( \hat{\mathrm{q}}_{i / 0}^{0} \ \ \big[ \dot{\xi}_{i %2b 1 / i}^{i} \dot{q}_{i} %2b \xi_{i %2b 1 / i}^{i} \ddot{q}_{i} %2b \Big( \hat{\mathrm{q}}_{i / 0}^{*} \ \ \begin{bmatrix} \mathbb{I} %26 \Phi \\ \left[\mathbf{r}_{i / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} \ \ \hat{\mathrm{q}}_{i / 0} \Big) \times \left( \xi_{i %2b 1 / i}^{i} \dot{q}_{i} \right) \Bigg] \ \ \hat{\mathrm{q}}_{i / 0}^{*} \Bigg)}">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0}, \mathbf{v}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear velocities of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{H}^{v}}"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i} \in \mathbb{H}}"> is the screw vector that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any).
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0}, \dot{\mathbf{v}}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear accelerations of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}, \mathcal{O} \in \mathbb{R}^{4 \times 1}}"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i}, \dot{\xi}_{i %2b 1 / i}^{i} \in \mathbb{H}}"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any) and its rate of change.
 
-On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternion to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
+On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i / 0}^{0}, \mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality. Furthermore, it's mandatory to calculate the [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions) to get the angular and linear velocities of the *i*-th frame <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \mathbf{v}_{i / 0}^{i} \in \mathbb{H}^{v}}">.
 
-With the aforementioned terms, velocity propagation using dual quaternions can be calculated with the library as follows:
+With the aforementioned terms, acceleration propagation using dual quaternions can be calculated with the library as follows:
 
 ```python
 """
-  Inertial Velocity Propagation using Dual Quaternions
+  Inertial Acceleration Propagation using Dual Quaternions
 """
 
 # Differential Kinematics library
@@ -1700,15 +1789,15 @@ from lib.kinematics.DifferentialDQ import *
 # NumPy
 import numpy as np
 
-# Inertial velocity propagation to each reference frame using dual quaternions
-Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
+# Inertial acceleration propagation using Dual Quaternions
+dWdq = dqAccelerationPropagation(uRobot, dw0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd, qdd = qdd, symbolic = False)
 ```
 
 So the outputs will be
 
 ```bash
 # NumPy Array
->>> Wdq[0]
+>>> dWdq[0]
 array([[0.],
        [0.],
        [0.],
@@ -1718,48 +1807,48 @@ array([[0.],
        [0.],
        [0.]])
 
->>> Wdq[1]
-array([[0.        ],
-       [0.        ],
-       [0.        ],
-       [0.48977176],
-       [0.        ],
-       [0.        ],
-       [0.        ],
-       [0.        ]])
+>>> dWdq[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-0.31549224],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ]])
 
->>> Wdq[2]
-array([[ 0.00000000e+00],
-       [ 3.87634786e-01],
-       [-1.23426483e+00],
-       [ 4.89771764e-01],
-       [-2.80527367e-19],
-       [-2.32115888e-01],
-       [ 7.82537097e-02],
-       [ 3.80916188e-01]])
+>>> dWdq[2]
+array([[ 0.        ],
+       [ 0.27946512],
+       [ 0.75648682],
+       [-0.31549224],
+       [ 0.        ],
+       [ 0.01639436],
+       [-1.0222499 ],
+       [ 0.55440588]])
 
->>> Wdq[3]
-array([[ 0.00000000e+00],
-       [ 1.02044652e-01],
-       [-3.24919563e-01],
-       [ 4.89771764e-01],
-       [-2.80527367e-19],
-       [-2.32115888e-01],
-       [ 7.82537097e-02],
-       [ 3.80916188e-01]])
+>>> dWdq[3]
+array([[ 0.        ],
+       [-0.05497791],
+       [ 1.54724265],
+       [-0.31549224],
+       [ 0.        ],
+       [ 0.01639436],
+       [-1.0222499 ],
+       [ 0.55440588]])
 
->>> Wdq[4]
-array([[ 0.00000000e+00],
-       [ 5.49085657e-02],
-       [-3.39723182e-01],
-       [ 3.93382175e-01],
-       [-2.80527367e-19],
-       [-1.60013170e-01],
-       [ 5.34839176e-02],
-       [ 3.49460952e-01]])
+>>> dWdq[4]
+array([[ 0.        ],
+       [-0.1895467 ],
+       [ 1.55232053],
+       [-0.08108125],
+       [ 0.        ],
+       [ 0.90471426],
+       [-1.87330423],
+       [ 0.36473287]])
 ```
 
-Please notice that initial velocity ```w0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial acceleration ```dw0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation) and  [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 

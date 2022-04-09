@@ -391,16 +391,15 @@ def dualCrossOperator(Q : np.array, symbolic = False):
     else:
     
         # Cross Operator for rotational part
-        Qr = crossOperatorExtension(Q[0 : 4])
+        Qr = crossOperatorExtension(Q[0 : 4, :])
         
         # Cross Operator for translational part
-        Qd = crossOperatorExtension(Q[4 : 8])
+        Qd = crossOperatorExtension(Q[4 : 8, :])
         
         # Auxiliar matrices
         a = np.append(Qr, np.zeros((4, 4)), axis = 1)
         b = np.append(Qd, Qr, axis = 1)
-        
-        
+
         return np.append(a, b, axis = 0)
 
 def crossOperatorExtension(q : np.array, symbolic = False):
