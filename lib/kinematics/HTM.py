@@ -172,6 +172,66 @@ def geometricJacobian(robot : object, symbolic = False):
     
   return J
 
+def geometricJacobianDerivative(robot : object, dq = 0.001, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes the derivative of Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (Serial): serial robot (this won't work with other type of robots)
+    dq (float, optional): step size for numerical derivative. Defaults to 0.001.
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    dJ (np.array): Derivative of Geometric Jacobian Matrix (numerical)
+    dJ (SymPy Matrix): Derivative of Geometric Jacobian Matrix (symbolical)
+  """
+
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Auxiliar variable to keep original joints positions
+  q = robot.jointsPositions.copy()
+  
+  # Initializes auxiliar derivative matrix with zeros
+  V = zeros(6, n) if symbolic else np.zeros((6, n))
+  
+  # Derivative of Jacobian Matrix
+  dJ = zeros(6, n) if symbolic else np.zeros((6, n))
+  
+  # Calculate jacobian matrix
+  J = geometricJacobian(robot, symbolic)
+  
+  # Iterates through all colums (generalized coordinates)
+  for j in range(n):
+    
+    # If symbolic calculation was requested
+    if symbolic:
+            
+      # Differentiates current column with respect to joints positions
+      V = J[:, j].jacobian(robot.qSymbolic)
+
+    # Else, calculate derivative numerically
+    else:
+            
+      # Iterates through all the generalized coordinates to calculate the derivative of current column
+      for k in range(n):
+                  
+        # Set increment to current generalized coordinate: z[j] = q[j] + dq
+        robot.jointsPositions[k] += dq
+                      
+        # Calculate geometric jacobian matrix with current step size
+        Ji = geometricJacobian(robot, symbolic)
+                      
+        # Calculate derivative: [Ji[:, j](q + dq) - J[:, j](q)] / dq
+        V[:, k] = ((Ji[:, j] - J[:, j]) / dq)
+                      
+        # Eliminates step size by copying original values from auxiliar variable
+        robot.jointsPositions[:, :] = q
+
+    # Sum the previous derivative to get the derivative of jacobian matrix and multiply it by qi'(t)
+    dJ += V * robot.qdSymbolic[j] if symbolic else V * robot.jointsVelocities[j]
+    
+  return dJ
+
 def geometricJacobianCOM(robot : object, COM: int, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix to a desired Center of Mass of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
@@ -231,6 +291,67 @@ def geometricJacobianCOM(robot : object, COM: int, symbolic = False):
     J[3: 6, i] = nsimplify(trigsimp(z).evalf(), tolerance = 1e-10) if symbolic else z
     
   return J
+
+def geometricJacobianDerivativeCOM(robot : object, COM : int, dq = 0.001, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes the derivative of Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (Serial): serial robot (this won't work with other type of robots)
+    COM (int): center of mass that will be analyzed
+    dq (float, optional): step size for numerical derivative. Defaults to 0.001.
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    dJ (np.array): Derivative of Geometric Jacobian Matrix for a Center of Mass (numerical)
+    dJ (SymPy Matrix): Derivative of Geometric Jacobian Matrix for a Center of Mass (symbolical)
+  """
+
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Auxiliar variable to keep original joints positions
+  q = robot.jointsPositions.copy()
+  
+  # Initializes auxiliar derivative matrix with zeros
+  V = zeros(6, n) if symbolic else np.zeros((6, n))
+  
+  # Derivative of Jacobian Matrix
+  dJ = zeros(6, n) if symbolic else np.zeros((6, n))
+  
+  # Calculate jacobian matrix
+  J = geometricJacobianCOM(robot, COM, symbolic)
+  
+  # Iterates through all colums (generalized coordinates)
+  for j in range(n):
+    
+    # If symbolic calculation was requested
+    if symbolic:
+            
+      # Differentiates current column with respect to joints positions
+      V = J[:, j].jacobian(robot.qSymbolic)
+
+    # Else, calculate derivative numerically
+    else:
+            
+      # Iterates through all the generalized coordinates to calculate the derivative of current column
+      for k in range(n):
+                  
+        # Set increment to current generalized coordinate: z[j] = q[j] + dq
+        robot.jointsPositions[k] += dq
+                      
+        # Calculate geometric jacobian matrix with current step size
+        Ji = geometricJacobianCOM(robot, COM, symbolic)
+                      
+        # Calculate derivative: [Ji[:, j](q + dq) - J[:, j](q)] / dq
+        V[:, k] = ((Ji[:, j] - J[:, j]) / dq)
+                      
+        # Eliminates step size by copying original values from auxiliar variable
+        robot.jointsPositions[:, :] = q
+
+    # Sum the previous derivative to get the derivative of jacobian matrix and multiply it by qi'(t)
+    dJ += V * robot.qdSymbolic[j] if symbolic else V * robot.jointsVelocities[j]
+    
+  return dJ
 
 def analyticJacobian(robot : object, dq = 0.001, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes Analytic Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function

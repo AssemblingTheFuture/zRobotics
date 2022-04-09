@@ -30,19 +30,23 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass)
       - [Axis - Angle Vector](#axis---angle-vector)
       - [Jacobian Matrix](#jacobian-matrix)
+        - [Derivative of Geometric Jacobian Matrix](#derivative-of-geometric-jacobian-matrix)
       - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
     - [Differential Kinematics](#differential-kinematics)
       - [Total Inertial Rate of Change](#total-inertial-rate-of-change)
       - [Total Inertial Velocity](#total-inertial-velocity)
         - [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation)
-        - [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation)
         - [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation)
-        - [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation)
         - [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions)
+      - [Total Inertial Acceleration](#total-inertial-acceleration)
+        - [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation)
+        - [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation)
+        - [Inertial Acceleration Propagation Using Dual Quaternions](#inertial-acceleration-propagation-using-dual-quaternions)
       - [Inertial Velocity to Centers of Mass](#inertial-velocity-to-centers-of-mass)
         - [Inertial Angular Velocity Propagation to Centers of Mass](#inertial-angular-velocity-propagation-to-centers-of-mass)
-        - [Inertial Angular Acceleration Propagation to Centers of Mass](#inertial-angular-acceleration-propagation-to-centers-of-mass)
         - [Inertial Linear Velocity Propagation to Centers of Mass](#inertial-linear-velocity-propagation-to-centers-of-mass)
+      - [Inertial Acceleration to Centers of Mass](#inertial-acceleration-to-centers-of-mass)
+        - [Inertial Angular Acceleration Propagation to Centers of Mass](#inertial-angular-acceleration-propagation-to-centers-of-mass)
         - [Inertial Linear Acceleration Propagation to Centers of Mass](#inertial-linear-acceleration-propagation-to-centers-of-mass)
     - [Dynamics](#dynamics)
       - [Euler - Lagrange Formulation](#euler---lagrange-formulation)
@@ -848,7 +852,7 @@ xi = np.array([[0, 0, 0, 0],
                [0, 0, 0, 0]])
   
 # Derivative of previous screw vectors (or axes of actuation) stored in a matrix. This is MANDATORY for calculations using Dual Quaternions
-xid = np.zeros((n, 1))
+xid = np.zeros((8, n))
   
 # Links
 L = [np.random.rand() for body in range(rb)]
@@ -1205,6 +1209,41 @@ Matrix([[                                                 -sin(q2/2 + q3/2)*cos(
 
 ---
 
+#### Derivative of Geometric Jacobian Matrix
+
+This is **OPTIONAL**. If you need to calculate the end-effector acceleration, you will need the derivative of a Jacobian Matrix:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt}\left( J \right) = \dot{q}^{T} \left(\frac{\partial J}{\partial q} \right)}">,
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}q \in \mathbb{R}^{n \times 1}}"> is the vector of generalized coordinates of the system; derivative can be calculated with the library using the following commands
+
+```python
+# Kinematics libraries
+from lib.kinematics.HTM import *
+  
+# Derivative of Geometric Jacobian Matrix (OPTIONAL)
+dJg = geometricJacobian(uRobot, symbolic = False)
+```
+
+Then, the output will be
+
+```bash
+# NumPy Array
+>>> dJg
+array([[-6.85581426e-01  1.47052151e+00  1.40216955e+00  0.00000000e+00]
+       [ 5.50341583e-01  4.80710635e-01  8.17143940e-01  0.00000000e+00]
+       [ 4.10323782e-14  8.29299517e-01  1.88554987e-01  0.00000000e+00]
+       [ 2.88688083e+00 -4.81905865e-02 -4.81905865e-02  0.00000000e+00]
+       [ 2.35655298e+00 -2.97427705e-02 -2.97427705e-02  0.00000000e+00]
+       [ 0.00000000e+00  4.87261032e-01  4.87261032e-01  0.00000000e+00]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
 #### Inverse Kinematics (*Error Feedback*)
 
 Instead of calculating horrible and complex equations, we use a numeiical algorithm to calculate inverse kinematics. It is asymptotically stable only if the pose to be reached is inside the robot's workspace, i.e. the point to be reached is reachable
@@ -1420,65 +1459,6 @@ Please notice that initial angular velocity ```W0``` was set to zero because the
 
 ---
 
-### Inertial Angular Acceleration Propagation
-
-Angular accelerations can also be calculated recursively. In this case, angular acceleration propagation can be analyzed from the base of the robot to the end-effector with the following equation:
-
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{i %2b 1 / 0}^{0} \times \vec{n}_{i %2b 1 / i}^{i} \right) \cdot \dot{q}_{i} %2b \left( \vec{n}_{i %2b 1 / i}^{i} \cdot \ddot{q}_{i} \right)}">,
-
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
-
-```python
-"""
-  Inertial Angular Velocity Propagation
-"""
-
-# Differential Kinematics library
-from lib.kinematics.DifferentialHTM import *
-
-# NumPy
-import numpy as np
-
-# Inertial angular acceleration propagation to each reference frame
-dW = angularAccelerationPropagation(uRobot, dw0 = np.zeros((3, 1)), W = W, qd = qd, qdd = qdd, symbolic = False)
-```
-
-So the outputs will be
-
-```bash
-# NumPy Array
->>> dW[0]
-array([[0.],
-       [0.],
-       [0.]])
-
->>> dW[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [-0.31549224]])
-
->>> dW[2]
-array([[ 0.27946512],
-       [ 0.75648682],
-       [-0.31549224]])
-
->>> dW[3]
-array([[-0.05497791],
-       [ 1.54724265],
-       [-0.31549224]])
-
->>> dW[4]
-array([[-0.1895467 ],
-       [ 1.55232053],
-       [-0.08108125]])
-```
-
-Please notice that initial angular acceleration ```dW0``` was set to zero because the base of the robot doesn't move; on the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
-
-[*Return to top*](#zrobotics-02)
-
----
-
 ### Inertial Linear Velocity Propagation
 
 As shown in previous sections, velocities can be calculated recursively. In this case, linear velocity propagation can be analyzed from the base of the robot to the end-effector with the following equation:
@@ -1533,6 +1513,195 @@ array([[ 1.1483786 ],
 ```
 
 Please notice that initial linear velocity ```v0``` was set to zero because the base of the robot doesn't move; also the list with the angular velocities ```W``` has to be sent as a parameter of this function, so [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) has to be computed before. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Velocity Propagation using Dual Quaternions
+
+Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the end-effector, in a single result with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i %2b 1 / 0}^{0} \\ \mathbf{v}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[\hat{\mathrm{q}}_{i / 0}^{0}\right]_{\mathrm{L}} \left[\hat{\mathrm{q}}_{i / 0}^{*}\right]_{\mathrm{R}} \xi_{i %2b 1 / i}^{i}\dot{q}_{i}}">
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0}, \mathbf{v}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear velocities of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}}"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i} \in \mathbb{H}}"> is the screw vector that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any).
+
+On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
+
+With the aforementioned terms, velocity propagation using dual quaternions can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Velocity Propagation using Dual Quaternions
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Inertial velocity propagation to each reference frame using dual quaternions
+Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Wdq[0]
+array([[0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.]])
+
+>>> Wdq[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-1.05732882],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ]])
+
+>>> Wdq[2]
+array([[ 0.        ],
+       [-0.57402137],
+       [-0.18194517],
+       [-1.05732882],
+       [ 0.        ],
+       [ 0.88978159],
+       [ 0.01053544],
+       [-0.48487331]])
+
+>>> Wdq[3]
+array([[ 0.        ],
+       [-1.34473028],
+       [-0.42623356],
+       [-1.05732882],
+       [ 0.        ],
+       [ 0.88978159],
+       [ 0.01053544],
+       [-0.48487331]])
+
+>>> Wdq[4]
+array([[ 0.        ],
+       [-1.30851066],
+       [-0.54050335],
+       [-1.1174245 ],
+       [ 0.        ],
+       [ 1.1483786 ],
+       [ 0.33405631],
+       [-0.94418045]])
+```
+
+Please notice that initial velocity ```w0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Total Inertial Acceleration
+
+End-effector acceleration can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130) and its [derivative](#derivative-of-geometric-jacobian-matrix), because this maps the effect of each joint directly to the end-effector, so linear and angular accelerations can be calculated:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\mathrm{v}} = \begin{bmatrix} \dot{v}_{x} \\ \dot{v}_{y} \\ \dot{v}_{z} \\ \dot{\omega}_{x} \\ \dot{\omega}_{y} \\ \dot{\omega}_{z} \end{bmatrix} = \dot{q}^{T} \left( \frac{\partial J}{\partial q}\right) \dot{q} %2b J \left ( \vec{r}, \vec{n} \right) \ \ \ddot{q}}">
+
+This can be calculated with the library as follows:
+
+```python
+"""
+  Total Inertial Acceleration
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPy
+import numpy as np
+
+# Total Inertial Acceleration
+Xdd = geometricDerivativeStateSpace(uRobot, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+#NumPy Array
+>>> Xdd
+array([[ 6.32440329],
+       [ 2.49311859],
+       [ 0.33166754],
+       [ 0.20279356],
+       [-4.29436722],
+       [ 1.56083248]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Angular Acceleration Propagation
+
+Angular accelerations can also be calculated recursively. In this case, angular acceleration propagation can be analyzed from the base of the robot to the end-effector with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{i %2b 1 / 0}^{0} \times \vec{n}_{i %2b 1 / i}^{i} \right) \cdot \dot{q}_{i} %2b \left( \vec{n}_{i %2b 1 / i}^{i} \cdot \ddot{q}_{i} \right)}">,
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Angular Velocity Propagation
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPy
+import numpy as np
+
+# Inertial angular acceleration propagation to each reference frame
+dW = angularAccelerationPropagation(uRobot, dw0 = np.zeros((3, 1)), W = W, qd = qd, qdd = qdd, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> dW[0]
+array([[0.],
+       [0.],
+       [0.]])
+
+>>> dW[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [-0.31549224]])
+
+>>> dW[2]
+array([[ 0.27946512],
+       [ 0.75648682],
+       [-0.31549224]])
+
+>>> dW[3]
+array([[-0.05497791],
+       [ 1.54724265],
+       [-0.31549224]])
+
+>>> dW[4]
+array([[-0.1895467 ],
+       [ 1.55232053],
+       [-0.08108125]])
+```
+
+Please notice that initial angular acceleration ```dW0``` was set to zero because the base of the robot doesn't move; on the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -1597,21 +1766,21 @@ Please notice that initial linear acceleration ```dW0``` was set to zero because
 
 ---
 
-### Inertial Velocity Propagation using Dual Quaternions
+### Inertial Acceleration Propagation using Dual Quaternions
 
-Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the end-effector, in a single result with the following equation:
+Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its acceleration. In this case, a dual quaternion contains the angular and linear accelerations, from the base to the end-effector, in a single result with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i %2b 1 / 0}^{0} \\ \mathbf{v}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[\hat{\mathrm{q}}_{i / 0}^{0}\right]_{\mathrm{L}} \left[\hat{\mathrm{q}}_{i / 0}^{*}\right]_{\mathrm{R}} \xi_{i %2b 1 / i}^{i}\dot{q}_{i}}">
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{i %2b 1 / 0}^{0} \\ \dot{\mathbf{v}}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{i / 0}^{0} \\ \dot{\mathbf{v}}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathcal{O} \\ \omega_{i %2b 1 / 0}^{0} \times \mathbf{v}_{i %2b 1 / 0}^{0} - \omega_{i / 0}^{0} \times \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red} \Bigg( \hat{\mathrm{q}}_{i / 0}^{0} \ \ \big[ \dot{\xi}_{i %2b 1 / i}^{i} \dot{q}_{i} %2b \xi_{i %2b 1 / i}^{i} \ddot{q}_{i} %2b \Big( \hat{\mathrm{q}}_{i / 0}^{*} \ \ \begin{bmatrix} \mathbb{I} %26 \Phi \\ \left[\mathbf{r}_{i / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} \ \ \hat{\mathrm{q}}_{i / 0} \Big) \times \left( \xi_{i %2b 1 / i}^{i} \dot{q}_{i} \right) \Bigg] \ \ \hat{\mathrm{q}}_{i / 0}^{*} \Bigg)}">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0}, \mathbf{v}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear velocities of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{H}^{v}}"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i} \in \mathbb{H}}"> is the screw vector that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any).
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0}, \dot{\mathbf{v}}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear accelerations of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}, \mathcal{O} \in \mathbb{R}^{4 \times 1}}"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i}, \dot{\xi}_{i %2b 1 / i}^{i} \in \mathbb{H}}"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any) and its rate of change.
 
-On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternion to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
+On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i / 0}^{0}, \mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality. Furthermore, it's mandatory to calculate the [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions) to get the angular and linear velocities of the *i*-th frame <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \mathbf{v}_{i / 0}^{i} \in \mathbb{H}^{v}}">.
 
-With the aforementioned terms, velocity propagation using dual quaternions can be calculated with the library as follows:
+With the aforementioned terms, acceleration propagation using dual quaternions can be calculated with the library as follows:
 
 ```python
 """
-  Inertial Velocity Propagation using Dual Quaternions
+  Inertial Acceleration Propagation using Dual Quaternions
 """
 
 # Differential Kinematics library
@@ -1620,15 +1789,15 @@ from lib.kinematics.DifferentialDQ import *
 # NumPy
 import numpy as np
 
-# Inertial velocity propagation to each reference frame using dual quaternions
-Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
+# Inertial acceleration propagation using Dual Quaternions
+dWdq = dqAccelerationPropagation(uRobot, dw0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd, qdd = qdd, symbolic = False)
 ```
 
 So the outputs will be
 
 ```bash
 # NumPy Array
->>> Wdq[0]
+>>> dWdq[0]
 array([[0.],
        [0.],
        [0.],
@@ -1638,48 +1807,48 @@ array([[0.],
        [0.],
        [0.]])
 
->>> Wdq[1]
-array([[0.        ],
-       [0.        ],
-       [0.        ],
-       [0.48977176],
-       [0.        ],
-       [0.        ],
-       [0.        ],
-       [0.        ]])
+>>> dWdq[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-0.31549224],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ]])
 
->>> Wdq[2]
-array([[ 0.00000000e+00],
-       [ 3.87634786e-01],
-       [-1.23426483e+00],
-       [ 4.89771764e-01],
-       [-2.80527367e-19],
-       [-2.32115888e-01],
-       [ 7.82537097e-02],
-       [ 3.80916188e-01]])
+>>> dWdq[2]
+array([[ 0.        ],
+       [ 0.27946512],
+       [ 0.75648682],
+       [-0.31549224],
+       [ 0.        ],
+       [ 0.01639436],
+       [-1.0222499 ],
+       [ 0.55440588]])
 
->>> Wdq[3]
-array([[ 0.00000000e+00],
-       [ 1.02044652e-01],
-       [-3.24919563e-01],
-       [ 4.89771764e-01],
-       [-2.80527367e-19],
-       [-2.32115888e-01],
-       [ 7.82537097e-02],
-       [ 3.80916188e-01]])
+>>> dWdq[3]
+array([[ 0.        ],
+       [-0.05497791],
+       [ 1.54724265],
+       [-0.31549224],
+       [ 0.        ],
+       [ 0.01639436],
+       [-1.0222499 ],
+       [ 0.55440588]])
 
->>> Wdq[4]
-array([[ 0.00000000e+00],
-       [ 5.49085657e-02],
-       [-3.39723182e-01],
-       [ 3.93382175e-01],
-       [-2.80527367e-19],
-       [-1.60013170e-01],
-       [ 5.34839176e-02],
-       [ 3.49460952e-01]])
+>>> dWdq[4]
+array([[ 0.        ],
+       [-0.1895467 ],
+       [ 1.55232053],
+       [-0.08108125],
+       [ 0.        ],
+       [ 0.90471426],
+       [-1.87330423],
+       [ 0.36473287]])
 ```
 
-Please notice that initial velocity ```w0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial acceleration ```dw0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation) and  [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -1803,60 +1972,6 @@ Please notice that initial angular velocity ```vCOM0``` was set to zero because 
 
 ---
 
-### Inertial Angular Acceleration Propagation to Centers of Mass
-
-Angular accelerations can also be calculated recursively. In this case, angular acceleration of each center of mass can be analyzed from the base of the robot to the end-effector with the following equation:
-
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{com_j / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{com_j / 0}^{0} \times \vec{n}_{i %2b 1 / i}^{i} \right) \cdot \dot{q}_{i} %2b \left( \vec{n}_{i %2b 1 / i}^{i} \cdot \ddot{q}_{i} \right)}">,
-
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the *j* - th rigid body; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
-
-```python
-"""
-  Inertial Angular Velocity Propagation to Centers of Mass
-"""
-
-# Differential Kinematics library
-from lib.kinematics.DifferentialHTM import *
-
-# NumPy
-import numpy as np
-
-# Inertial angular acceleration propagation to each reference frame
-dWcom = angularAccelerationPropagationCOM(uRobot, dwCOM0 = np.zeros((3, 1)), Wcom = Wcom, dW = dW, qd = qd, qdd = qdd)
-```
-
-So the outputs will be
-
-```bash
-# NumPy Array
->>> dWcom[0]
-array([[0.],
-       [0.],
-       [0.]])
-
->>> dWcom[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [-0.31549224]])
-
->>> dWcom[2]
-array([[ 0.27946512],
-       [ 0.75648682],
-       [-0.31549224]])
-
->>> dWcom[3]
-array([[-0.1895467 ],
-       [ 1.55232053],
-       [-0.08108125]])
-```
-
-Please notice that initial angular acceleration ```dWCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each center of mass ```Wcom``` and the angular acceleration of each reference frame ```dW``` before using this function, this is because we have to send the results as parameters. On the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
-
-[*Return to top*](#zrobotics-02)
-
----
-
 ### Inertial Linear Velocity Propagation to Centers of Mass
 
 As shown in previous sections, velocities can be calculated recursively. In this case, linear velocity propagation can be analyzed from the base of the robot to each center of mass with the following equation:
@@ -1906,6 +2021,102 @@ array([[ 1.0190801 ],
 ```
 
 Please notice that initial linear velocity ```vCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each center of mass ```Wcom``` and the linear velocities to each reference frame ```V```, this is because we have to send the results as parameters. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Acceleration to Centers of Mass
+
+**For dynamic modelling, it will be mandatory to know the velocity of each center of mass**. As stated in previous sections, inertial accelerations can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130) and its [time derivative](#derivative-of-geometric-jacobian-matrix). In this case, it maps the effect of each joint directly to the each center of mass, so linear and angular accelerations can be calculated:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\mathrm{v}}_{com_j} = \begin{bmatrix} \dot{v}_{x_{com_j}} \\ \dot{v}_{y_{com_j}} \\ \dot{v}_{z_{com_j}} \\ \dot{\omega}_{x_{com_j}} \\ \dot{\omega}_{y_{com_j}} \\ \dot{\omega}_{z_{com_j}} \end{bmatrix} = \dot{q}^{T} \left( \frac{\partial J}{\partial q} \right) \dot{q} %2b J_{com_j} \left ( \vec{r}, \vec{n} \right) \ \ \ddot{q}}">
+
+This can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Acceleration to a Center of Mass
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPy
+import numpy as np
+
+# Inertial Velocity (calculated by library's module)
+XddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 2, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> XddCOM
+array([[ 0.00165699],
+       [ 0.00256952],
+       [ 0.00041124],
+       [-0.02991744],
+       [-0.07243607],
+       [ 0.38868741]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Angular Acceleration Propagation to Centers of Mass
+
+Angular accelerations can also be calculated recursively. In this case, angular acceleration of each center of mass can be analyzed from the base of the robot to the end-effector with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{com_j / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{com_j / 0}^{0} \times \vec{n}_{i %2b 1 / i}^{i} \right) \cdot \dot{q}_{i} %2b \left( \vec{n}_{i %2b 1 / i}^{i} \cdot \ddot{q}_{i} \right)}">,
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the *j* - th rigid body; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Angular Velocity Propagation to Centers of Mass
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialHTM import *
+
+# NumPy
+import numpy as np
+
+# Inertial angular acceleration propagation to each reference frame
+dWcom = angularAccelerationPropagationCOM(uRobot, dwCOM0 = np.zeros((3, 1)), Wcom = Wcom, dW = dW, qd = qd, qdd = qdd)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> dWcom[0]
+array([[0.],
+       [0.],
+       [0.]])
+
+>>> dWcom[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [-0.31549224]])
+
+>>> dWcom[2]
+array([[ 0.27946512],
+       [ 0.75648682],
+       [-0.31549224]])
+
+>>> dWcom[3]
+array([[-0.1895467 ],
+       [ 1.55232053],
+       [-0.08108125]])
+```
+
+Please notice that initial angular acceleration ```dWCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each center of mass ```Wcom``` and the angular acceleration of each reference frame ```dW``` before using this function, this is because we have to send the results as parameters. On the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -2284,13 +2495,13 @@ So the output will be
 ```bash
 # NumPy Array
 >>> C
-Matrix([[-0.563394958947194*qd1 - 0.482907615058648*qd2 + 0.00643707025327345*qd3 - 0.109972919396739*qd4,    0.106729895782198*qd1 - 0.622297467844923*qd2 + 0.0955632109240212*qd3 + 0.60196611298502*qd4, -0.818579741736103*qd1 + 0.0955632109241322*qd2 + 0.0955632109241322*qd3 + 0.601966112984686*qd4, 0.109972919396795*qd1 + 0.0306009160448983*qd2 + 0.0306009160450094*qd3 + 0.0183686074755607*qd4],
-        [  -0.777726370479237*qd1 + 0.784913836308743*qd2 - 0.189094852486471*qd3 - 0.324327738080332*qd4,   -0.153227033127146*qd1 + 0.451347948423164*qd2 + 0.475076628523252*qd3 - 0.142097713725031*qd4, 0.000677189787134935*qd1 + 0.685569570972044*qd2 + 0.580323099747482*qd3 - 0.142097713725142*qd4, -0.278163700977052*qd1 + 0.0576996654184647*qd2 + 0.0576996654181317*qd3 + 0.297389079113086*qd4],
-        [   0.418945476247878*qd1 - 0.189094852486527*qd2 - 0.189094852486527*qd3 - 0.324327738080166*qd4, 0.000677189787134935*qd1 + 0.369830157298856*qd2 + 0.422453392911137*qd3 - 0.142097713724976*qd4, 0.000677189787134935*qd1 + 0.527699864135367*qd2 + 0.475076628523252*qd3 - 0.142097713725087*qd4, -0.278163700976719*qd1 + 0.0576996654182982*qd2 + 0.0576996654182982*qd3 + 0.297389079112975*qd4],
-        [-0.219945838793589*qd1 - 0.0386451396102716*qd2 - 0.0386451396103271*qd3 + 0.184050209755426*qd4,    0.578884094433296*qd1 - 0.241996403296696*qd2 - 0.241996403296529*qd3 - 0.196096913128663*qd4,    0.578884094432963*qd1 - 0.241996403296862*qd2 - 0.241996403296862*qd3 - 0.196096913128441*qd4,   0.0735958082355159*qd1 + 0.132893748365781*qd2 + 0.132893748365781*qd3 - 0.140455547376406*qd4]])
+array([[-0.0956919 ,  1.02659223,  0.41980575, -0.11168224],
+       [-0.78420819, -0.1879901 , -0.12435985,  0.58833922],
+       [ 0.0373449 ,  0.00698386, -0.06573144,  0.58833922],
+       [-0.18311305, -0.303166  , -0.303166  , -0.08189253]])
 ```
 
-Please notice that this result is partially numerical because it includes joints velocities <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_i}"> in symbolic form; they are stored in ```uRobot.qdSymbolic```. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -2319,10 +2530,10 @@ D = inertiaMatrixCOM(uRobot, symbolic = False)
 C = centrifugalCoriolisCOM(uRobot, symbolic = False)
   
 # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
-G = dPdqCOM(uRobot, g = np.array([[0], [-9.80665], [0]]), symbolic = False)
+G = dPdqCOM(uRobot, g = np.array([[0], [0], [-9.80665]]), symbolic = False)
 
 # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
-T = (D * uRobot.qddSymbolic) + (C * uRobot.qdSymbolic) + G
+T = (D * uRobot.qddSymbolic) + (C * uRobot.jointsVelocities) + G
 ```
 
 So the output will be
@@ -2330,14 +2541,13 @@ So the output will be
 ```bash
 # NumPy Array
 >>> T
-Matrix([[                     qd1*(-0.563394958947194*qd1 - 0.482907615058648*qd2 + 0.00643707025327345*qd3 - 0.109972919396739*qd4) + qd2*(0.106729895782198*qd1 - 0.622297467844923*qd2 + 0.0955632109240212*qd3 + 0.60196611298502*qd4) + qd3*(-0.818579741736103*qd1 + 0.0955632109241322*qd2 + 0.0955632109241322*qd3 + 0.601966112984686*qd4) + qd4*(0.109972919396795*qd1 + 0.0306009160448983*qd2 + 0.0306009160450094*qd3 + 0.0183686074755607*qd4) + 1.73561594321417*qdd1 + 1.23248093741685*qdd2 + 0.61313663099757*qdd3 - 0.777383210893546*qdd4],
-        [   qd1*(-0.777726370479237*qd1 + 0.784913836308743*qd2 - 0.189094852486471*qd3 - 0.324327738080332*qd4) + qd2*(-0.153227033127146*qd1 + 0.451347948423164*qd2 + 0.475076628523252*qd3 - 0.142097713725031*qd4) + qd3*(0.000677189787134935*qd1 + 0.685569570972044*qd2 + 0.580323099747482*qd3 - 0.142097713725142*qd4) + qd4*(-0.278163700977052*qd1 + 0.0576996654184647*qd2 + 0.0576996654181317*qd3 + 0.297389079113086*qd4) + 1.23248093741685*qdd1 + 2.54573557767803*qdd2 + 0.91515058225959*qdd3 - 0.585217150798144*qdd4 - 5.26452723797721],
-        [qd1*(0.418945476247878*qd1 - 0.189094852486527*qd2 - 0.189094852486527*qd3 - 0.324327738080166*qd4) + qd2*(0.000677189787134935*qd1 + 0.369830157298856*qd2 + 0.422453392911137*qd3 - 0.142097713724976*qd4) + qd3*(0.000677189787134935*qd1 + 0.527699864135367*qd2 + 0.475076628523252*qd3 - 0.142097713725087*qd4) + qd4*(-0.278163700976719*qd1 + 0.0576996654182982*qd2 + 0.0576996654182982*qd3 + 0.297389079112975*qd4) + 0.61313663099757*qdd1 + 0.91515058225959*qdd2 + 0.860255360816805*qdd3 - 0.585217150798144*qdd4 + 0.417280986369395],
-        [                        qd1*(-0.219945838793589*qd1 - 0.0386451396102716*qd2 - 0.0386451396103271*qd3 + 0.184050209755426*qd4) + qd2*(0.578884094433296*qd1 - 0.241996403296696*qd2 - 0.241996403296529*qd3 - 0.196096913128663*qd4) + qd3*(0.578884094432963*qd1 - 0.241996403296862*qd2 - 0.241996403296862*qd3 - 0.196096913128441*qd4) + qd4*(0.0735958082355159*qd1 + 0.132893748365781*qd2 + 0.132893748365781*qd3 - 0.140455547376406*qd4) - 0.777383210893546*qdd1 - 0.585217150798144*qdd2 - 0.585217150798144*qdd3 + 0.73863435073761*qdd4]])
+Matrix([[2.19614724949073*qdd1 - 0.529809692293813*qdd2 - 0.361583479510541*qdd3 - 0.940364805482366*qdd4 - 0.501577443586108],
+        [ -0.529809692293813*qdd1 + 1.16842748717723*qdd2 + 0.391926283358894*qdd3 + 0.18369710671051*qdd4 - 8.16954552618308],
+        [-0.361583479510541*qdd1 + 0.391926283358894*qdd2 + 0.583065553244191*qdd3 + 0.18369710671051*qdd4 + 2.41913184137719],
+        [-0.940364805482366*qdd1 + 0.18369710671051*qdd2 + 0.18369710671051*qdd3 + 0.670906731541869*qdd4 - 0.160951111845721]])
 ```
 
-Please notice that this result is partially numerical because it includes joints velocities and accelerations (<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_i}, \ddot{q}_i}">) in symbolic form; they are stored in ```uRobot.qdSymbolic``` and ```uRobot.qddSymbolic``` respectively. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
-
+Please notice that this result is partially numerical because it includes joints accelerations (<img src="https://render.githubusercontent.com/render/math?math={\color{red} \ddot{q}_{i}}">) in symbolic form; they are stored in ```uRobot.qddSymbolic``` and are the variables that have to be solved. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 

@@ -14,7 +14,6 @@ def geometricStateSpace(robot : object, symbolic = False):
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
-    qd (np.array): joints velocities
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
@@ -29,6 +28,29 @@ def geometricStateSpace(robot : object, symbolic = False):
   Xd = J * robot.qdSymbolic if symbolic else J.dot(robot.jointsVelocities)
     
   return Xd
+
+def geometricDerivativeStateSpace(robot : object, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes derivative of state-space equation (using Geometric Jacobian Matrix) of a serial robot given joints velocities and accelerations. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    Xdd (np.array): derivative of state-space equation (X''(t), numerical)
+    Xdd (SymPy Matrix): derivative state-space equation (X''(t), symbolic)
+  """
+
+  # Calculate Inertial Geometric Jacobian Matrix 
+  J = geometricJacobian(robot, symbolic)
+  
+  # Calculate derivative of Inertial Geometric Jacobian Matrix 
+  dJ = geometricJacobianDerivative(robot, symbolic = symbolic)
+    
+  # Calculate derivative of state-space equation (symbolic or numerical)
+  Xdd = (dJ * robot.qdSymbolic) + (J * robot.qddSymbolic) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
+    
+  return Xdd
 
 def geometricCOMStateSpace(robot : object, COM : int, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes state-space equation (using Geometric Jacobian Matrix for Centers of Mass) of a serial robot given joints velocities. Serial robot's kinematic parameters have to be set before using this function
@@ -50,6 +72,29 @@ def geometricCOMStateSpace(robot : object, COM : int, symbolic = False):
   Xd = Jcom * robot.qdSymbolic if symbolic else Jcom.dot(robot.jointsVelocities)
     
   return Xd
+
+def geometricCOMDerivativeStateSpace(robot : object, COM : int, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes derivative of state-space equation (using Geometric Jacobian Matrix) for centers of mass of a serial robot given joints velocities and accelerations. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    Xdd (np.array): derivative of state-space equation (X''(t), numerical)
+    Xdd (SymPy Matrix): derivative state-space equation (X''(t), symbolic)
+  """
+
+  # Calculate Inertial Geometric Jacobian Matrix to Center of Mass
+  J = geometricJacobianCOM(robot, COM, symbolic)
+    
+  # Calculate derivative of Inertial Geometric Jacobian Matrix to Center of Mass
+  dJ = geometricJacobianDerivativeCOM(robot, COM, symbolic = symbolic)
+    
+  # Calculate derivative of state-space equation (symbolic or numerical)
+  Xdd = (dJ * robot.qdSymbolic) + (J * robot.qddSymbolic) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
+    
+  return Xdd
 
 def analyticStateSpace(robot : object, dq = 0.001, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes state-space equation (using Analytic Jacobian Matrix) of a serial robot given joints velocities. Serial robot's kinematic parameters have to be set before using this function
@@ -278,7 +323,6 @@ def linearAccelerationPropagation(robot : object, dv0 : np.array, W : list, dW :
     r = fkHTM[k][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
   
     # Calculate linear velocity up to this point
-    
     dv = trigsimp(dV[-1] + (dW[k].cross(r)) + (W[k].cross(W[k].cross(r)))) if symbolic else dV[-1] + (np.cross(dW[k], r, axis = 0)) + (np.cross(W[k], np.cross(W[k], r, axis = 0), axis = 0))
 
     # Append each calculated linear velocity
