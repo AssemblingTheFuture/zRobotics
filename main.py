@@ -199,6 +199,14 @@ if __name__ == '__main__':
   dWdq = dqAccelerationPropagation(uRobot, dw0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd, qdd = qdd)
   # symbolicdWdq = dqAccelerationPropagation(uRobot, dw0 = zeros(8, 1), Wdq = symbolicWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
+  # Inertial velocity propagation to each center of mass using Dual Quaternions
+  WdqCOM = dqVelocityPropagationCOM(uRobot, WdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd)
+  # symbolicWdqCOM = dqVelocityPropagationCOM(uRobot, WdqCOM0 = zeros(8, 1), Wdq = symbolicWdq, qd = uRobot.qdSymbolic, symbolic = True)
+  
+  # Inertial acceleration propagation to each center of mass using Dual Quaternions
+  dWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, WdqCOM = WdqCOM, dWdq = dWdq, qd = qd, qdd = qdd)
+  # symbolicdWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = zeros(8, 1), Wdq = symbolicWdq, WdqCOM = symbolicWdqCOM, dWdq = symbolicdWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  
   """
     5. DYNAMICS
   """
