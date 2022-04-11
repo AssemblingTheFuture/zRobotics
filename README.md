@@ -45,6 +45,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Inertial Velocity to Centers of Mass](#inertial-velocity-to-centers-of-mass)
         - [Inertial Angular Velocity Propagation to Centers of Mass](#inertial-angular-velocity-propagation-to-centers-of-mass)
         - [Inertial Linear Velocity Propagation to Centers of Mass](#inertial-linear-velocity-propagation-to-centers-of-mass)
+        - [Inertial Velocity Propagation to Centers of Mass Using Dual Quaternions](#inertial-velocity-propagation-to-centers-of-mass-using-dual-quaternions)
       - [Inertial Acceleration to Centers of Mass](#inertial-acceleration-to-centers-of-mass)
         - [Inertial Angular Acceleration Propagation to Centers of Mass](#inertial-angular-acceleration-propagation-to-centers-of-mass)
         - [Inertial Linear Acceleration Propagation to Centers of Mass](#inertial-linear-acceleration-propagation-to-centers-of-mass)
@@ -1542,7 +1543,7 @@ from lib.kinematics.DifferentialDQ import *
 import numpy as np
 
 # Inertial velocity propagation to each reference frame using dual quaternions
-Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
+Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd, symbolic = False)
 ```
 
 So the outputs will be
@@ -1922,9 +1923,9 @@ Please notice that jacobian matrix is zero in columns two to four because these 
 
 The velocity propagation can be used to analize centers of mass. In this case, angular velocity from the base up to each center of mass is defined with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j / 0}^{0} = \omega_{i / 0}^{0} %2b \vec{n}_{i %2b 1 / i}^{i} \cdot q_{i}}">,
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j / 0}^{0} = \omega_{i / 0}^{0} %2b \vec{n}_{com_j / i}^{i} \cdot q_{i}}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the one for the *j* - th rigid body; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the one for the *j* - th rigid body; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{com_j / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
 
 ```python
 """
@@ -1938,7 +1939,7 @@ from lib.kinematics.DifferentialHTM import *
 import numpy as np
 
 # Inertial angular velocity propagation to each center of mass
-Wcom = angularVelocityPropagationCOM(uRobot, wCOM0 = np.zeros((3, 1)), W = W, qd = qd)
+Wcom = angularVelocityPropagationCOM(uRobot, wCOM0 = np.zeros((3, 1)), W = W, qd = qd, symbolic = False)
 ```
 
 So the outputs will be
@@ -1992,7 +1993,7 @@ from lib.kinematics.DifferentialHTM import *
 import numpy as np
 
 # Inertial linear velocity propagation to each center of mass
-Vcom = linearVelocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), Wcom  = Wcom, V = V)
+Vcom = linearVelocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), Wcom  = Wcom, V = V, symbolic = False)
 ```
 
 So the outputs will be
@@ -2021,6 +2022,84 @@ array([[ 1.0190801 ],
 ```
 
 Please notice that initial linear velocity ```vCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each center of mass ```Wcom``` and the linear velocities to each reference frame ```V```, this is because we have to send the results as parameters. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Velocity Propagation to Centers of Mass Using Dual Quaternions
+
+Dual Quaternions can be used to represent the relative pose of a center of mass, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the *j*-th center of mass, in a single result with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{com_j / 0}^{0} \\ \mathbf{v}_{com_j / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{com_j / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{com_j / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[\hat{\mathrm{q}}_{i / 0}^{0}\right]_{\mathrm{L}} \left[\hat{\mathrm{q}}_{i / 0}^{*}\right]_{\mathrm{R}} \xi_{com_j / i}^{i}\dot{q}_{i}}">
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j / 0}^{0}, \mathbf{v}_{com_j / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear velocities of the *j*-th center of mass, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}}"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{com_j / i}^{i} \in \mathbb{H}}"> is the screw vector that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any).
+
+On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{com_j / 0}^{0}, \mathbf{r}_{com_j / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the *j*-th center of mass with respect to the inertial frame and the *i*-th one. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
+
+With the aforementioned terms, velocity propagation using dual quaternions can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Velocity Propagation to Centers of Mass using Dual Quaternions
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Inertial velocity propagation to each center of mass using Dual Quaternions
+WdqCOM = dqVelocityPropagationCOM(uRobot, WdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> WdqCOM[0]
+array([[0.],
+       [0.], 
+       [0.],
+       [0.],
+       [0.],
+       [0.], 
+       [0.],
+       [0.]])
+
+>>> WdqCOM[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-1.05732882],
+       [ 0.        ],
+       [ 0.        ]
+       [ 0.        ]
+       [ 0.        ]])
+
+>>> WdqCOM[2]
+array([[ 0.        ],
+       [-0.57402137],
+       [-0.18194517],
+       [-1.05732882],
+       [ 0.        ],
+       [ 0.4448908 ],
+       [ 0.00526772],
+       [-0.24243665]])
+
+>>> WdqCOM[3]
+array([[ 0.        ],
+       [-1.30851066],
+       [-0.54050335],
+       [-1.1174245 ],
+       [ 0.        ],
+       [ 1.0190801 ],
+       [ 0.17229587],
+       [-0.71452688]])
+```
+
+Please notice that initial velocity ```WdqCOM0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Velocity Propagation to Centers of Mass](#inertial-angular-velocity-propagation-to-centers-of-mass) and  [Inertial Linear Velocity Propagation to Centers of Mass](#inertial-linear-velocity-propagation-to-centers-of-mass) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -2171,6 +2250,84 @@ array([[ 0.46055431],
 ```
 
 Please notice that initial linear acceleration ```dvCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular and linear velocities to each center of mass (```Wcom```, ```Vcom```) and the linear accelerations to each reference frame ```dV```, this is because we have to send the results as parameters. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Inertial Acceleration Propagation to Centers of Mass using Dual Quaternions
+
+Dual Quaternions can be used to represent the relative pose of a center of mass, therefore they can be used to calculate its acceleration. In this case, a dual quaternion contains the angular and linear accelerations, from the base to the center of mass, in a single result with the following equation:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{com_j / 0}^{0} \\ \dot{\mathbf{v}}_{com_j / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{com_j / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{i / 0}^{0} \\ \dot{\mathbf{v}}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathcal{O} \\ \omega_{com_j / 0}^{0} \times \mathbf{v}_{com_j / 0}^{0} - \omega_{i / 0}^{0} \times \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{com_j / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red} \Bigg( \hat{\mathrm{q}}_{i / 0}^{0} \ \ \big[ \dot{\xi}_{com_j / i}^{i} \dot{q}_{i} %2b \xi_{com_j / i}^{i} \ddot{q}_{i} %2b \Big( \hat{\mathrm{q}}_{i / 0}^{*} \ \ \begin{bmatrix} \mathbb{I} %26 \Phi \\ \left[\mathbf{r}_{i / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} \ \ \hat{\mathrm{q}}_{i / 0} \Big) \times \left( \xi_{com_j / i}^{i} \dot{q}_{i} \right) \Bigg] \ \ \hat{\mathrm{q}}_{i / 0}^{*} \Bigg)}">
+
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{com_j / 0}^{0}, \dot{\mathbf{v}}_{com_j / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear accelerations of the *j*-th center of mass, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}, \mathcal{O} \in \mathbb{R}^{4 \times 1}}"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{com_j / i}^{i}, \dot{\xi}_{com_j / i}^{i} \in \mathbb{H}}"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any) and its rate of change.
+
+On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i / 0}^{0}, \mathbf{r}_{com_j / 0}^{0}, \mathbf{r}_{com_j / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the *i-th* reference frame and the *j*-th center of mass, with respect to the inertial frame and the *i*-th one. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality. Furthermore, it's mandatory to calculate the [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions) to get the angular and linear velocities of the *i*-th frame <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \mathbf{v}_{i / 0}^{i} \in \mathbb{H}^{v}}">.
+
+With the aforementioned terms, acceleration propagation to centers of mass using dual quaternions can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Acceleration Propagation to Centers of Mass using Dual Quaternions
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Inertial acceleration propagation to each center of mass using Dual Quaternions
+dWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, WdqCOM = WdqCOM, dWdq = dWdq, qd = qd, qdd = qdd, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> dWdqCOM[0]
+array([[0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.]])
+
+>>> dWdqCOM[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-0.31549224],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ]])
+
+>>> dWdqCOM[2]
+array([[ 0.        ],
+       [ 0.27946512],
+       [ 0.75648682],
+       [-0.31549224],
+       [ 0.        ],
+       [ 0.00819718],
+       [-0.51112495],
+       [ 0.27720294]])
+
+>>> dWdqCOM[3]
+array([[ 0.        ],
+       [-0.1895467 ],
+       [ 1.55232053],
+       [-0.08108125],
+       [ 0.        ],
+       [ 0.46055431],
+       [-1.44777707],
+       [ 0.45956938]])
+```
+
+Please notice that initial acceleration ```dWdqCOM0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation-to-centers-of-mass) and  [Inertial Linear Acceleration Propagation to Centers of Mass](#inertial-linear-acceleration-propagation-to-centers-of-mass) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 

@@ -72,21 +72,21 @@ def dqVelocityPropagation(robot : object, w0 : np.array, qd : np.array, symbolic
     # Create inverse position matrix for i + 1 reference frame
     M = Matrix([[eye(4), zeros(4)], [-r, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-r, np.eye(4), axis = 1), axis = 0)
     
-    # Calculate angular velocity up to this point
+    # Calculate velocity up to this point
     w = trigsimp((Mi * W[-1]) + (M * wJoint)) if symbolic else Mi.dot(W[-1]) + M.dot(wJoint)
     
-    # Append each calculated angular velocity
+    # Append each calculated velocity
     W.append(nsimplify(w.evalf(), tolerance = 1e-10) if symbolic else w)
       
   return W
 
-def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd : np.array, qdd : np.array, symbolic = False):
+def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : list, qd : np.array, qdd : np.array, symbolic = False):
   """Using Dual Quaternions, this function computes acceleration (both linear and angular) to the i-th reference frame of a serial robot given initial acceleration. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
     dw0 (np.array): initial acceleration of the system (equals to zero if the robot's base is not mobile)
-    Wdq (np.array): inertial velocity of the system using dual quaternions (equals to zero if the robot's base is not mobile)
+    Wdq (list): inertial velocity of the system using dual quaternions (equals to zero if the robot's base is not mobile)
     qd (np.array): velocities of each joint
     qdd (np.array): accelerations of each joint
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
@@ -135,7 +135,7 @@ def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd
       # Create cross operator for the position of the i-th reference frame
       ri = crossOperatorExtension(dqToR3(fkDQ[k - 1], symbolic), symbolic)
       
-      # Create inverse position matrix for i-th reference frame
+      # Create position matrix for i-th reference frame
       Mi = Matrix([[eye(4), zeros(4, 1)], [ri, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(ri, np.eye(4), axis = 1), axis = 0)
       
       # Dual velocity of the i-th frame seen from itself
@@ -146,7 +146,7 @@ def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd
       
     else:
       
-      # Relative angular acceleration calculation equals to zero (no effects caused by joints)
+      # Relative acceleration calculation equals to zero (no effects caused by joints)
       dwJoint = zeros(8, 1) if symbolic else np.zeros((8, 1))
       
       # Centripetal acceleration calculation to i-th frame (with respect to inertial one) equals to zero (no effects caused by joints)
@@ -162,10 +162,10 @@ def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd
     r = crossOperatorExtension(dqToR3(fkDQ[k], symbolic), symbolic)
     
     # Create inverse position matrix for i + 1 reference frame
-    M = Matrix([[eye(4), zeros(4, 1)], [-r, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-r, np.eye(4), axis = 1), axis = 0)
+    M = Matrix([[eye(4), zeros(4, 4)], [-r, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-r, np.eye(4), axis = 1), axis = 0)
     
     # Centripetal effects
-    dwCentripetal = np.append(np.zeros((4, 1)), crossOperatorExtension(Wdq[k][0 : 4, :]).dot(Wdq[k][4 : 8, :]) - crossOperatorExtension(Wdq[k - 1][0 : 4, :]).dot(Wdq[k - 1][4 : 8, :]), axis = 0)
+    dwCentripetal = Matrix([[zeros(4, 1)], [(crossOperatorExtension(Wdq[k][0 : 4, :], symbolic) * Wdq[k][4 : 8, :]) - (crossOperatorExtension(Wdq[k - 1][0 : 4, :], symbolic) * Wdq[k - 1][4 : 8, :])]]) if symbolic else np.append(np.zeros((4, 1)), crossOperatorExtension(Wdq[k][0 : 4, :]).dot(Wdq[k][4 : 8, :]) - crossOperatorExtension(Wdq[k - 1][0 : 4, :]).dot(Wdq[k - 1][4 : 8, :]), axis = 0)
     
     # Calculate angular velocity up to this point
     dw = trigsimp((Mi * dW[-1]) + dwCentripetal + M * (dwCentripetalJoint + dwJoint)) if symbolic else Mi.dot(dW[-1]) + dwCentripetal + M.dot(dwCentripetalJoint + dwJoint)
@@ -175,9 +175,200 @@ def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : np.array, qd
       
   return dW
 
-"""
-  UNDER DEVELOPMENT
-"""
+def dqVelocityPropagationCOM(robot : object, WdqCOM0 : np.array, Wdq : list, qd : np.array, symbolic = False):
+  """Using Dual Quaternions, this function computes angular and linear velocity to the j-th center of mass of a serial robot given reference frames' ones. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    WdqCOM0 (np.array): initial velocity of the system (equals to zero if the robot's base is not mobile)
+    Wdq (list): angular and linear velocities of the system (this have to be calculated with "dqVelocityPropagation" function)
+    qd (np.array): velocities of each joint
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    WdqCOM (np.array): angular and linear velocity of each center of mass (numerical)
+    WdqCOM (SymPy Matrix): angular and linear velocity of each center of mass (symbolic)
+  """
+  
+  # Initial conditions
+  WdqCOM = [WdqCOM0]
+  
+  # Calculate forward kinematics to know the position and axis of actuation of each joint
+  fkDQ = forwardDQ(robot, symbolic)
+  
+  # Calculate forward kinematics to know the position and axis of actuation of each center of mass
+  fkCOMDQ = forwardCOMDQ(robot, symbolic)
+  
+  # Get number of reference frames
+  m = robot.dhParameters.shape[0]
+  
+  # Iterates through all reference frames (excepting inertial one)
+  for k in range(1, m):
+    
+    # Get Denavit - Hartenberg Parameters Matrix of current frame
+    frame = robot.symbolicDHParametersCOM[k, :]
+    
+    # Check if current frame contain any of the joints
+    containedJoints = np.in1d(robot.qSymbolic, frame)
+    
+    # Check if current frame contains any of the centers of mass
+    containedCOMs = np.in1d(robot.symbolicCOMs, frame)
+    
+    # If any joint is in the current reference frame
+    if any(element == True for element in containedJoints):
+      
+      # Get the number of the associated joint
+      joint = np.where(containedJoints == True)[0][-1]
+      
+      # Get pose of reference frame where joint is attached
+      Q = fkDQ[k - 1]
+    
+      # Get axis of actuation of the joint (screw vector)
+      xi = robot.xi[:, joint].reshape((8, 1))
+
+      # Relative velocity calculation equals to left(Q) * right(conjugate(Q)) * xi * qdi
+      wJoint = dqMultiplication(dqMultiplication(Q, xi, symbolic), conjugateDQ(Q, symbolic), symbolic) * qd[joint] if symbolic else dqMultiplication(dqMultiplication(Q, xi), conjugateDQ(Q)) * qd[joint]
+    
+    # If there's no joint in current frame
+    else:
+      
+      # Relative velocity calculation equals to zero (no effects caused by joints)
+      wJoint = zeros(8, 1) if symbolic else np.zeros((8, 1))
+    
+    # If any center of mass is in the current reference frame
+    if any(element == True for element in containedCOMs):
+      
+      # Get the number of the center of mass (the sum is because of the way Python indexes arrays)
+      COM = np.where(containedCOMs == True)[0][-1] + 1
+    
+      # Get relative position of center of mass
+      ri = crossOperatorExtension(dqToR3(fkCOMDQ[COM], symbolic) - dqToR3(fkDQ[k - 1], symbolic), symbolic)
+        
+      # Relative position matrix between i-th and center of mass frames
+      Mi = Matrix([[eye(4), zeros(4)], [-ri, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-ri, np.eye(4), axis = 1), axis = 0)
+      
+      # Create position cross operator for the reference frame of the center of mass
+      rCOM = crossOperatorExtension(dqToR3(fkCOMDQ[COM], symbolic), symbolic)
+        
+      # Create inverse position matrix for the reference frame of the center of mass
+      Mcom = Matrix([[eye(4), zeros(4)], [-rCOM, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-rCOM, np.eye(4), axis = 1), axis = 0)
+    
+      # Calculate velocity up to this point
+      wCOM = trigsimp((Mi * Wdq[k - 1]) + (Mcom * wJoint)) if symbolic else Mi.dot(Wdq[k - 1]) + Mcom.dot(wJoint)
+      
+      # Append each calculated velocity
+      WdqCOM.append(nsimplify(wCOM.evalf(), tolerance = 1e-10) if symbolic else wCOM)
+  
+  return WdqCOM
+
+def dqAccelerationPropagationCOM(robot : object, dWdqCOM0 : np.array, Wdq : list, WdqCOM : list, dWdq : list, qd : np.array, qdd : np.array, symbolic = False):
+  """Using Dual Quaternions, this function computes angular and linear acceleration to the j-th center of mass of a serial robot given reference frames' ones. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    dWdqCOM0 (np.array): initial acceleration of the system (equals to zero if the robot's base is not mobile)
+    Wdq (list): angular and linear velocities of the system (this have to be calculated with "dqVelocityPropagation" function)
+    WdqCOM (list): angular and linear velocities of the centers of mass (this have to be calculated with "dqVelocityPropagationCOM" function)
+    dWdq (list): angular and linear accelerations of the system (this have to be calculated with "dqAccelerationPropagation" function)
+    qd (np.array): velocities of each joint
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    dWdqCOM (np.array): angular and linear acceleration of each center of mass (numerical)
+    dWdqCOM (SymPy Matrix): angular and linear acceleration of each center of mass (symbolic)
+  """
+  
+  # Initial conditions
+  dWdqCOM = [dWdqCOM0]
+  
+  # Calculate forward kinematics to know the position and axis of actuation of each joint
+  fkDQ = forwardDQ(robot, symbolic)
+  
+  # Calculate forward kinematics to know the position and axis of actuation of each center of mass
+  fkCOMDQ = forwardCOMDQ(robot, symbolic)
+  
+  # Get number of reference frames
+  m = robot.dhParameters.shape[0]
+  
+  # Iterates through all reference frames (excepting inertial one)
+  for k in range(1, m):
+    
+    # Get Denavit - Hartenberg Parameters Matrix of current frame
+    frame = robot.symbolicDHParametersCOM[k, :]
+    
+    # Check if current frame contain any of the joints
+    containedJoints = np.in1d(robot.qSymbolic, frame)
+    
+    # Check if current frame contains any of the centers of mass
+    containedCOMs = np.in1d(robot.symbolicCOMs, frame)
+    
+    # If any joint is in the current reference frame
+    if any(element == True for element in containedJoints):
+      
+      # Get the number of the associated joint
+      joint = np.where(containedJoints == True)[0][-1]
+      
+      # Get pose of reference frame where joint is attached
+      Q = fkDQ[k - 1]
+    
+      # Get axis of actuation of the joint (screw vector)
+      xi = robot.xi[:, joint].reshape((8, 1))
+      
+      # Get derivative of axis of actuation of the joint (screw vector)
+      xid = robot.xid[:, joint].reshape((8, 1))
+
+      # Relative acceleration calculation equals to left(Q) * right(conjugate(Q)) * (xid * qdi + xi * qddi)
+      dwJoint = dqMultiplication(dqMultiplication(Q, (xid * qd[joint]) + (xi * qdd[joint]), symbolic), conjugateDQ(Q, symbolic), symbolic) if symbolic else dqMultiplication(dqMultiplication(Q, (xid * qd[joint]) + (xi * qdd[joint])), conjugateDQ(Q))
+      
+      # Create cross operator for the position of the i-th reference frame
+      ri = crossOperatorExtension(dqToR3(fkDQ[k - 1], symbolic), symbolic)
+      
+      # Create position matrix for i-th reference frame
+      Mi = Matrix([[eye(4), zeros(4, 1)], [ri, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(ri, np.eye(4), axis = 1), axis = 0)
+      
+      # Dual velocity of the i-th frame seen from itself
+      dualW = dqMultiplication(dqMultiplication(conjugateDQ(Q, symbolic), Mi * Wdq[k - 1], symbolic), Q, symbolic) if symbolic else dqMultiplication(dqMultiplication(conjugateDQ(Q), Mi.dot(Wdq[k - 1])), Q)
+      
+      # Centripetal effect of the joint with respect to the inertial frame
+      dwCentripetalJoint = dqMultiplication(dqMultiplication(Q, dualCrossOperator(dualW, symbolic) * xi * qd[joint], symbolic), conjugateDQ(Q, symbolic), symbolic) if symbolic else dqMultiplication(dqMultiplication(Q, dualCrossOperator(dualW).dot(xi * qd[joint])), conjugateDQ(Q))
+    
+    # If there's no joint in current frame
+    else:
+      
+      # Relative acceleration calculation equals to zero (no effects caused by joints)
+      dwJoint = zeros(8, 1) if symbolic else np.zeros((8, 1))
+      
+      # Centripetal acceleration calculation to i-th frame (with respect to inertial one) equals to zero (no effects caused by joints)
+      dwCentripetalJoint = zeros(8, 1) if symbolic else np.zeros((8, 1))
+    
+    # If any center of mass is in the current reference frame
+    if any(element == True for element in containedCOMs):
+      
+      # Get the number of the center of mass (the sum is because of the way Python indexes arrays)
+      COM = np.where(containedCOMs == True)[0][-1] + 1
+    
+      # Get relative position of center of mass
+      ri = crossOperatorExtension(dqToR3(fkCOMDQ[COM], symbolic) - dqToR3(fkDQ[k - 1], symbolic), symbolic)
+        
+      # Relative position matrix between i-th and center of mass frames
+      Mi = Matrix([[eye(4), zeros(4)], [-ri, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-ri, np.eye(4), axis = 1), axis = 0)
+      
+      # Create position cross operator for the reference frame of the center of mass
+      rCOM = crossOperatorExtension(dqToR3(fkCOMDQ[COM], symbolic), symbolic)
+        
+      # Create inverse position matrix for the reference frame of the center of mass
+      Mcom = Matrix([[eye(4), zeros(4)], [-rCOM, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-rCOM, np.eye(4), axis = 1), axis = 0)
+
+      # Centripetal effects
+      dwCentripetalCOM = Matrix([[zeros(4, 1)], [(crossOperatorExtension(WdqCOM[COM][0 : 4, :], symbolic) * WdqCOM[COM][4 : 8, :]) - (crossOperatorExtension(Wdq[k - 1][0 : 4, :], symbolic) * Wdq[k - 1][4 : 8, :])]]) if symbolic else np.append(np.zeros((4, 1)), crossOperatorExtension(WdqCOM[COM][0 : 4, :]).dot(WdqCOM[COM][4 : 8, :]) - crossOperatorExtension(Wdq[k - 1][0 : 4, :]).dot(Wdq[k - 1][4 : 8, :]), axis = 0)
+      
+      # Calculate angular velocity up to this point
+      dwCOM = trigsimp((Mi * dWdq[k - 1]) + dwCentripetalCOM + Mcom * (dwCentripetalJoint + dwJoint)) if symbolic else Mi.dot(dWdq[k - 1]) + dwCentripetalCOM + Mcom.dot(dwCentripetalJoint + dwJoint)
+      
+      # Append each calculated velocity
+      dWdqCOM.append(nsimplify(dwCOM.evalf(), tolerance = 1e-10) if symbolic else dwCOM)
+  
+  return dWdqCOM
 
 if __name__ == '__main__':
   

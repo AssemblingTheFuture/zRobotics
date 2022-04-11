@@ -369,7 +369,7 @@ def angularVelocityPropagationCOM(robot : object, wCOM0 : np.array, W : list, qd
     # If any joint is in the current reference frame and also there is a center of mass
     if any(element == True for element in containedJoints) and any(element == True for element in containedCOMs):
       
-      # Get the number of the center of mass (the sum is because of the way Python indexes)
+      # Get the number of the center of mass (the sum is because of the way Python indexes arrays)
       COM = np.where(containedCOMs == True)[0][-1] + 1
       
       # Get the number of the associated joint
@@ -434,14 +434,14 @@ def linearVelocityPropagationCOM(robot : object, vCOM0 : np.array, Wcom : np.arr
     # If any joint is in the current reference frame and also there is a center of mass
     if any(element == True for element in containedCOMs):
           
-      # Get the number of the center of mass (the sum is because of the way Python indexes)
+      # Get the number of the center of mass (the sum is because of the way Python indexes arrays)
       COM = np.where(containedCOMs == True)[0][-1] + 1
       
       # Get relative position of center of mass
       rCOM = fkCOMHTM[COM][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
       
       # Calculate linear velocity up to this point
-      vCOM = trigsimp(V[k -1] + (Wcom[COM].cross(rCOM))) if symbolic else V[k - 1] + (np.cross(Wcom[COM], rCOM, axis = 0))
+      vCOM = trigsimp(V[k - 1] + (Wcom[COM].cross(rCOM))) if symbolic else V[k - 1] + (np.cross(Wcom[COM], rCOM, axis = 0))
 
       # Append each calculated linear velocity
       Vcom.append(nsimplify(vCOM.evalf(), tolerance = 1e-10) if symbolic else vCOM)
@@ -489,7 +489,7 @@ def angularAccelerationPropagationCOM(robot : object, dwCOM0 : np.array, Wcom : 
     # If any joint is in the current reference frame and also there is a center of mass
     if any(element == True for element in containedJoints) and any(element == True for element in containedCOMs):
           
-      # Get the number of the center of mass (this is because of the way Python indexes)
+      # Get the number of the center of mass (this is because of the way Python indexes arrays)
       COM = np.where(containedCOMs == True)[0][-1] + 1
       
       # Get the number of the associated joint
@@ -556,7 +556,7 @@ def linearAccelerationPropagationCOM(robot : object, dvCOM0 : np.array, Wcom : n
     # If any joint is in the current reference frame and also there is a center of mass
     if any(element == True for element in containedCOMs):
           
-      # Get the number of the center of mass (the sum is because of the way Python indexes)
+      # Get the number of the center of mass (the sum is because of the way Python indexes arrays)
       COM = np.where(containedCOMs == True)[0][-1] + 1
       
       # Get relative position of center of mass
