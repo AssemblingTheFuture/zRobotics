@@ -49,6 +49,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Inertial Acceleration to Centers of Mass](#inertial-acceleration-to-centers-of-mass)
         - [Inertial Angular Acceleration Propagation to Centers of Mass](#inertial-angular-acceleration-propagation-to-centers-of-mass)
         - [Inertial Linear Acceleration Propagation to Centers of Mass](#inertial-linear-acceleration-propagation-to-centers-of-mass)
+        - [Inertial Acceleration Propagation to Centers of Mass Using Dual Quaternions](#inertial-acceleration-propagation-to-centers-of-mass-using-dual-quaternions)
     - [Dynamics](#dynamics)
       - [Euler - Lagrange Formulation](#euler---lagrange-formulation)
         - [Kinetic Energy](#kinetic-energy)
