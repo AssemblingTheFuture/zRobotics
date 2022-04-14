@@ -5,6 +5,7 @@ sys.path.append(sys.path[0].replace(r'/lib/dynamics', r''))
 # Libraries
 import numpy as np
 from lib.kinematics.HTM import *
+from lib.dynamics.Solver import *
 from sympy import *
 
 def inertiaMatrixCOM(robot : object, symbolic = False):

@@ -88,12 +88,12 @@ You can set your robot attributes and analyze its behavior. To achieve this, all
 - [x] [Numerical Inverse Kinematics](#inverse-kinematics-error-feedback)
   - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/HTM.py#280)
   - [x] [Using Dual Quaternions](/lib/kinematics/DQ.py#135)
-- [ ] [Differential Kinematics](#differential-kinematics)
+- [x] [Differential Kinematics](#differential-kinematics)
   - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/DifferentialHTM.py) (numerical and symbolic)
-  - [ ] Using Dual Quaternions (:warning: **UNDER DEVELOPMENT** :warning:)
+  - [x] [Using Dual Quaternions](/lib/kinematics/DifferentialDQ.py) (numerical and symbolic)
 - [ ] Robot Dynamics
-  - [x] Differential Equation using Homogeneous Transformation Matrices (numerical and symbolic)
-  - [ ] Differential Equation using Dual Quaternions (numerical and symbolic)
+  - [x] [Differential Equation using Homogeneous Transformation Matrices](#dynamics)(numerical and symbolic)
+  - [ ] Differential Equation using Dual Quaternions (numerical and symbolic) (:warning: **UNDER DEVELOPMENT** :warning:)
 
 Feel free to modify, adjust and extend our work to your necessities :smiley:; this library allows you to get a first approach to robot analysis, synthesis and control, however, we will be adding new interesting features, also, **you can request new features or create new ones!**
 
