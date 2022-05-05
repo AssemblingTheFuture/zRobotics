@@ -345,7 +345,7 @@ def rightOperator(Q : np.array, symbolic = False):
     return np.append(a, b, axis = 0)
 
 def crossOperator(q : np.array, symbolic = False):
-    """Cross operator for quaternions' real part
+    """Cross operator for quaternions
 
     Args:
         q (np.array  or SymPy Symbol): quaternion

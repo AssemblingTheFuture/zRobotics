@@ -156,8 +156,8 @@ if __name__ == '__main__':
   # symbolicdW = angularAccelerationPropagation(uRobot, dw0 = zeros(3, 1), W = symbolicW, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
   # Inertial linear acceleration propagation to each reference frame attached to joints
-  dV = linearAccelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), W = W, dW = dW)
-  # symbolicdV = linearAccelerationPropagation(uRobot, dv0 = zeros(3, 1), W = symbolicW, dW = symbolicdW, symbolic = True)
+  dV = linearAccelerationPropagation(uRobot, dv0 = np.array([[0], [0], [-9.80665]]), W = W, dW = dW)
+  # symbolicdV = linearAccelerationPropagation(uRobot, dv0 = Matrix([[0], [0], [-9.80665]]), W = symbolicW, dW = symbolicdW, symbolic = True)
   
   # Inertial Velocity of each Center of Mass using Geometric Jacobian Matrix
   geometricXdCOM = geometricCOMStateSpace(uRobot, COM = 2)
@@ -184,8 +184,8 @@ if __name__ == '__main__':
   # symbolicdWcom = angularAccelerationPropagationCOM(uRobot, dwCOM0 = zeros(3, 1), Wcom = symbolicWcom, dW = symbolicdW, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
   # Inertial linear acceleration propagation to each center of mass
-  dVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = np.zeros((3, 1)), Wcom = Wcom, dWcom = dWcom, dV = dV)
-  # symbolicdVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = zeros(3, 1), Wcom = symbolicWcom, dWcom = symbolicdWcom, dV = symbolicdV, symbolic = True)
+  dVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = np.array([[0], [0], [-9.80665]]), Wcom = Wcom, dWcom = dWcom, dV = dV)
+  # symbolicdVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = Matrix([[0], [0], [-9.80665]]), Wcom = symbolicWcom, dWcom = symbolicdWcom, dV = symbolicdV, symbolic = True)
   
   """
     4.1 DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Dual Quaternions)
@@ -196,16 +196,16 @@ if __name__ == '__main__':
   # symbolicWdq = dqVelocityPropagation(uRobot, w0 = zeros(8, 1), qd = uRobot.qdSymbolic, symbolic = True)
   
   # Inertial acceleration propagation using Dual Quaternions
-  dWdq = dqAccelerationPropagation(uRobot, dw0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd, qdd = qdd)
-  # symbolicdWdq = dqAccelerationPropagation(uRobot, dw0 = zeros(8, 1), Wdq = symbolicWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  dWdq = dqAccelerationPropagation(uRobot, dw0 = np.array([[0], [0], [0], [0], [0], [0], [0], [-9.80665]]), Wdq = Wdq, qd = qd, qdd = qdd)
+  # symbolicdWdq = dqAccelerationPropagation(uRobot, dw0 = Matrix([[0], [0], [0], [0], [0], [0], [0], [-9.80665]]), Wdq = symbolicWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
   # Inertial velocity propagation to each center of mass using Dual Quaternions
   WdqCOM = dqVelocityPropagationCOM(uRobot, WdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd)
   # symbolicWdqCOM = dqVelocityPropagationCOM(uRobot, WdqCOM0 = zeros(8, 1), Wdq = symbolicWdq, qd = uRobot.qdSymbolic, symbolic = True)
   
   # Inertial acceleration propagation to each center of mass using Dual Quaternions
-  dWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, WdqCOM = WdqCOM, dWdq = dWdq, qd = qd, qdd = qdd)
-  # symbolicdWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = zeros(8, 1), Wdq = symbolicWdq, WdqCOM = symbolicWdqCOM, dWdq = symbolicdWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  dWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = np.array([[0], [0], [0], [0], [0], [0], [0], [-9.80665]]), Wdq = Wdq, WdqCOM = WdqCOM, dWdq = dWdq, qd = qd, qdd = qdd)
+  # symbolicdWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = Matrix([[0], [0], [0], [0], [0], [0], [0], [-9.80665]]), Wdq = symbolicWdq, WdqCOM = symbolicWdqCOM, dWdq = symbolicdWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
   """
     5. DYNAMICS
@@ -234,6 +234,10 @@ if __name__ == '__main__':
   # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
   T = (D * uRobot.qddSymbolic) + (C.dot(uRobot.jointsVelocities)) + G
   # symbolicT = (symbolicD * uRobot.qddSymbolic) + (symbolicC * uRobot.qdSymbolic) + symbolicG
+  
+  # Force - Torque propagation (Newton - Euler Recursive Algorithm)
+  Wrench = newtonEuler(uRobot, dv0 = np.array([[0], [0], [-9.80665]]), f0 = np.array([[0], [0], [-7]]), T0 = np.array([[0], [0], [-7]]))
+  # symbolicWrench = newtonEuler(uRobot, w0 = np.zeros((3, 1)), dw0 = np.zeros((3, 1)), dv0 = np.array([[0], [0], [-9.80665]]), f0 = np.array([[0], [0], [-7]]), T0 = np.array([[0], [0], [-7]]), symbolic = True)
   
   print("Z")
   # END

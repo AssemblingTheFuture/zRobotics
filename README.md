@@ -59,6 +59,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
         - [Gravitational Effects](#gravitational-effects)
         - [Centrifugal and Coriolis Effects](#centrifugal-and-coriolis-effects)
         - [Robot Model](#robot-model)
+      - [Newton - Euler Recursive Algorithm](#newton---euler-recursive-algorithm)
 
 ---
 
@@ -80,7 +81,7 @@ We hope this library will help you to start your journey in these amazing discip
 
 You can set your robot attributes and analyze its behavior. To achieve this, all the algorithms were developed using Homogeneous Transformation Matrices and Dual Quaternions algebra, however, **the logic used to develop them will allow you to adapt it to almost any embedded system!**
 
-**For serial robots** (we will include new ones in the future :wink:), some interesting functionalities are listed below:
+**For serial robots**, some interesting functionalities are listed below (we will include new robots in the future :wink:):
 
 - [x] [Forward Kinematics](#forward-kinematics)
   - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/HTM.py#11) (numerical and symbolic)
@@ -92,7 +93,7 @@ You can set your robot attributes and analyze its behavior. To achieve this, all
   - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/DifferentialHTM.py) (numerical and symbolic)
   - [x] [Using Dual Quaternions](/lib/kinematics/DifferentialDQ.py) (numerical and symbolic)
 - [ ] Robot Dynamics
-  - [x] [Differential Equation using Homogeneous Transformation Matrices](#dynamics)(numerical and symbolic)
+  - [x] [Differential Equation using Homogeneous Transformation Matrices](#dynamics) (numerical and symbolic)
   - [ ] Differential Equation using Dual Quaternions (numerical and symbolic) (:warning: **UNDER DEVELOPMENT** :warning:)
 
 Feel free to modify, adjust and extend our work to your necessities :smiley:; this library allows you to get a first approach to robot analysis, synthesis and control, however, we will be adding new interesting features, also, **you can request new features or create new ones!**
@@ -105,20 +106,18 @@ Feel free to modify, adjust and extend our work to your necessities :smiley:; th
 
 We are working, or will start working soon, on the following tasks for future releases:
 
-- [ ] Velocity Recursive Algorithms
+- [x] Velocity Recursive Algorithms
   - [x] Using Homogeneous Transformation Matrices
-  - [ ] Using Dual Quaternions
-- [ ] Acceleration Recursive Algorithms
+  - [x] Using Dual Quaternions
+- [x] Acceleration Recursive Algorithms
   - [x] Using Homogeneous Transformation Matrices
-  - [ ] Using Dual Quaternions
+  - [x] Using Dual Quaternions
 - [ ] Euler - Lagrange formulation 
   - [x] Using Homogeneous Transformation Matrices
   - [ ] Using Dual Quaternions
 - [ ] Newton - Euler Recursive Algorithm:
-  - [ ] Using Homogeneous Transformation Matrices
+  - [x] Using Homogeneous Transformation Matrices
   - [ ] Using Dual Quaternions
-
-
 
 [*Return to top*](#zrobotics-02)
 
@@ -2706,6 +2705,79 @@ Matrix([[2.19614724949073*qdd1 - 0.529809692293813*qdd2 - 0.361583479510541*qdd3
 ```
 
 Please notice that this result is partially numerical because it includes joints accelerations (<img src="https://render.githubusercontent.com/render/math?math={\color{red} \ddot{q}_{i}}">) in symbolic form; they are stored in ```uRobot.qddSymbolic``` and are the variables that have to be solved. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+### Newton - Euler Recursive Algorithm
+
+It describes the combined translational and rotational dynamics of a rigid body. This groups together the Newton and Euler's laws of linear and rotational motion for a rigid body into a single equation with 6 components. **These laws relate the motion of the center of gravity of a rigid body with the sum of forces and torques (or synonymously *moments*) acting on the rigid body**:
+
+<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}
+f_{i / i - 1}^{i} \\ \tau_{i / i - 1}^{i}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathrm{R}_{com_j/0}^{0} %26 0_{3\times3} \\ -\left[\vec{r}_{i-1/com_j}^{com_j} %2b \vec{r}_{i/com_j}^{com_j}\right]^{\times}\mathrm{R}_{com_j / 0}^{0} %26 \mathrm{R}_{com_j / 0}^{0}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}
+f_{i %2b 1 / i}^{i %2b 1} \\ \tau_{i %2b 1 / i}^{i %2b 1}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}%2b\begin{bmatrix}m_j \cdot \mathrm{R}_{com_j/0}^{T} %26 0_{3\times3} \\ -m_j \cdot \left[\vec{r}_{i-1/com_j}^{com_j}\right]^{\times}\mathrm{R}_{com_j / 0}^{T} %26 \mathrm{R}_{com_j / 0}^{T} I_j\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}
+\ddot{\vec{r}}_{com_j / 0}^{0} \\ \dot{\omega}_{com_j / 0}^{0}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}%2b \begin{bmatrix}0_{3 \times 1} \\ \mathrm{R}_{com_j / 0}^{T} \omega_{com_j / 0}^{0} \times \left( \mathrm{R}_{com_j / 0}^{T} I_j \omega_{com_j / 0}^{0} \right)\end{bmatrix}}">
+
+In robotics, **this is analyzed with respect to each Center of Mass because the way forces and torques propagates through each rigid body**. In the above equation, <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{i / i - 1}^{i}, f_{i %2b 1 / i}^{i %2b 1}, \tau_{i / i - 1}^{i}, \tau_{i %2b 1 / i}^{i %2b 1} \in \mathbb{R}^{3 \times 1}}"> represent the forces and torques applied to each reference frame inside the robot, starting from the last one (*i + 1*) and finishing in the intertial frame (*i = 0*). Also, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{R}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 3}}"> is the rotation matrix of the *j*-th center of mass.
+
+Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i-1/com_j}^{com_j}, \vec{r}_{i/com_j}^{com_j} \in \mathbb{R}^{3 \times 1}}"> are the distances from the *j*-th center of mass to the *i - 1* and *i*-th frames, respectively, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}I_j \in \mathbb{R}^{3 \times 3}}"> represents the inertia tensor of the *j*-th rigid body, with respect to its base and not to its center of mass. Because this is a dynamic equation, linear and angular velocities <img src="https://render.githubusercontent.com/render/math?math={\color{red}\ddot{\vec{r}}_{com_j / 0}^{0}, \dot{\omega}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> have to be calculated too.
+
+With the aforementioned terms, forces and torques (*wrenches*) can be calculated with the library as follows:
+
+```python
+"""
+  Inertial Acceleration Propagation to Centers of Mass using Dual Quaternions
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Force - Torque propagation (Newton - Euler Recursive Algorithm)
+Wrench = newtonEuler(uRobot, w0 = np.zeros((3, 1)), dw0 = np.zeros((3, 1)), dv0 = np.array([[0], [0], [-9.80665]]), f0 = np.array([[0], [0], [-7]]), T0 = np.array([[0], [0], [-7]]), symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Wrench[-1]
+array([[ 0.],
+       [ 0.],
+       [-7.],
+       [ 0.],
+       [ 0.],
+       [-7.]])
+
+>>> Wrench[-2]
+array([[-4.46803242],
+       [ 0.19137049],
+       [13.63757781],
+       [-2.66144576],
+       [-0.45446907],
+       [ 6.87746812]])
+
+>>> Wrench[-3]
+array([[-4.46803242],
+       [ 0.19137049],
+       [13.63757781],
+       [-2.66144576],
+       [-0.45446907],
+       [ 6.87746812]])
+
+>>> Wrench[-4]
+array([[ -4.9958587 ],
+       [-18.79977742],
+       [ -3.09112028],
+       [ -0.48660605],
+       [ -6.9013052 ],
+       [ -2.80624542]])
+```
+
+Please notice that initial angular velocity (```w0```) and both angular and linear accelerations (```dw0```, ```dv0```) were set to zero because the base of the robot doesn't move; also, a force ```f0``` and torque ```T0``` in the end-effector were considered, **this means that the robot exerts a force and torque on a surface or it is moving an object with its end effector**. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
