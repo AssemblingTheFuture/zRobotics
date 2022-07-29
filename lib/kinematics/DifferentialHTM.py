@@ -139,11 +139,12 @@ def analyticCOMStateSpace(robot : object, COM : int, dq = 0.001, symbolic = Fals
     
   return Xd
 
-def angularVelocityPropagation(robot : object, w0 : np.array, qd : np.array, symbolic = False):
-  """Using Homogeneous Transformation Matrices, this function computes angular velocity to the i-th reference frame of a serial robot given initial velocity. Serial robot's kinematic parameters have to be set before using this function
+def velocityPropagation(robot : object, v0 : np.array, w0 : np.array, qd : np.array, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes both linear and angular velocity to the i-th reference frame of a serial robot given initial velocity. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
+    v0 (np.array): initial linear velocity of the system (equals to zero if the robot's base is not mobile)
     w0 (np.array): initial angular velocity of the system (equals to zero if the robot's base is not mobile)
     qd (np.array): velocities of each joint
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
@@ -154,7 +155,7 @@ def angularVelocityPropagation(robot : object, w0 : np.array, qd : np.array, sym
   """
   
   # Initial conditions
-  W = [w0]
+  V = [np.append(v0, w0, axis = 0)]
   
   # Calculate forward kinematics to know the position and axis of actuation of each joint
   fkHTM = forwardHTM(robot, symbolic)
@@ -171,6 +172,12 @@ def angularVelocityPropagation(robot : object, w0 : np.array, qd : np.array, sym
     # Check if this frame contains any of the "n" joints
     containedJoints = np.in1d(robot.qSymbolic, frame)
     
+    # Create relative position cross operator between i-th and i + 1 frames
+    ri = crossMatrix(fkHTM[k][0 : 3, -1] - fkHTM[k - 1][0 : 3, -1], symbolic)
+    
+    # Relative position matrix between i-th and i + 1 frames
+    Mi = Matrix([[eye(3), -ri], [zeros(3), eye(3)]]) if symbolic else np.append(np.append(np.eye(3), -ri, axis = 1), np.append(np.zeros((3, 3)), np.eye(3), axis = 1), axis = 0)
+    
     # If any joint is in the current reference frame
     if any(element == True for element in containedJoints):
           
@@ -180,55 +187,18 @@ def angularVelocityPropagation(robot : object, w0 : np.array, qd : np.array, sym
       # Get axis of actuation where joint is attached
       z = fkHTM[k - 1][0: 3, 2]
       
-      # Relative angular velocity calculation equals to z * qdi
-      wJoint = z * qd[joint]
+      # Relative velocity calculation depending on the joint's movement
+      vJoint = Mi * Matrix([zeros(3, 1), z]) * qd[joint] if symbolic else Mi.dot(np.append(np.zeros((3, 1)), z.reshape((3, 1)), axis = 0)) * qd[joint]
       
     else:
       
-      # Relative angular velocity calculation equals to zero (no effects caused by joints)
-      wJoint = zeros(3, 1) if symbolic else np.zeros((3, 1))
-          
-    # Calculate angular velocity up to this point
-    w = trigsimp(W[-1] + wJoint) if symbolic else W[-1] + wJoint.reshape((3, 1))
+      # Relative velocity calculation equals to zero (no effects caused by joints)
+      vJoint = zeros(3, 1) if symbolic else np.zeros((3, 1))
+    
+    # Calculate Velocities (both linear and angular) up to this point
+    v = trigsimp((Mi * V[-1]) + vJoint) if symbolic else (Mi.dot(V[-1])) + vJoint
 
-    # Append each calculated angular velocity
-    W.append(nsimplify(w.evalf(), tolerance = 1e-10) if symbolic else w)
-      
-  return W
-
-def linearVelocityPropagation(robot : object, v0 : np.array, W : np.array, symbolic = False):
-  """Using Homogeneous Transformation Matrices, this function computes linear velocity to the i-th reference frame of a serial robot given initial velocity. Serial robot's kinematic parameters have to be set before using this function
-
-  Args:
-    robot (object): serial robot (this won't work with other type of robots)
-    v0 (np.array): initial linear velocity of the system (equals to zero if the robot's base is not mobile)
-    W (np.array): angular velocities of the system (this have to be calculated with "angularVelocityPropagation" function)
-    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
-
-  Returns:
-    V (np.array): velocity to each reference frame (numerical)
-    V (SymPy Matrix): velocity to each reference frame (symbolic)
-  """
-  
-  # Initial conditions
-  V = [v0]
-  
-  # Calculate forward kinematics to know the position and axis of actuation of each joint
-  fkHTM = forwardHTM(robot, symbolic)
-  
-  # Get number of reference frames
-  m = robot.dhParameters.shape[0]
-  
-  # Iterates through all reference frames (excepting inertial one)
-  for k in range(1, m):
-        
-    # Get relative position of frames
-    r = fkHTM[k][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
-  
-    # Calculate linear velocity up to this point
-    v = trigsimp(V[-1] + (W[k].cross(r))) if symbolic else V[-1] + (np.cross(W[k], r, axis = 0))
-
-    # Append each calculated linear velocity
+    # Append each calculated velocity
     V.append(nsimplify(v.evalf(), tolerance = 1e-10) if symbolic else v)
       
   return V

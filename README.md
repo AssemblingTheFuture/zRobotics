@@ -35,8 +35,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
     - [Differential Kinematics](#differential-kinematics)
       - [Total Inertial Rate of Change](#total-inertial-rate-of-change)
       - [Total Inertial Velocity](#total-inertial-velocity)
-        - [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation)
-        - [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation)
+        - [Inertial Velocity Propagation](#inertial-velocity-propagation)
         - [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions)
       - [Total Inertial Acceleration](#total-inertial-acceleration)
         - [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation)
@@ -105,12 +104,12 @@ Feel free to modify, adjust and extend our work to your necessities :smiley:; th
 
 We are working, or will start working soon, on the following tasks for future releases:
 
-- [ ] Velocity Recursive Algorithms
+- [x] Velocity Recursive Algorithms
   - [x] Using Homogeneous Transformation Matrices
-  - [ ] Using Dual Quaternions
-- [ ] Acceleration Recursive Algorithms
+  - [x] Using Dual Quaternions
+- [x] Acceleration Recursive Algorithms
   - [x] Using Homogeneous Transformation Matrices
-  - [ ] Using Dual Quaternions
+  - [x] Using Dual Quaternions
 - [ ] Euler - Lagrange formulation 
   - [x] Using Homogeneous Transformation Matrices
   - [ ] Using Dual Quaternions
@@ -1372,28 +1371,28 @@ So the outputs will be
 ```bash
 # NumPy Array
 >>> Jg
-array([[ 2.96563941e-01, -4.74304994e-02,  3.89958559e-01, -1.38777878e-17],
-       [-3.21395346e-01, -4.37659599e-02,  3.59829875e-01, 4.16333634e-17],
-       [ 0.00000000e+00, -4.37315835e-01, -1.05372345e-01, -1.73472348e-18],
-       [ 0.00000000e+00,  6.78145901e-01,  6.78145901e-01, -1.43152138e-01],
-       [ 0.00000000e+00, -7.34927300e-01, -7.34927300e-01, -1.32092026e-01],
-       [ 1.00000000e+00,  6.12323400e-17,  6.12323400e-17, -9.80846146e-01]])
+array([[ 1.01445583e-01,  4.75555206e-01,  6.18228022e-01,  0.00000000e+00],
+       [ 7.03542717e-01, -6.85714937e-02, -8.91438436e-02,  0.00000000e+00],
+       [-0.00000000e+00,  7.10818937e-01,  6.56425113e-01,  1.38777878e-17],
+       [ 0.00000000e+00, -1.42716489e-01, -1.42716489e-01,  7.17022541e-01],
+       [ 0.00000000e+00, -9.89763610e-01, -9.89763610e-01, -1.03389272e-01],
+       [ 1.00000000e+00,  6.12323400e-17,  6.12323400e-17, -6.89339782e-01]])
 
 >>> Xd1
-array([[ 0.20830251],
-       [-0.11461763],
-       [ 0.05799426],
-       [ 0.32363338],
-       [ 0.35274929],
-       [ 2.91790934]])
+array([[ 1.03536641],
+       [-0.93900157],
+       [ 1.25371126],
+       [-0.88688895],
+       [-1.78716601],
+       [-0.50703242]])
 
 >>> Xd2
-array([[ 0.20830251],
-       [-0.11461763],
-       [ 0.05799426],
-       [ 0.32363338],
-       [ 0.35274929],
-       [ 2.91790934]])
+array([[ 1.03536641],
+       [-0.93900157],
+       [ 1.25371126],
+       [-0.88688895],
+       [-1.78716601],
+       [-0.50703242]])
 ```
 
 Please notice that angular velocities are not the same as the angular rate of change on [Total Inertial Rate of Change](#total-inertial-rate-of-change) results. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1402,76 +1401,23 @@ Please notice that angular velocities are not the same as the angular rate of ch
 
 ---
 
-### Inertial Angular Velocity Propagation
+### Inertial Velocity Propagation
 
-The simplest and fastest way to know the velocity of the reference frames attached to each joint can be calculated with a recursive algorithm, whose premise is to analyze the velocity from the base of the robot to the end-effector with the following equation:
+The simplest and fastest way to calculate the angular and linear velocity of the reference frames attached to each joint is by means of a recursive algorithm, whose premise is to analyze the velocities from the base of the robot to the end-effector with the following equations:
 
 <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0} = \omega_{i / 0}^{0} %2b \vec{n}_{i %2b 1 / i}^{i} \cdot q_{i}}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
-
-```python
-"""
-  Inertial Angular Velocity Propagation
-"""
-
-# Differential Kinematics library
-from lib.kinematics.DifferentialHTM import *
-
-# NumPy
-import numpy as np
-
-# Inertial angular velocity propagation to each reference frame 
-W = angularVelocityPropagation(uRobot, w0 = np.zeros((3, 1)), qd = qd, symbolic = False)
-```
-
-So the outputs will be
-
-```bash
-# NumPy Array
->>> W[0]
-array([[0.],
-       [0.],
-       [0.]])
-
->>> W[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [-1.05732882]])
-
->>> W[2]
-array([[-0.57402137],
-       [-0.18194517],
-       [-1.05732882]])
-
->>> W[3]
-array([[-1.34473028],
-       [-0.42623356],
-       [-1.05732882]])
-
->>> W[4]
-array([[-1.30851066],
-       [-0.54050335],
-       [-1.1174245 ]])
-```
-
-Please notice that initial angular velocity ```W0``` was set to zero because the base of the robot doesn't move; on the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
-
-[*Return to top*](#zrobotics-02)
-
----
-
-### Inertial Linear Velocity Propagation
-
-As shown in previous sections, velocities can be calculated recursively. In this case, linear velocity propagation can be analyzed from the base of the robot to the end-effector with the following equation:
-
 <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i %2b 1 / 0}^{0} = v_{i / 0}^{0} %2b \omega_{i %2b 1 / 0}^{0} \times \vec{r}_{i %2b 1 / i}^{i}}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i / 0}^{0}, v_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the angular velocity calculated as shown in previous sections, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). These velocities be calculated with the library as follows:
+where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. Also, <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i / 0}^{0}, v_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear velocities of the *i* - th frame and the subsequent one, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (they can be calculated with the [Forward Kinematics](#forward-kinematics) algorithm). Based on the [Screw Theory](https://en.wikipedia.org/wiki/Screw_theory), both angular and linear velocities can be calculated as follows:
+
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi/0%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi/0%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20n_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7Bq%7D_%7Bi%7D%20+%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5C%5C%200_%7B3%20%5Ctimes%201%7D%20%5Cend%7Bbmatrix%7D%7D">
+
+with <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D">, representing an identity matrix and a zeros one respectively. With the aforementioned terms, velocity propagation can be calculated with the library as follows:
 
 ```python
 """
-  Inertial Linear Velocity Propagation
+  Inertial Velocity Propagation
 """
 
 # Differential Kinematics library
@@ -1480,8 +1426,8 @@ from lib.kinematics.DifferentialHTM import *
 # NumPy
 import numpy as np
 
-# Inertial linear velocity propagation to each reference frame
-V = linearVelocityPropagation(uRobot, v0 = np.zeros((3, 1)), W = W, symbolic = False)
+# Inertial velocity propagation to each reference frame 
+V = velocityPropagation(uRobot, v0 = np.zeros((3, 1)), w0 = np.zeros((3, 1)), qd = qd, symbolic = False)
 ```
 
 So the outputs will be
@@ -1491,30 +1437,45 @@ So the outputs will be
 >>> V[0]
 array([[0.],
        [0.],
-       [0.]])
-
->>> V[1]
-array([[0.],
+       [0.],
+       [0.],
        [0.],
        [0.]])
 
+>>> V[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-1.09961297]])
+
 >>> V[2]
-array([[ 0.88978159],
-       [ 0.01053544],
-       [-0.48487331]])
+array([[-0.03343645],
+       [-0.05560946],
+       [ 0.00949319],
+       [-0.02490789],
+       [-0.17274052],
+       [-1.09961297]])
 
 >>> V[3]
-array([[ 0.88978159],
-       [ 0.01053544],
-       [-0.48487331]])
+array([[-0.03343645],
+       [-0.05560946],
+       [ 0.00949319],
+       [-0.27051133],
+       [-1.87604304],
+       [-1.09961297]])
 
 >>> V[4]
-array([[ 1.1483786 ],
-       [ 0.33405631],
-       [-0.94418045]])
+array([[ 1.03536641],
+       [-0.93900157],
+       [ 1.25371126],
+       [-0.88688895],
+       [-1.78716601],
+       [-0.50703242]])
 ```
 
-Please notice that initial linear velocity ```v0``` was set to zero because the base of the robot doesn't move; also the list with the angular velocities ```W``` has to be sent as a parameter of this function, so [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) has to be computed before. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial angular and linear velocities (```w0``` and ```v0```) were set to zero because the base of the robot doesn't move; on the other hand, Python will send all the velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 

@@ -139,13 +139,9 @@ if __name__ == '__main__':
   analyticXd = analyticStateSpace(uRobot)
   # symbolicXd = analyticStateSpace(uRobot, symbolic = True)
   
-  # Inertial angular velocity propagation to each reference frame 
-  W = angularVelocityPropagation(uRobot, w0 = np.zeros((3, 1)), qd = qd)
-  # symbolicW = angularVelocityPropagation(uRobot, w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
-  
-  # Inertial linear velocity propagation to each reference frame
-  V = linearVelocityPropagation(uRobot, v0 = np.zeros((3, 1)), W = W)
-  # symbolicV = linearVelocityPropagation(uRobot, v0 = zeros(3, 1), W = symbolicW, symbolic = True)
+  # Inertial velocity propagation to each reference frame 
+  V = velocityPropagation(uRobot, v0 = np.zeros((3, 1)), w0 = np.zeros((3, 1)), qd = qd)
+  # symbolicV = velocityPropagation(uRobot, v0 = zeros(3, 1), w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
   
   # End-effector inertial acceleration (using geometric jacobian matrix and its derivative) with Homogeneous Transformation Matrices
   geometricXdd = geometricDerivativeStateSpace(uRobot)
