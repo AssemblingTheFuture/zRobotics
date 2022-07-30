@@ -29,7 +29,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Forward Kinematics](#forward-kinematics)
       - [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass)
       - [Axis - Angle Vector](#axis---angle-vector)
-      - [Jacobian Matrix](#jacobian-matrix)
+      - [Inertial Jacobian Matrix](#inertial-jacobian-matrix)
         - [Derivative of Geometric Jacobian Matrix](#derivative-of-geometric-jacobian-matrix)
       - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
     - [Differential Kinematics](#differential-kinematics)
@@ -391,7 +391,7 @@ Qz = dqTz(z = 0.5, symbolic = True)
 
 ### Rotation
 
-You can compute rotational movements on each axis of euclidian space: (x, y, z)
+You can compute rotational movements on each axis of euclidian space: <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cleft%28%20x%2C%20y%2C%20z%20%5Cright%29%7D">
 
 ```python
 """
@@ -512,9 +512,9 @@ As shown in our [online training](https://bit.ly/RoboticZ), there are multiple o
 
 ### Dual Quaternions Multiplication
 
-Let's consider the dual quaternions <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{q}_{a}, \hat{q}_{b} \in \mathbb{H}}"> that have to be multiplicated as <img src="https://render.githubusercontent.com/render/math?math={\color{red} \hat{q}_{c} = \hat{q}_{a} \cdot \hat{q}_{b}}">, so this operation can be simplified with left and right operators <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[ \cdot \right]_{\mathrm{L}}, \left[ \cdot \right]_{\mathrm{R}} \in \mathbb{R}^{8 \times 8}}">:
+Let's consider two dual quaternions <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Ba%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bb%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D"> that have to be multiplicated as <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bc%7D%20%3D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Ba%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bb%7D%7D">, so this operation can be simplified with left and right operators <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cleft%5B%20%5Ccdot%20%5Cright%20%5D_%7B%5Cmathrm%7BL%7D%7D%20%2C%20%5Cleft%5B%20%5Ccdot%20%5Cright%20%5D_%7B%5Cmathrm%7BR%7D%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B8%20%5Ctimes%208%7D%7D">:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{q}_{c} = \left[ \hat{q}_{a}\right]_{\mathrm{L}} \cdot \hat{q}_{b} = \left[ \hat{q}_{b}\right]_{\mathrm{R}} \cdot \hat{q}_{a}}">
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bc%7D%20%3D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Ba%7D%20%5Cright%20%5D_%7B%5Cmathrm%7BL%7D%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bb%7D%20%3D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bb%7D%20%5Cright%20%5D_%7B%5Cmathrm%7BR%7D%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Ba%7D%7D">
 
 Then these operators can be calculated as follows:
 
@@ -664,7 +664,7 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ### Dual Quaternions to Euclidian Space
 
-Sometimes it will be necessary to transform a pose representation as dual quaternion <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{q}_{i/0}^0 \in \mathbb{H}}"> into an Euclidian space one <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i/0}^{0} \in \mathbb{R}^{3 \times 1}}">:
+Sometimes it will be necessary to transform a pose representation as dual quaternion <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%20%7D"> into an Euclidian space one <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Br%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%20%7D">:
 
 ```python
 """
@@ -713,13 +713,13 @@ A **SERIAL ROBOT** can be created as an object (we will add other type of robots
 
 Serial manipulators are built by a Denavit - Hartenberg Parameters Matrix like this
 
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\theta_z}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}d_z}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}a_x}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\alpha_x}">|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_z%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20d_z%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20a_x%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Calpha_x%20%7D">|
 |:---:|:---:|:---:|:---:|
 | 0 | 0 | 0 | 0 |
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_1}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_1}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\pi}{2}}">|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_2}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_2}">|0|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_3}">|0|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\pi}{2}}">|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_4}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_3}">|0|0|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_1%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20L_1%20%7D">|0|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cfrac%7B%5Cpi%7D%7B2%7D%20%7D">|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_2%20%7D">|0|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20L_2%20%7D">|0|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_3%20%7D">|0|0|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cfrac%7B%5Cpi%7D%7B2%7D%20%7D">|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_4%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20L_3%20%7D">|0|0|
 
 so is mandatory to modify [Robot.py](/lib/Robot.py#L74) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**):
 
@@ -774,13 +774,13 @@ so take a look at it and uncomment the parameters of the robot that you want to 
 
 Some calculations in robotics needs to be performed with respect to the Center of Mass of the rigid bodies, so you have to modify [Robot's file](/lib/Robot.py#L73) with your robot's information, as you would do it in a sheet of paper (**do not forget to include inertial frame**). For example:
 
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\theta_z}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}d_z}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}a_x}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\alpha_x}">|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_z%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20d_z%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20a_x%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Calpha_x%20%7D">|
 |:---:|:---:|:---:|:---:|
 | 0 | 0 | 0 | 0 |
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_1}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com_{1}}}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\pi}{2}}">|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_2}">|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com_{2}}}">|0|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_3}">|0|0|<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\pi}{2}}">|
-|<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_4}">|<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com_{3}}}">|0|0|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_1%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20L_%7Bcom_1%7D%20%7D">|0|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cfrac%7B%5Cpi%7D%7B2%7D%20%7D">|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_2%20%7D">|0|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20L_%7Bcom_2%7D%20%7D">|0|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_3%20%7D">|0|0|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cfrac%7B%5Cpi%7D%7B2%7D%20%7D">|
+|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctheta_4%20%7D">|<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20L_%7Bcom_3%7D%20%7D">|0|0|
 
 Therefore,
 
@@ -871,11 +871,11 @@ Inertia = [0.5 * (Inertia + Inertia.T) for i in range(rb)]
 
 Where each attribute is described below:
 
-- Joints positions, velocities and accelerations (generalized coordinates): <img src="https://render.githubusercontent.com/render/math?math={\color{red} q, \dot{q}, \ddot{q} \in \mathbb{R}^{n \times 1}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} rad}">, <img src="https://render.githubusercontent.com/render/math?math={\color{red} \frac{rad}{sec}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red} \frac{rad}{sec^2}}">) 
-- Links Lengths and distance to Centers of Mass: <img src="https://render.githubusercontent.com/render/math?math={\color{red} L, L_{com} \in \mathbb{R}^{r_b}}"> (set in meters)
-- Screw vectors for Dual Quaternions operations: <img src="https://render.githubusercontent.com/render/math?math={\color{red} \xi, \dot{\xi} \in \mathbb{H}}">
-- Mass of each link: <img src="https://render.githubusercontent.com/render/math?math={\color{red} m_j \in \mathbb{R}, m_j > 0}"> (set in kilograms)
-- Inertia tensor of each link with respect to the origin of the rigid body: <img src="https://render.githubusercontent.com/render/math?math={\color{red} I_j \in \mathbb{R}^{3 \times 3}}"> (set in <img src="https://render.githubusercontent.com/render/math?math={\color{red} kg \cdot m^2}">)
+- Joints positions, velocities and accelerations (generalized coordinates): <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbar%7B%5Ctheta%7D%2C%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%2C%20%5Cddot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%20%7D"> (set in <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Ctext%7Brad%7D%2C%20%5Cfrac%7B%5Ctext%7Brad%7D%7D%7B%5Ctext%7Bsec%7D%7D%2C%20%5Cfrac%7B%5Ctext%7Brad%7D%7D%7B%5Ctext%7Bsec%7D%5E2%7D%7D">) 
+- Links Lengths and distance to Centers of Mass: <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20L%2C%20L_%7Bcom%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Br_b%7D%7D"> (set in meters)
+- Screw vectors for Dual Quaternions operations: <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cxi%2C%20%5Cdot%7B%5Cxi%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D">
+- Mass of each link: <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20m_j%20%5Cin%20%5Cmathbb%7BR%7D%2C%20m_j%20%3E%200%7D"> (set in kilograms)
+- Inertia tensor of each link with respect to the origin of the rigid body: <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BI%7D_j%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D"> (set in <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20kg%20%5Ccdot%20m%5E2%7D">)
 
 [*Return to top*](#zrobotics-02)
 
@@ -965,7 +965,7 @@ fkDQ = forwardDQ(uRobot)
 symbolicFKDQ = forwardDQ(uRobot, symbolic = True)
 ```
 
-Where <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{k_{HTM}} \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{k_{DQ}} \in \mathbb{H}}"> are lists that store the pose representation for each reference frame with Homogeneous Transformation Matrices or Dual Quaternions. You can access to each specific pose representation by indexing it:
+Where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20f_%7Bk_%7B%5Ctext%7BHTM%7D%7D%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D"> and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20f_%7Bk_%7B%5Ctext%7BDQ%7D%7D%7D%20%5Cin%20%5Cmathbb%7BH%7D"> are lists that store the pose representation for each reference frame with Homogeneous Transformation Matrices or Dual Quaternions. You can access to each specific pose representation by indexing it:
 
 ```bash
 # NumPy Array
@@ -1031,7 +1031,7 @@ fkCOMDQ = forwardCOMDQ(uRobot)
 symbolicDQCOMHTM = forwardCOMDQ(uRobot, symbolic = True)
 ```
 
-Where <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{com_{HTM}} \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}f_{com_{DQ}} \in \mathbb{H}}"> are lists that store the pose representation for each center of mass with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
+Where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20f_%7Bcom_%7B%5Ctext%7BHTM%7D%7D%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D"> and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20f_%7Bcom_%7B%5Ctext%7BDQ%7D%7D%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D"> are lists that store the pose representation for each center of mass with Homogeneous Transformation Matrices or Dual Quaternions. You can get all the elements of the list, but also you can access to each specific pose representation by indexing it:
 
 ```bash
 # NumPy Array
@@ -1071,7 +1071,7 @@ Matrix([[                                                      -sin(q1/2 + q4/2)
         [-(L1*sin(q2/2 + q3/2) + L2*cos(q2/2 - q3/2) + Lcom3*sin(q2/2 + q3/2))*sin(q1/2 + q4/2)/2]])
 ```
 
-In this case, <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_{com_{j}/0}^{0} \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_{com_{j}/0}^{0} \in \mathbb{H}}"> are defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_{com_{j}/0}^{0} = H_{i - 1/0}^{0} \ \ H_{com_{j}/i-1}^{i - 1}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_{com_{j}/0}^{0} = Q_{i - 1/0}^{0} \ \ Q_{com_{j}/i-1}^{i - 1}}"> respectively
+In this case, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BH%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D"> and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BQ%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D"> are defined as <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BH%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%3D%20%5Cmathrm%7BH%7D_%7Bi%20-%201%20/%200%7D%5E%7B0%7D%20%5Cmathrm%7BH%7D_%7Bcom_j%20/%20i%20-%201%7D%5E%7Bi%20-%201%7D%7D"> and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BQ%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%3D%20%5Cmathrm%7BQ%7D_%7Bi%20-%201%20/%200%7D%5E%7B0%7D%20%5Cmathrm%7BQ%7D_%7Bcom_j%20/%20i%20-%201%7D%5E%7Bi%20-%201%7D%7D"> respectively.
 
 **IMPORTANT NOTE:** Please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of your system. Take a look at [Symbolic Computation](#symbolic-computation-warning) for more information :wink:
 
@@ -1081,7 +1081,7 @@ In this case, <img src="https://render.githubusercontent.com/render/math?math={\
 
 ### Axis - Angle Vector
 
-A compact representation of an Homogeneous Transformation Matrix can be obtained by and Axis - Angle Vector <img src="https://render.githubusercontent.com/render/math?math={\color{red} \mathrm{x} \in \mathbb{R}^{6 \times 1}}">. This is OPTIONAL, because each function can call it automatically if needed:
+A compact representation of an Homogeneous Transformation Matrix can be obtained by and Axis - Angle Vector <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7Bx%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%201%7D%7D">. This is OPTIONAL, because each function can call it automatically if needed:
 
 ```python
 # Kinematics libraries
@@ -1120,9 +1120,9 @@ Matrix([[                                                                       
 
 ---
 
-### Jacobian Matrix
+### Inertial Jacobian Matrix
 
-This is **OPTIONAL**, because each function that needs a Jacobian Matrix <img src="https://render.githubusercontent.com/render/math?math={\color{red}J \in \mathbb{R}^{6 \times n}}"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form:
+This is **OPTIONAL**, because each function that needs an Inertials Jacobian Matrix <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20J%5EI%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%20n%7D%7D"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form:
 
 ```python
 # Kinematics libraries
@@ -1214,9 +1214,9 @@ Matrix([[                                                 -sin(q2/2 + q3/2)*cos(
 
 This is **OPTIONAL**. If you need to calculate the end-effector acceleration, you will need the derivative of a Jacobian Matrix:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt}\left( J \right) = \dot{q}^{T} \left(\frac{\partial J}{\partial q} \right)}">,
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cfrac%7Bd%7D%7Bdt%7D%20%5Cleft%28%20J%5EI%20%5Cright%29%20%3D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J%5EI%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%7D">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}q \in \mathbb{R}^{n \times 1}}"> is the vector of generalized coordinates of the system; derivative can be calculated with the library using the following commands
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbar%7B%5Ctheta%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D"> is the vector of generalized coordinates of the system; derivative can be calculated with the library using the following commands
 
 ```python
 # Kinematics libraries
@@ -1261,9 +1261,9 @@ qHTM = inverseHTM(uRobot, q0 = np.random.rand(4, 1), Hd = fkHTM[-1], K = 50 * np
 qDQ = inverseDQ(uRobot, q0 = np.random.rand(4, 1), Qd = fkDQ[-1], K = 50 * np.eye(8), xi = xi)
 ```
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_0 \in \mathbb{R}^{n \times 1}}"> is the initial condition of the generalized coordinates; also, <img src="https://render.githubusercontent.com/render/math?math={\color{red}H_d \in \mathbb{R}^{4 \times 4}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}Q_d \in \mathbb{H}}"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://render.githubusercontent.com/render/math?math={\color{red}K \in \mathbb{R}^{6 \times 6}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}K_Q \in \mathbb{R}^{8 \times 8}}"> are the constant gain matrices that are used to solve inverse kinematics problem
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbar%7B%5Ctheta%7D_0%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D"> is the initial condition of the generalized coordinates; also, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BH%7D_d%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D"> and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BQ%7D_d%20%5Cin%20%5Cmathbb%7BH%7D"> represent the desired frame's pose using an Homogeneous Transformation Matrix or a Dual Quaternion respectively. Last but not least, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BK%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%206%7D%7D"> and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BK%7D_%5Cmathrm%7BQ%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B8%20%5Ctimes%208%7D%7D"> are the constant gain matrices that are used to solve inverse kinematics problem
 
-**IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://render.githubusercontent.com/render/math?math={\color{red}q \in \mathbb{R}^{n \times p}}">, where <img src="https://render.githubusercontent.com/render/math?math={\color{red}p \in \mathbb{R}, p \geq 1}"> is the number of joints positions that will be reached
+**IMPORTANT NOTE:** Inverse kinematics algorithms returns a generalized coordinates vector <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbar%7B%5Ctheta%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%20p%7D%7D">, where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20p%20%5Cin%20%5Cmathbb%7BR%7D%2C%20p%20%5Cgeq%201%7D"> is the number of joints positions that will be reached
 
 [*Return to top*](#zrobotics-02)
 
@@ -1275,9 +1275,13 @@ This is the relation between motion (velocity) in joint space and motion (linear
 
 ### Total Inertial Rate of Change
 
-The rate of change of the end-effector (is not the same as its velocity) can be calculated by deriving its equations that define its pose in an [Axis - Angle vector](#axis---angle-vector) <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{x} \left( t \right) \in \mathbb{R}^{6 \times 1}}">, so this will return an [Analytic Jacobian Matrix](/lib/kinematics/HTM.py#225) <img src="https://render.githubusercontent.com/render/math?math={\color{red}J \left( \mathrm{x} \right) \in \mathbb{R}^{6 \times n}}"> that can be multiplied by the generalized coordinates vector:
+The rate of change of the end-effector (is not the same as its velocity) can be calculated by deriving its equations that define its pose in an [Axis - Angle vector](#axis---angle-vector) <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7Bx%7D%20%5Cleft%28%20t%20%5Cright%29%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%201%7D%7D">, so this will return an [Analytic Jacobian Matrix](/lib/kinematics/HTM.py#225) <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20J%5EI%20%5Cleft%28%20%5Cmathrm%7Bx%7D%2C%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%20n%7D%7D"> that can be multiplied by the generalized coordinates vector:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial \mathrm{x}}{\partial q} = J \left ( \mathrm{x}, q \right) \implies \frac{\partial \mathrm{x}}{\partial q} = J \left ( \mathrm{x}, q \right) \frac{\partial t}{\partial t} \implies \frac{\partial \mathrm{x}}{\partial t} = J \left ( \mathrm{x}, q \right) \frac{\partial q}{\partial t} \implies \dot{\mathrm{x}} = J \left ( \mathrm{x}, q \right) \ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cfrac%7B%5Cpartial%20%5Cmathrm%7Bx%7D%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%3D%20J%5EI%20%5Cleft%28%20%5Cmathrm%7Bx%7D%2C%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cimplies%20%5Cfrac%7B%5Cpartial%20%5Cmathrm%7Bx%7D%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%3D%20J%5EI%20%5Cleft%28%20%5Cmathrm%7Bx%7D%2C%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cfrac%7B%5Cpartial%20t%7D%7B%5Cpartial%20t%7D%7D">
+
+<br>
+
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cfrac%7B%5Cpartial%20%5Cmathrm%7Bx%7D%7D%7B%5Cpartial%20t%7D%20%3D%20J%5EI%20%5Cleft%28%20%5Cmathrm%7Bx%7D%2C%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cfrac%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%7B%5Cpartial%20t%7D%20%5Ctherefore%20%5Cdot%7B%5Cmathrm%7Bx%7D%7D%20%3D%20J%5EI%20%5Cleft%28%20%5Cmathrm%7Bx%7D%2C%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
 
 This calculation can be done as follows:
 
@@ -1341,7 +1345,7 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 End-effector velocity can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130), because this maps the effect of each joint directly to the end-effector, so linear and angular velocities can be calculated:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v} = \begin{bmatrix} v_{x} \\ v_{y} \\ v_{z} \\ \omega_{x} \\ \omega_{y} \\ \omega_{z} \end{bmatrix} = J \left ( \vec{r}, \vec{n} \right) \ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20v_%7B%5Ctext%7Bend%20-%20effector%7D%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20v_x%20%5C%5C%20v_y%20%5C%5C%20v_z%20%5C%5C%20%5Comega_x%20%5C%5C%20%5Comega_y%20%5C%5C%20%5Comega_z%20%5Cend%7Bbmatrix%7D%20%3D%20J%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
 
 This can be calculated with the library as follows:
 
@@ -1405,13 +1409,13 @@ Please notice that angular velocities are not the same as the angular rate of ch
 
 The simplest and fastest way to calculate the angular and linear velocity of the reference frames attached to each joint is by means of a recursive algorithm, whose premise is to analyze the velocities from the base of the robot to the end-effector with the following equations:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0} = \omega_{i / 0}^{0} %2b \vec{n}_{i %2b 1 / i}^{i} \cdot q_{i}}">,
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Ccdot%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20%7D">,
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i %2b 1 / 0}^{0} = v_{i / 0}^{0} %2b \omega_{i %2b 1 / 0}^{0} \times \vec{r}_{i %2b 1 / i}^{i}}">,
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20v_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%7D">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. Also, <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i / 0}^{0}, v_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear velocities of the *i* - th frame and the subsequent one, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (they can be calculated with the [Forward Kinematics](#forward-kinematics) algorithm). Based on the [Screw Theory](https://en.wikipedia.org/wiki/Screw_theory), both angular and linear velocities can be calculated as follows:
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%2C%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> is the axis of actuation of the *i* - th joint <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Ctheta%7D_i%7D">. Also, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20v_%7Bi%20/%200%7D%5E%7B0%7D%2C%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the inertial linear velocities of the *i* - th frame and the subsequent one, meanwhile <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> represents the relative position between two reference frames (they can be calculated with the [Forward Kinematics](#forward-kinematics) algorithm). Based on the [Screw Theory](https://en.wikipedia.org/wiki/Screw_theory), both angular and linear velocities can be calculated as follows:
 
-<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi/0%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi/0%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20n_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7Bq%7D_%7Bi%7D%20+%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5C%5C%200_%7B3%20%5Ctimes%201%7D%20%5Cend%7Bbmatrix%7D%7D">
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi/0%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi/0%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20n_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7B%5Ctheta_i%7D%20+%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5C%5C%200_%7B3%20%5Ctimes%201%7D%20%5Cend%7Bbmatrix%7D%7D">
 
 with <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D">, representing an identity matrix and a zeros one respectively. With the aforementioned terms, velocity propagation can be calculated with the library as follows:
 
@@ -1485,11 +1489,11 @@ Please notice that initial angular and linear velocities (```w0``` and ```v0```)
 
 Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the end-effector, in a single result with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i %2b 1 / 0}^{0} \\ \mathbf{v}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[\hat{\mathrm{q}}_{i / 0}^{0}\right]_{\mathrm{L}} \left[\hat{\mathrm{q}}_{i / 0}^{*}\right]_{\mathrm{R}} \xi_{i %2b 1 / i}^{i}\dot{q}_{i}}">
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%26%20%5CPhi%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%26%20%5CPhi%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E0%20%5Cright%20%5D_%7B%5Cmathrm%7BL%7D%7D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E*%20%5Cright%20%5D_%7B%5Cmathrm%7BR%7D%7D%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%7D">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0}, \mathbf{v}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear velocities of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}}"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i} \in \mathbb{H}}"> is the screw vector that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any).
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%2C%20%5Cmathrm%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D"> are the angular and linear velocities of the *i + 1* frame, meanwhile <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%7D"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D"> is the screw vector that represent the axis of actuation of the joint <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Ctheta%7D_i%7D"> (if any).
 
-On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
+On the other hand, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20r_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%2C%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
 
 With the aforementioned terms, velocity propagation using dual quaternions can be calculated with the library as follows:
 
@@ -1573,7 +1577,7 @@ Please notice that initial velocity ```w0``` was set to zero because the base of
 
 End-effector acceleration can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130) and its [derivative](#derivative-of-geometric-jacobian-matrix), because this maps the effect of each joint directly to the end-effector, so linear and angular accelerations can be calculated:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\mathrm{v}} = \begin{bmatrix} \dot{v}_{x} \\ \dot{v}_{y} \\ \dot{v}_{z} \\ \dot{\omega}_{x} \\ \dot{\omega}_{y} \\ \dot{\omega}_{z} \end{bmatrix} = \dot{q}^{T} \left( \frac{\partial J}{\partial q}\right) \dot{q} %2b J \left ( \vec{r}, \vec{n} \right) \ \ \ddot{q}}">
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_x%20%5C%5C%20%5Cdot%7Bv%7D_y%20%5C%5C%20%5Cdot%7Bv%7D_z%20%5C%5C%20%5Cdot%7B%5Comega%7D_x%20%5C%5C%20%5Cdot%7B%5Comega%7D_y%20%5C%5C%20%5Cdot%7B%5Comega%7D_z%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J%5EI%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%20%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%20%29%20%5Cddot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
 
 This can be calculated with the library as follows:
 
