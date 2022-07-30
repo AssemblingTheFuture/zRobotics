@@ -148,12 +148,8 @@ if __name__ == '__main__':
   # symbolicGeometricXdd = geometricDerivativeStateSpace(uRobot, symbolic = True)
   
   # Inertial angular acceleration propagation to each reference frame
-  dW = angularAccelerationPropagation(uRobot, dw0 = np.zeros((3, 1)), W = W, qd = qd, qdd = qdd)
-  # symbolicdW = angularAccelerationPropagation(uRobot, dw0 = zeros(3, 1), W = symbolicW, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
-  
-  # Inertial linear acceleration propagation to each reference frame attached to joints
-  dV = linearAccelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), W = W, dW = dW)
-  # symbolicdV = linearAccelerationPropagation(uRobot, dv0 = zeros(3, 1), W = symbolicW, dW = symbolicdW, symbolic = True)
+  dV = accelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), dw0 = np.zeros((3, 1)), V = V, qd = qd, qdd = qdd)
+  # symbolicdV = accelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), dw0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
   # Inertial Velocity of each Center of Mass using Geometric Jacobian Matrix
   geometricXdCOM = geometricCOMStateSpace(uRobot, COM = 2)

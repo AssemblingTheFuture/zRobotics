@@ -38,8 +38,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
         - [Inertial Velocity Propagation](#inertial-velocity-propagation)
         - [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions)
       - [Total Inertial Acceleration](#total-inertial-acceleration)
-        - [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation)
-        - [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation)
+        - [Inertial Acceleration Propagation](#inertial-acceleration-propagation)
         - [Inertial Acceleration Propagation Using Dual Quaternions](#inertial-acceleration-propagation-using-dual-quaternions)
       - [Inertial Velocity to Centers of Mass](#inertial-velocity-to-centers-of-mass)
         - [Inertial Angular Velocity Propagation to Centers of Mass](#inertial-angular-velocity-propagation-to-centers-of-mass)
@@ -612,13 +611,13 @@ You can also calculate its symbolic expressions by setting ```symbolic``` parame
 
 ---
 
-### Dual Quaternions Conjugate
+### Dual Quaternion Conjugate
 
-The inverse form of an Homogeneous Transformation Matrix can be calculated easily with ```numpy``` library, however, the inverse form of a dual quaternions is as simple as conjugating its values:
+The inverse form of an Homogeneous Transformation Matrix can be calculated easily with ```numpy``` library, however, the inverse form of a dual quaternion is as simple as conjugating its values:
 
 ```python
 """
-  Dual Quaternions Conjugate
+  Dual Quaternion Conjugate
 """
 
 # Dual Quaternions library
@@ -662,9 +661,9 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
-### Dual Quaternions to Euclidian Space
+### Dual Quaternion to Euclidian Space
 
-Sometimes it will be necessary to transform a pose representation as dual quaternion <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%20%7D"> into an Euclidian space one <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Br%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%20%7D">:
+Sometimes it will be necessary to transform a pose representation as dual quaternion <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%20%7D"> into an Euclidian space one <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Br%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%201%7D%20%7D">:
 
 ```python
 """
@@ -1409,13 +1408,13 @@ Please notice that angular velocities are not the same as the angular rate of ch
 
 The simplest and fastest way to calculate the angular and linear velocity of the reference frames attached to each joint is by means of a recursive algorithm, whose premise is to analyze the velocities from the base of the robot to the end-effector with the following equations:
 
-<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Ccdot%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20%7D">,
-
 <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20v_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%7D">,
+
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Ccdot%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20%7D">,
 
 where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%2C%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the inertial angular velocities of the *i* - th frame and the subsequent one; on the other hand, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> is the axis of actuation of the *i* - th joint <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Ctheta%7D_i%7D">. Also, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20v_%7Bi%20/%200%7D%5E%7B0%7D%2C%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the inertial linear velocities of the *i* - th frame and the subsequent one, meanwhile <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> represents the relative position between two reference frames (they can be calculated with the [Forward Kinematics](#forward-kinematics) algorithm). Based on the [Screw Theory](https://en.wikipedia.org/wiki/Screw_theory), both angular and linear velocities can be calculated as follows:
 
-<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi/0%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi/0%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20n_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7B%5Ctheta_i%7D%20+%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5C%5C%200_%7B3%20%5Ctimes%201%7D%20%5Cend%7Bbmatrix%7D%7D">
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi/0%7D%5E%7B0%7D%20%5C%5C%20%5Comega__%7Bi/0%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20n_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7B%5Ctheta_i%7D">
 
 with <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D">, representing an identity matrix and a zeros one respectively. With the aforementioned terms, velocity propagation can be calculated with the library as follows:
 
@@ -1577,7 +1576,7 @@ Please notice that initial velocity ```w0``` was set to zero because the base of
 
 End-effector acceleration can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130) and its [derivative](#derivative-of-geometric-jacobian-matrix), because this maps the effect of each joint directly to the end-effector, so linear and angular accelerations can be calculated:
 
-<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_x%20%5C%5C%20%5Cdot%7Bv%7D_y%20%5C%5C%20%5Cdot%7Bv%7D_z%20%5C%5C%20%5Cdot%7B%5Comega%7D_x%20%5C%5C%20%5Cdot%7B%5Comega%7D_y%20%5C%5C%20%5Cdot%7B%5Comega%7D_z%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J%5EI%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%20%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%20%29%20%5Cddot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
+<img src="https://latex.codecogs.com/svg.images?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7Bv%7D_%7B%5Ctext%7Bend%20-%20effector%7D%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_x%20%5C%5C%20%5Cdot%7Bv%7D_y%20%5C%5C%20%5Cdot%7Bv%7D_z%20%5C%5C%20%5Cdot%7B%5Comega%7D_x%20%5C%5C%20%5Cdot%7B%5Comega%7D_y%20%5C%5C%20%5Cdot%7B%5Comega%7D_z%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J%5EI%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%20%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%20%29%20%7D">
 
 This can be calculated with the library as follows:
 
@@ -1601,12 +1600,12 @@ So the outputs will be
 ```bash
 #NumPy Array
 >>> Xdd
-array([[ 6.32440329],
-       [ 2.49311859],
-       [ 0.33166754],
-       [ 0.20279356],
-       [-4.29436722],
-       [ 1.56083248]])
+array([[-0.16944943],
+       [ 0.61173643],
+       [ 0.82593961],
+       [ 0.7560715 ],
+       [-1.04773218],
+       [ 0.82976722]])
 ```
 
 You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1615,17 +1614,23 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
-### Inertial Angular Acceleration Propagation
+### Inertial Acceleration Propagation
 
-Angular accelerations can also be calculated recursively. In this case, angular acceleration propagation can be analyzed from the base of the robot to the end-effector with the following equation:
+Linear and angular accelerations can also be calculated recursively. In this case, acceleration propagation can be analyzed from the base of the robot to the end-effector with the following equations:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{i %2b 1 / 0}^{0} \times \vec{n}_{i %2b 1 / i}^{i} \right) \cdot \dot{q}_{i} %2b \left( \vec{n}_{i %2b 1 / i}^{i} \cdot \ddot{q}_{i} \right)}">,
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20%5Cdot%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Cleft%28%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%29%20+%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cleft%28%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%29%20%7D">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%3D%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Cleft%28%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%29%20%5Ccdot%20%5Cdot%7B%5Ctheta%7D_i%20+%20%5Cleft%28%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Ccdot%20%5Cddot%7B%5Ctheta%7D_i%20%5Cright%29%20%7D">,
+
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%2C%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%2C%20%5Cdot%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%2C%20%5Cdot%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the inertial angular and linear accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%2C%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the axis of actuation of the *i* - th joint and its relative position. Based on the [Screw Theory](https://en.wikipedia.org/wiki/Screw_theory), both angular and linear accelerations can be calculated as follows:
+
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%5Cleft%5B%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5CPhi%20%26%20%5Cleft%5B%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5Cleft%5B%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20-%5Cleft%5B%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%5Ccdot%20%5Cdot%7B%5Ctheta%7D_i%20+%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cleft%28%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%29%20%5C%5C%200_%7B3%20%5Ctimes%201%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%5Cleft%5B%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Ccdot%20%5Cddot%7B%5Ctheta%7D_i%20%7D">
+
+with <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D">, representing an identity matrix and a zeros one respectively. With the aforementioned terms, acceleration propagation can be calculated with the library as follows:
 
 ```python
 """
-  Inertial Angular Velocity Propagation
+  Inertial Acceleration Propagation
 """
 
 # Differential Kinematics library
@@ -1634,67 +1639,8 @@ from lib.kinematics.DifferentialHTM import *
 # NumPy
 import numpy as np
 
-# Inertial angular acceleration propagation to each reference frame
-dW = angularAccelerationPropagation(uRobot, dw0 = np.zeros((3, 1)), W = W, qd = qd, qdd = qdd, symbolic = False)
-```
-
-So the outputs will be
-
-```bash
-# NumPy Array
->>> dW[0]
-array([[0.],
-       [0.],
-       [0.]])
-
->>> dW[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [-0.31549224]])
-
->>> dW[2]
-array([[ 0.27946512],
-       [ 0.75648682],
-       [-0.31549224]])
-
->>> dW[3]
-array([[-0.05497791],
-       [ 1.54724265],
-       [-0.31549224]])
-
->>> dW[4]
-array([[-0.1895467 ],
-       [ 1.55232053],
-       [-0.08108125]])
-```
-
-Please notice that initial angular acceleration ```dW0``` was set to zero because the base of the robot doesn't move; on the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
-
-[*Return to top*](#zrobotics-02)
-
----
-
-### Inertial Linear Acceleration Propagation
-
-As shown in previous sections, accelerations can be calculated recursively. In this case, linear acceleration propagation can be analyzed from the base of the robot to the end-effector with the following equation:
-
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{v}_{i %2b 1 / 0}^{0} = \dot{v}_{i / 0}^{0} %2b \left( \dot{\omega}_{i %2b 1 / 0}^{0} \times \vec{r}_{i %2b 1 / i}^{i} \right) %2b \omega_{i %2b 1 / 0}^{0} \times \left( \omega_{i %2b 1 / 0}^{0} \times \vec{r}_{i %2b 1 / i}^{i} \right)}">,
-
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{v}_{i / 0}^{0}, \dot{v}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear accelerations of the *i* - th frame and the subsequent one; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i %2b 1 / 0}^{0}, \dot{\omega}_{i %2b 1 / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the angular velocities and accelerations calculated as shown in previous sections, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). These accelerations can be calculated with the library as follows:
-
-```python
-"""
-  Inertial Linear Acceleration Propagation
-"""
-
-# Differential Kinematics library
-from lib.kinematics.DifferentialHTM import *
-
-# NumPy
-import numpy as np
-
-# Inertial linear acceleration propagation to each reference frame attached to joints
-dV = linearAccelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), W = W, dW = dW, symbolic = False)
+# Inertial acceleration propagation to each reference frame
+dV = accelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), dw0 = np.zeros((3, 1)), V = V, qd = qd, qdd = qdd, symbolic = False)
 ```
 
 So the outputs will be
@@ -1704,30 +1650,45 @@ So the outputs will be
 >>> dV[0]
 array([[0.],
        [0.],
-       [0.]])
-
->>> dV[1]
-array([[0.],
+       [0.],
+       [0.],
        [0.],
        [0.]])
 
+>>> dV[1]
+array([[ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-0.16935298]])
+
 >>> dV[2]
-array([[ 0.01639436],
-       [-1.0222499 ],
-       [ 0.55440588]])
+array([[-0.23049234],
+       [ 0.50468618],
+       [ 0.46734456],
+       [ 0.06969884],
+       [-0.11247016],
+       [-0.16935298]])
 
 >>> dV[3]
-array([[ 0.01639436],
-       [-1.0222499 ],
-       [ 0.55440588]])
+array([[-0.23049234],
+       [ 0.50468618],
+       [ 0.46734456],
+       [ 0.21461712],
+       [-0.02760132],
+       [-0.16935298]])
 
 >>> dV[4]
-array([[ 0.90471426],
-       [-1.87330423],
-       [ 0.36473287]])
+array([[-0.16919013],
+       [ 0.611339  ],
+       [ 0.826206  ],
+       [ 0.75601027],
+       [-1.04775072],
+       [ 0.82919977]])
 ```
 
-Please notice that initial linear acceleration ```dW0``` was set to zero because the base of the robot doesn't move; also the list with the angular velocities ```W``` and accelerations ```dW``` has to be sent as a parameter of this function, so [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Angular Velocity Acceleration](#inertial-angular-velocity-acceleration) have to be computed before calling this function. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial angular and linear accelerations (```dw0``` and ```dv0```) were set to zero because the base of the robot doesn't move; also the list with the velocities ```V``` has to be sent as a parameter of this function, so [Inertial Velocity Propagation](#inertial-velocity-propagation) has to be computed before calling this function. On the other hand, Python will send all the accelerations inside a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 

@@ -150,8 +150,8 @@ def velocityPropagation(robot : object, v0 : np.array, w0 : np.array, qd : np.ar
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    W (np.array): velocity to each reference frame (numerical)
-    W (SymPy Matrix): velocity to each reference frame (symbolic)
+    V (np.array): velocity to each reference frame (numerical)
+    V (SymPy Matrix): velocity to each reference frame (symbolic)
   """
   
   # Initial conditions
@@ -203,31 +203,32 @@ def velocityPropagation(robot : object, v0 : np.array, w0 : np.array, qd : np.ar
       
   return V
 
-def angularAccelerationPropagation(robot : object, dw0 : np.array, W : list, qd : np.array, qdd : np.array, symbolic = False):
-  """Using Homogeneous Transformation Matrices, this function computes angular acceleration to the i-th reference frame of a serial robot given initial acceleration. Serial robot's kinematic parameters have to be set before using this function
+def accelerationPropagation(robot : object, dv0 : np.array, dw0 : np.array, V : list, qd : np.array, qdd : np.array, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes both angular and linear acceleration to the i-th reference frame of a serial robot given initial acceleration. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
+    dv0 (np.array): initial linear acceleration of the system (equals to zero if the robot's base is not mobile)
     dw0 (np.array): initial angular acceleration of the system (equals to zero if the robot's base is not mobile)
-    W (np.array): angular velocities of the system (this have to be calculated with "angularVelocityPropagation" function)
+    V (np.array): angular and linear velocities of the system (this have to be calculated with "velocityPropagation" function)
     qd (np.array): velocities of each joint
     qdd (np.array): accelerations of each joint
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    dW (np.array): angular acceleration to each reference frame (numerical)
-    dW (SymPy Matrix): angular acceleration to each reference frame (symbolic)
+    dV (np.array): acceleration to each reference frame (numerical)
+    dV (SymPy Matrix): acceleration to each reference frame (symbolic)
   """
   
   # Initial conditions
-  dW = [dw0]
+  dV = [np.append(dv0, dw0, axis = 0)]
   
   # Calculate forward kinematics to know the position and axis of actuation of each joint
   fkHTM = forwardHTM(robot, symbolic)
   
   # Get number of reference frames
   m = robot.dhParameters.shape[0]
-  
+   
   # Iterates through all reference frames (excepting inertial one)
   for k in range(1, m):
     
@@ -236,6 +237,15 @@ def angularAccelerationPropagation(robot : object, dw0 : np.array, W : list, qd 
     
     # Check if this frame contains any of the "n" joints
     containedJoints = np.in1d(robot.qSymbolic, frame)
+    
+    # Relative position between i-th and i + 1 frames
+    r = fkHTM[k][0 : 3, -1] - fkHTM[k - 1][0 : 3, -1]
+    
+    # Create relative position cross operator between i-th and i + 1 frames
+    ri = crossMatrix(r, symbolic)
+    
+    # Relative position matrix between i-th and i + 1 frames
+    Mi = Matrix([[eye(3), -ri], [zeros(3), eye(3)]]) if symbolic else np.append(np.append(np.eye(3), -ri, axis = 1), np.append(np.zeros((3, 3)), np.eye(3), axis = 1), axis = 0)
     
     # If any joint is in the current reference frame
     if any(element == True for element in containedJoints):
@@ -246,56 +256,21 @@ def angularAccelerationPropagation(robot : object, dw0 : np.array, W : list, qd 
       # Get axis of actuation where joint is attached
       z = fkHTM[k - 1][0: 3, 2]
       
-      # Relative angular acceleration calculation equals to ((w x z) * qdi) + (z * qddi)
-      dwJoint = ((W[k].cross(z)) * qd[joint]) + (z * qdd[joint]) if symbolic else (np.cross(W[k], z, axis = 0) * qd[joint]) + (z * qdd[joint]).reshape((3, 1))
+      # Relative position matrix for non-linear terms
+      M = Matrix([[zeros(3), ri * crossMatrix(z, symbolic)], [zeros(3), -crossMatrix(z, symbolic)]]) if symbolic else np.append(np.append(np.zeros((3, 3)), ri.dot(crossMatrix(z)), axis = 1), np.append(np.zeros((3, 3)), -crossMatrix(z), axis = 1), axis = 0)
+      
+      # Relative acceleration calculation for joints actuation
+      dVjoint = (M * V[k] * qd[joint]) + (Mi * Matrix([zeros(3, 1), z]) * qdd[joint]) if symbolic else (M.dot(V[k]) * qd[joint]) + (Mi.dot(np.append(np.zeros((3, 1)), z.reshape((3, 1)), axis = 0)) * qdd[joint])
       
     else:
       
-      # Relative angular acceleration calculation equals to zero (no effects caused by joints)
-      dwJoint = zeros(3, 1) if symbolic else np.zeros((3, 1))
+      # Relative acceleration calculation equals to zero (no effects caused by joints)
+      dVjoint = zeros(6, 1) if symbolic else np.zeros((6, 1))
           
-    # Calculate angular acceleration up to this point
-    dw = trigsimp(dW[-1] + dwJoint) if symbolic else dW[-1] + dwJoint.reshape((3, 1))
+    # Calculate acceleration up to this point
+    dv = trigsimp((Mi * dV[-1]) + dVjoint) if symbolic else Mi.dot(dV[-1]) + dVjoint + np.append((np.cross(V[k][3 : 6], np.cross(V[k][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
 
-    # Append each calculated angular acceleration
-    dW.append(nsimplify(dw.evalf(), tolerance = 1e-10) if symbolic else dw)
-      
-  return dW
-
-def linearAccelerationPropagation(robot : object, dv0 : np.array, W : list, dW : list, symbolic = False):
-  """Using Homogeneous Transformation Matrices, this function computes angular acceleration to the i-th reference frame of a serial robot given initial acceleration. Serial robot's kinematic parameters have to be set before using this function
-
-  Args:
-    robot (object): serial robot (this won't work with other type of robots)
-    dv0 (np.array): initial linear acceleration of the system (equals to zero if the robot's base is not mobile)
-    W (np.array): angular velocities of the system (this have to be calculated with "angularVelocityPropagation" function)
-    dW (np.array): angular accelerations of the system (this have to be calculated with "angularAccelerationPropagation" function)
-    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
-
-  Returns:
-    dV (np.array): linear acceleration to each reference frame (numerical)
-    dV (SymPy Matrix): linear acceleration to each reference frame (symbolic)
-  """
-  
-  # Initial conditions
-  dV = [dv0]
-  
-  # Calculate forward kinematics to know the position and axis of actuation of each joint
-  fkHTM = forwardHTM(robot, symbolic)
-  
-  # Get number of reference frames
-  m = robot.dhParameters.shape[0]
-  
-  # Iterates through all reference frames (excepting inertial one)
-  for k in range(1, m):
-        
-    # Get relative position of rigid body
-    r = fkHTM[k][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
-  
-    # Calculate linear velocity up to this point
-    dv = trigsimp(dV[-1] + (dW[k].cross(r)) + (W[k].cross(W[k].cross(r)))) if symbolic else dV[-1] + (np.cross(dW[k], r, axis = 0)) + (np.cross(W[k], np.cross(W[k], r, axis = 0), axis = 0))
-
-    # Append each calculated linear velocity
+    # Append each calculated acceleration
     dV.append(nsimplify(dv.evalf(), tolerance = 1e-10) if symbolic else dv)
       
   return dV

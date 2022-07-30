@@ -172,6 +172,55 @@ def geometricJacobian(robot : object, symbolic = False):
     
   return J
 
+def geometricJacobianZ(robot : object, V : np.array, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (Serial): serial robot (this won't work with other type of robots)
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    J (np.array): Geometric Jacobian Matrix (numerical)
+    J (SymPy Matrix): Geometric Jacobian Matrix (symbolical)
+  """
+
+  dJg = geometricJacobianDerivative(robot)
+
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Calculate forward kinematics
+  fkHTM = forwardHTM(robot, symbolic)
+  
+  # Initializes jacobian matrix with zeros
+  dJ = zeros(6, n) if symbolic else np.zeros((6, n))
+  
+  # Iterates through all colums (generalized coordinates)
+  for j in range(n):
+    
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row, column = robot.whereIsTheJoint(j + 1)
+    
+    # Get row where joint is stored
+    frame = robot.symbolicDHParameters[4 * (row) : 4 * (row + 1)] if symbolic else robot.dhParameters[row, :]
+    
+    # Get pose of the joint
+    H = fkHTM[row - 1] * rz(frame[0] if column >= 0 else 0, symbolic) * tz(frame[1] if column >= 1 else 0, symbolic) * tx(frame[2] if column >= 2 else 0) * rx(frame[3] if column >= 3 else 0)  if symbolic else fkHTM[row - 1].dot(rz(frame[0] if column >= 0 else 0)).dot(tz(frame[1] if column >= 1 else 0)).dot(tx(frame[2] if column >= 2 else 0, symbolic)).dot(rx(frame[3] if column >= 3 else 0))
+    
+    # Get axis of actuation of current joint
+    z = H[0: 3, 2]
+      
+    # Calculate distance between end - effector and current joint
+    r = fkHTM[-1][0: 3, 3] - H[0: 3, 3]
+    
+    # Calculate axes of actuation of Center of Mass or End - Effector caused by current joint
+    dJ[0: 3, j] = nsimplify(trigsimp(z.cross(r)).evalf(), tolerance = 1e-10) if symbolic else np.cross(V[j][3 : 6], np.cross(z, r, axis = 0), axis = 0)
+    
+    # Set axis of actuation
+    dJ[3: 6, j] = nsimplify(trigsimp(z).evalf(), tolerance = 1e-10) if symbolic else z
+    
+  return dJ
+
 def geometricJacobianDerivative(robot : object, dq = 0.001, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes the derivative of Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
 
