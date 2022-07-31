@@ -44,8 +44,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
         - [Inertial Velocity Propagation to Centers of Mass](#inertial-velocity-propagation-to-centers-of-mass)
         - [Inertial Velocity Propagation to Centers of Mass Using Dual Quaternions](#inertial-velocity-propagation-to-centers-of-mass-using-dual-quaternions)
       - [Inertial Acceleration to Centers of Mass](#inertial-acceleration-to-centers-of-mass)
-        - [Inertial Angular Acceleration Propagation to Centers of Mass](#inertial-angular-acceleration-propagation-to-centers-of-mass)
-        - [Inertial Linear Acceleration Propagation to Centers of Mass](#inertial-linear-acceleration-propagation-to-centers-of-mass)
+        - [Inertial Acceleration Propagation to Centers of Mass](#inertial-acceleration-propagation-to-centers-of-mass)
         - [Inertial Acceleration Propagation to Centers of Mass Using Dual Quaternions](#inertial-acceleration-propagation-to-centers-of-mass-using-dual-quaternions)
     - [Dynamics](#dynamics)
       - [Euler - Lagrange Formulation](#euler---lagrange-formulation)
@@ -1999,7 +1998,7 @@ Please notice that initial velocity ```WdqCOM0``` was set to zero because the ba
 
 **For dynamic modelling, it will be mandatory to know the velocity of each center of mass**. As stated in previous sections, inertial accelerations can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130) and its [time derivative](#derivative-of-geometric-jacobian-matrix). In this case, it maps the effect of each joint directly to the each center of mass, so linear and angular accelerations can be calculated:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\mathrm{v}}_{com_j} = \begin{bmatrix} \dot{v}_{x_{com_j}} \\ \dot{v}_{y_{com_j}} \\ \dot{v}_{z_{com_j}} \\ \dot{\omega}_{x_{com_j}} \\ \dot{\omega}_{y_{com_j}} \\ \dot{\omega}_{z_{com_j}} \end{bmatrix} = \dot{q}^{T} \left( \frac{\partial J}{\partial q} \right) \dot{q} %2b J_{com_j} \left ( \vec{r}, \vec{n} \right) \ \ \ddot{q}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\dot{\mathrm{v}}_{com_j} = \begin{bmatrix} \dot{v}_{x_{com_j}} \\ \dot{v}_{y_{com_j}} \\ \dot{v}_{z_{com_j}} \\ \dot{\omega}_{x_{com_j}} \\ \dot{\omega}_{y_{com_j}} \\ \dot{\omega}_{z_{com_j}} \end{bmatrix} = \dot{\bar{\theta}}^{T} \left( \frac{\partial J}{\partial q} \right) \dot{\bar{\theta}} %2b J_{com_j} \left ( \vec{r}, \vec{n} \right) \ \ \ddot{\bar{\theta}}}">
 
 This can be calculated with the library as follows:
 
@@ -2037,17 +2036,23 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
-### Inertial Angular Acceleration Propagation to Centers of Mass
+### Inertial Acceleration Propagation to Centers of Mass
 
-Angular accelerations can also be calculated recursively. In this case, angular acceleration of each center of mass can be analyzed from the base of the robot to the end-effector with the following equation:
+Acelerations can also be calculated recursively. In this case, angular acceleration of each center of mass can be analyzed from the base of the robot to the end-effector with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{com_j / 0}^{0} = \dot{\omega}_{i / 0}^{0} %2b \left( \omega_{com_j / 0}^{0} \times \vec{n}_{i %2b 1 / i}^{i} \right) \cdot \dot{q}_{i} %2b \left( \vec{n}_{i %2b 1 / i}^{i} \cdot \ddot{q}_{i} \right)}">,
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7Bv%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%3D%20%5Cdot%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Cleft%28%20%5Cdot%7B%5Comega%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%29%20+%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cleft%28%20%5Comega__%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%29%7D">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i / 0}^{0}, \dot{\omega}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular accelerations of the *i* - th frame and the *j* - th rigid body; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Comega%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%3D%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Cleft%28%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Bn%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%29%20%5Ccdot%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cleft%28%20%5Cvec%7Bn%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Ccdot%20%5Cddot%7B%5Ctheta%7D_%7Bi%7D%20%5Cright%29%7D">,
+
+where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%2C%20%5Cdot%7B%5Comega%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the inertial angular accelerations of the *i* - th frame and the *j* - th rigid body; on the other hand, <img src="https://latex.codecogs.com/svg.image?{\color{red}\vec{n}_{i %2b 1 / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://latex.codecogs.com/svg.image?{\color{red}\theta_{i}}">. Also, <img src="https://latex.codecogs.com/svg.image?{\color{red}\dot{v}_{i / 0}^{0}, \dot{v}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear accelerations of the *i* - th frame and the *j* - th rigid body; on the other hand, <img src="https://latex.codecogs.com/svg.image?{\color{red}\omega_{com_j / 0}^{0}, \dot{\omega}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the angular velocities and accelerations calculated as shown in previous sections, meanwhile <img src="https://latex.codecogs.com/svg.image?{\color{red}\vec{r}_{com_j / i}^{i} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). Based on the [Screw Theory](https://en.wikipedia.org/wiki/Screw_theory), both angular and linear velocities to the centers of mass can be calculated as follows:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5Cleft%5B%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5CPhi%20%26%20%5Cleft%5B%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5Cleft%5B%20%5Cvec%7Bn%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20-%20%5Cleft%5B%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%5Ccdot%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cleft%28%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%29%20%5C%5C%200_%7B3%20%5Ctimes%201%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5Cleft%5B%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20%5Cvec%7Bn%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Ccdot%20%5Cddot%7B%5Ctheta%7D_%7Bi%7D%20%7D">
+
+with <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D">, representing an identity matrix and a zeros one respectively. With the aforementioned terms, acceleration propagation can be calculated with the library as follows:
 
 ```python
 """
-  Inertial Angular Velocity Propagation to Centers of Mass
+  Inertial Acceleration Propagation to Centers of Mass
 """
 
 # Differential Kinematics library
@@ -2056,90 +2061,40 @@ from lib.kinematics.DifferentialHTM import *
 # NumPy
 import numpy as np
 
-# Inertial angular acceleration propagation to each reference frame
-dWcom = angularAccelerationPropagationCOM(uRobot, dwCOM0 = np.zeros((3, 1)), Wcom = Wcom, dW = dW, qd = qd, qdd = qdd)
+# Inertial acceleration propagation to each reference frame
+dVcom = accelerationPropagationCOM(uRobot, dvCOM0 = np.zeros((3, 1)), dwCOM0 = np.zeros((3, 1)), Vcom = Vcom, dV = dV, qd = qd, qdd = qdd)
 ```
 
 So the outputs will be
 
 ```bash
 # NumPy Array
->>> dWcom[0]
-array([[0.],
-       [0.],
-       [0.]])
-
->>> dWcom[1]
+>>> dVcom[1]
 array([[ 0.        ],
        [ 0.        ],
-       [-0.31549224]])
-
->>> dWcom[2]
-array([[ 0.27946512],
-       [ 0.75648682],
-       [-0.31549224]])
-
->>> dWcom[3]
-array([[-0.1895467 ],
-       [ 1.55232053],
-       [-0.08108125]])
-```
-
-Please notice that initial angular acceleration ```dWCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each center of mass ```Wcom``` and the angular acceleration of each reference frame ```dW``` before using this function, this is because we have to send the results as parameters. On the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
-
-[*Return to top*](#zrobotics-02)
-
----
-
-### Inertial Linear Acceleration Propagation to Centers of Mass
-
-As shown in previous sections, accelerations can be calculated recursively. In this case, linear acceleration propagation can be analyzed from the base of the robot to each center of mass with the following equation:
-
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{v}_{com_j / 0}^{0} = \dot{v}_{i / 0}^{0} %2b \left( \dot{\omega}_{com_j / 0}^{0} \times \vec{r}_{com_j / i}^{i} \right) %2b \omega_{com_j / 0}^{0} \times \left( \omega_{com_j / 0}^{0} \times \vec{r}_{com_j / i}^{i} \right)}">,
-
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{v}_{i / 0}^{0}, \dot{v}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear accelerations of the *i* - th frame and the *j* - th rigid body; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j / 0}^{0}, \dot{\omega}_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the angular velocities and accelerations calculated as shown in previous sections, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{com_j / i}^{i} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). These accelerations can be calculated with the library as follows:
-
-```python
-"""
-  Inertial Linear Acceleration Propagation to Centers of Mass
-"""
-
-# Differential Kinematics library
-from lib.kinematics.DifferentialHTM import *
-
-# NumPy
-import numpy as np
-
-# Inertial linear acceleration propagation to each center of mass
-dVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = np.zeros((3, 1)), Wcom = Wcom, dWcom = dWcom, dV = dV)
-```
-
-So the outputs will be
-
-```bash
-# NumPy Array
->>> dVcom[0]
-array([[0.],
-       [0.],
-       [0.]])
-
->>> dVcom[1]
-array([[0.],
-       [0.],
-       [0.]])
+       [ 0.        ],
+       [ 0.        ],
+       [ 0.        ],
+       [-1.26499063]])
 
 >>> dVcom[2]
-array([[ 0.00819718],
-       [-0.51112495],
-       [ 0.27720294]])
+array([[-0.29292752],
+       [-0.81547538],
+       [ 0.15702122],
+       [ 0.76685301],
+       [-0.05417907],
+       [-1.26499063]])
 
 >>> dVcom[3]
-array([[ 0.46055431],
-       [-1.44777707],
-       [ 0.45956938]])
+array([[-0.11168071],
+       [-0.70497229],
+       [ 0.08112837],
+       [ 0.1705765 ],
+       [-0.98633839],
+       [-1.52953533]])
 ```
 
-Please notice that initial linear acceleration ```dvCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular and linear velocities to each center of mass (```Wcom```, ```Vcom```) and the linear accelerations to each reference frame ```dV```, this is because we have to send the results as parameters. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial angular and linear accelerations (```dWCOM0``` and ```dvCOM0```) were set to zero because the base of the robot doesn't move; also it's mandatory to calculate the velocities to each center of mass ```Vcom``` and the acceleration of each reference frame ```dV``` before using this function, this is because we have to send the results as parameters. On the other hand, Python will send all the accelartions in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -2151,9 +2106,9 @@ Dual Quaternions can be used to represent the relative pose of a center of mass,
 
 <img src="https://latex.codecogs.com/svg.image?%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathcal%7BO%7D%20%5C%5C%20%5Comega_%7Bcom_j%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bcom_j%20/%200%7D%20-%20%5Comega_%7Bi%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5C%5C%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cleft%5B%20%5Cdot%7B%5Cxi%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cxi_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cddot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%29%20%5Ctimes%20%5Cleft%28%20%5Cxi_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%5Cright%29%20%5Cright%20%5D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cright%20%29%20%7D">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{com_j / 0}^{0}, \dot{\mathbf{v}}_{com_j / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear accelerations of the *j*-th center of mass, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}, \mathcal{O} \in \mathbb{R}^{4 \times 1}}"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{com_j / i}^{i}, \dot{\xi}_{com_j / i}^{i} \in \mathbb{H}}"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any) and its rate of change.
+where <img src="https://latex.codecogs.com/svg.image?{\color{red}\dot{\omega}_{com_j / 0}^{0}, \dot{\mathbf{v}}_{com_j / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear accelerations of the *j*-th center of mass, meanwhile <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}, \mathcal{O} \in \mathbb{R}^{4 \times 1}}"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://latex.codecogs.com/svg.image?{\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://latex.codecogs.com/svg.image?{\color{red}\xi_{com_j / i}^{i}, \dot{\xi}_{com_j / i}^{i} \in \mathbb{H}}"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://latex.codecogs.com/svg.image?{\color{red}\dot{\theta}_{i}}"> (if any) and its rate of change.
 
-On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i / 0}^{0}, \mathbf{r}_{com_j / 0}^{0}, \mathbf{r}_{com_j / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the *i-th* reference frame and the *j*-th center of mass, with respect to the inertial frame and the *i*-th one. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality. Furthermore, it's mandatory to calculate the [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions) to get the angular and linear velocities of the *i*-th frame <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \mathbf{v}_{i / 0}^{i} \in \mathbb{H}^{v}}">.
+On the other hand, <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathbf{r}_{i / 0}^{0}, \mathbf{r}_{com_j / 0}^{0}, \mathbf{r}_{com_j / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the *i-th* reference frame and the *j*-th center of mass, with respect to the inertial frame and the *i*-th one. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality. Furthermore, it's mandatory to calculate the [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions) to get the angular and linear velocities of the *i*-th frame <img src="https://latex.codecogs.com/svg.image?{\color{red}\omega_{i / 0}^{0}, \mathbf{v}_{i / 0}^{i} \in \mathbb{H}^{v}}">.
 
 With the aforementioned terms, acceleration propagation to centers of mass using dual quaternions can be calculated with the library as follows:
 
@@ -2235,15 +2190,15 @@ Robot dynamics studies the forces acting on a robotic mechanism and the accelera
 
 It describes the behavior of a dynamical system in terms of the work and energy stored in it, rather than the forces and moments of the individual members involved. It can be described as follows:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{q}} \right)^T - \left( \frac{\partial L}{\partial q}\right)^T = \tau}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{q}} \right)^T - \left( \frac{\partial L}{\partial q}\right)^T = \tau}">
 
-Where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\tau \in \mathbb{R}^{n \times 1}}"> represents the torques applied to each joint or generalized coordinate. Also, <img src="https://render.githubusercontent.com/render/math?math={\color{red}L \in \mathbb{R}}"> is the Lagrangian, a scalar representation of the relationship between kinetic <img src="https://render.githubusercontent.com/render/math?math={\color{red}K \in \mathbb{R}}"> and potential energy <img src="https://render.githubusercontent.com/render/math?math={\color{red}P \in \mathbb{R}}">, this is
+Where <img src="https://latex.codecogs.com/svg.image?{\color{red}\tau \in \mathbb{R}^{n \times 1}}"> represents the torques applied to each joint or generalized coordinate. Also, <img src="https://latex.codecogs.com/svg.image?{\color{red}L \in \mathbb{R}}"> is the Lagrangian, a scalar representation of the relationship between kinetic <img src="https://latex.codecogs.com/svg.image?{\color{red}K \in \mathbb{R}}"> and potential energy <img src="https://latex.codecogs.com/svg.image?{\color{red}P \in \mathbb{R}}">, this is
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}L = K - P}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}L = K - P}">
 
 In robotics, **this is analyzed with respect to each Center of Mass because the way forces and torques propagates through each rigid body**. To calculate it, previous equations can be rewriten as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau_i}">, where <img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com} = K_{com} - P_{com}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau_i}">, where <img src="https://latex.codecogs.com/svg.image?{\color{red}L_{com} = K_{com} - P_{com}}">
 
 To calculate each term, [Forward Kinematics](#forward-kinematics) and [Differential Kinematics](#differential-kinematics) will be used, so dynamic modelling won't be too complicated if previous topics were thoroughly studied :smiley:
 
@@ -2255,29 +2210,29 @@ To calculate each term, [Forward Kinematics](#forward-kinematics) and [Different
 
 This is a form of energy that a rigid body has by its motion. If a rigid body is affected by an external force, it speeds up and thereby gains kinetic energy, so the one of the *i* - th element, with respect to its center of mass, is defined as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} = \frac{1}{2} m_j v_{com_j}^{T} v_{com_j} %2b \frac{1}{2} \omega_{com_j}^{T} \left( I_{com_j} \right) \omega_{com_j}}">, with <img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} \in \mathbb{R}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}K_{com_j} = \frac{1}{2} m_j v_{com_j}^{T} v_{com_j} %2b \frac{1}{2} \omega_{com_j}^{T} \left( I_{com_j} \right) \omega_{com_j}}">, with <img src="https://latex.codecogs.com/svg.image?{\color{red}K_{com_j} \in \mathbb{R}}">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{com_j}, \omega_{com_j} \in \mathbb{R}^{3 \times 1}}"> that can be obtained as shown [here](#inertial-velocity-for-centers-of-mass):
+where <img src="https://latex.codecogs.com/svg.image?{\color{red}v_{com_j}, \omega_{com_j} \in \mathbb{R}^{3 \times 1}}"> that can be obtained as shown [here](#inertial-velocity-for-centers-of-mass):
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_j} = \begin{bmatrix} v_{com_j} \\ \omega_{com_j} \end{bmatrix} = }"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} J_{v_{com_j}} \\ J_{\omega_{com_j}} \end{bmatrix} \ \ \dot{q}}">,
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{v}_{com_j} = \begin{bmatrix} v_{com_j} \\ \omega_{com_j} \end{bmatrix} = }"> <img src="https://latex.codecogs.com/svg.image?{\color{red}\begin{bmatrix} J_{v_{com_j}} \\ J_{\omega_{com_j}} \end{bmatrix} \ \ \dot{q}}">,
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{com_j} = J_{v_{com_j}} \ \ \dot{q}}"> and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j} = J_{\omega_{com_j}} \ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}v_{com_j} = J_{v_{com_j}} \ \ \dot{q}}"> and <img src="https://latex.codecogs.com/svg.image?{\color{red}\omega_{com_j} = J_{\omega_{com_j}} \ \ \dot{q}}">
 
 therefore, first equation can be rewriten as follows:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} = \frac{1}{2} m_j \left( J_{v_{com_j}} \ \ \dot{q} \right)^{T} \left( J_{v_{com_j}} \ \ \dot{q} \right) %2b \frac{1}{2} \left( J_{\omega_{com_j}} \dot{q} \right)^{T} I_{com_j} \left( J_{\omega_{com_j}} \dot{q} \right)}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}K_{com_j} = \frac{1}{2} m_j \left( J_{v_{com_j}} \ \ \dot{q} \right)^{T} \left( J_{v_{com_j}} \ \ \dot{q} \right) %2b \frac{1}{2} \left( J_{\omega_{com_j}} \dot{q} \right)^{T} I_{com_j} \left( J_{\omega_{com_j}} \dot{q} \right)}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} = \frac{1}{2} m_j \cdot \dot{q}^{T} \left( J_{v_{com_j}}^{T} J_{v_{com_j}} \right) \dot{q}^{T} %2b \frac{1}{2} \dot{q}^{T} \left( J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \right) \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}K_{com_j} = \frac{1}{2} m_j \cdot \dot{q}^{T} \left( J_{v_{com_j}}^{T} J_{v_{com_j}} \right) \dot{q}^{T} %2b \frac{1}{2} \dot{q}^{T} \left( J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \right) \dot{q}}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com_j} = \frac{1}{2} \dot{q}^{T} \big ( m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big) \ \ \dot{q}}">.
+<img src="https://latex.codecogs.com/svg.image?{\color{red}K_{com_j} = \frac{1}{2} \dot{q}^{T} \big ( m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big) \ \ \dot{q}}">.
 
 Then, total kinetic energy is the sum of all energies, this is:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com} = \frac{1}{2} \dot{q}^{T} \big [ \sum_{j = 1}^{r_b} \big (  m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big ) \big ] \ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}K_{com} = \frac{1}{2} \dot{q}^{T} \big [ \sum_{j = 1}^{r_b} \big (  m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big ) \big ] \ \ \dot{q}}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com} = \frac{1}{2} \dot{q}^{T} \left[ \mathrm{D} \left( q \right)\right] \ \ \dot{q}}">,
+<img src="https://latex.codecogs.com/svg.image?{\color{red}K_{com} = \frac{1}{2} \dot{q}^{T} \left[ \mathrm{D} \left( q \right)\right] \ \ \dot{q}}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) \in \mathbb{R}^{n \times n}}"> is known as the *inertia matrix*, who is a square symmetric matrix that will be useful for further calculations. Kinetic energy can be calculated with the library as follows:
+where <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) \in \mathbb{R}^{n \times n}}"> is known as the *inertia matrix*, who is a square symmetric matrix that will be useful for further calculations. Kinetic energy can be calculated with the library as follows:
 
 ```python
 """
@@ -2299,7 +2254,7 @@ So the output will be
 Matrix([[0.5*qd1*(1.73561594321417*qd1 + 1.23248093741685*qd2 + 0.61313663099757*qd3 - 0.777383210893546*qd4) + 0.5*qd2*(1.23248093741685*qd1 + 2.54573557767803*qd2 + 0.91515058225959*qd3 - 0.585217150798144*qd4) + 0.5*qd3*(0.61313663099757*qd1 + 0.91515058225959*qd2 + 0.860255360816805*qd3 - 0.585217150798144*qd4) + 0.5*qd4*(-0.777383210893546*qd1 - 0.585217150798144*qd2 - 0.585217150798144*qd3 + 0.73863435073761*qd4)]])
 ```
 
-Please notice that this result is partially numerical because it includes joints velocities <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_i}"> in symbolic form; they are stored in ```uRobot.qdSymbolic```. If you need the numerical value, just use the following modules:
+Please notice that this result is partially numerical because it includes joints velocities <img src="https://latex.codecogs.com/svg.image?{\color{red}\dot{q}_i}"> in symbolic form; they are stored in ```uRobot.qdSymbolic```. If you need the numerical value, just use the following modules:
 
 ```python
 """
@@ -2334,9 +2289,9 @@ You can also calculate the full symbolic expression by setting ```symbolic``` pa
 
 Basically, this is a representation of the sum of linear and angular momentums in the robot, this leads to a symmetric matrix. As shown in previous sections, this matrix can be calculated as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) = \sum_{j = 1}^{rb} \big (  m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big )}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) = \sum_{j = 1}^{rb} \big (  m_j \cdot J_{v_{com_j}}^{T} J_{v_{com_j}} %2b J_{\omega_{com_j}}^{T} I_{com_j} J_{\omega_{com_j}} \big )}">
 
-The algorithms in this library requires the calculation of [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass) and Jacobian Matrix to Center of Mass that we discussed in [this section](#inertial-velocity-to-centers-of-mass). Also, given each inertia tensor <img src="https://render.githubusercontent.com/render/math?math={\color{red}I_{j} \in \mathbb{R}^{3 \times 3}}"> on the [attributes section](#attributes), this algorithm will transformate it into <img src="https://render.githubusercontent.com/render/math?math={\color{red}I_{com_j} \in \mathbb{R}^{3 \times 3}}"> automatically :wink:
+The algorithms in this library requires the calculation of [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass) and Jacobian Matrix to Center of Mass that we discussed in [this section](#inertial-velocity-to-centers-of-mass). Also, given each inertia tensor <img src="https://latex.codecogs.com/svg.image?{\color{red}I_{j} \in \mathbb{R}^{3 \times 3}}"> on the [attributes section](#attributes), this algorithm will transformate it into <img src="https://latex.codecogs.com/svg.image?{\color{red}I_{com_j} \in \mathbb{R}^{3 \times 3}}"> automatically :wink:
 
 ```python
 """
@@ -2371,11 +2326,11 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 This is the energy stored in an object due to its position relative to the inertial one. This is described as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_j} = m_j \ \ g^T \ \ r_{com_{j}/0}^{0}}">, <img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_j} \in \mathbb{R}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}P_{com_j} = m_j \ \ g^T \ \ r_{com_{j}/0}^{0}}">, <img src="https://latex.codecogs.com/svg.image?{\color{red}P_{com_j} \in \mathbb{R}}">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}g \in \mathbb{R}^{3 \times 1}}"> is the gravity acceleration with respect to inertial frame, usually defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}g^{T} = \big [ 0 \ \ \ 0 \ \ -9.80665 \big]}">; it is constant and have to be defined depending on the orientation of your inertial frame. Moreover <img src="https://render.githubusercontent.com/render/math?math={\color{red}r_{com_{j}/0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the position of the *i* - th center of mass that can be obtained as shown [here](#forward-kinematics-to-centers-of-mass). The total potential energy can be calculated as follows:
+where <img src="https://latex.codecogs.com/svg.image?{\color{red}g \in \mathbb{R}^{3 \times 1}}"> is the gravity acceleration with respect to inertial frame, usually defined as <img src="https://latex.codecogs.com/svg.image?{\color{red}g^{T} = \big [ 0 \ \ \ 0 \ \ -9.80665 \big]}">; it is constant and have to be defined depending on the orientation of your inertial frame. Moreover <img src="https://latex.codecogs.com/svg.image?{\color{red}r_{com_{j}/0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the position of the *i* - th center of mass that can be obtained as shown [here](#forward-kinematics-to-centers-of-mass). The total potential energy can be calculated as follows:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com_j} = \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ r_{com_{j}/0}^{0} \right)}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}P_{com_j} = \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ r_{com_{j}/0}^{0} \right)}">
 
 You can do this task with the library as shown below:
 
@@ -2407,12 +2362,12 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ### Lagrangian
 
-This is as simple as calculating the difference between total kinetic energy <img src="https://render.githubusercontent.com/render/math?math={\color{red}K_{com} \in \mathbb{R}}"> and total potential one <img src="https://render.githubusercontent.com/render/math?math={\color{red}P_{com} \in \mathbb{R}}">
+This is as simple as calculating the difference between total kinetic energy <img src="https://latex.codecogs.com/svg.image?{\color{red}K_{com} \in \mathbb{R}}"> and total potential one <img src="https://latex.codecogs.com/svg.image?{\color{red}P_{com} \in \mathbb{R}}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com} = K_{com} - P_{com}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}L_{com} = K_{com} - P_{com}}">
 
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}L_{com} = \frac{1}{2} \dot{q}^{T} \left[ \mathrm{D} \left( q \right) \right] \ \ \dot{q} - \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ r_{com_{j}/0}^{0} \right)}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}L_{com} = \frac{1}{2} \dot{q}^{T} \left[ \mathrm{D} \left( q \right) \right] \ \ \dot{q} - \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ r_{com_{j}/0}^{0} \right)}">
 
 Last equation will be useful to calculate the dynamical representation of a robot :robot:
 
@@ -2424,19 +2379,19 @@ Last equation will be useful to calculate the dynamical representation of a robo
 
 As part of the Euler - Lagrange formulation, it is mandatory to calculate the rate of change of the lagrangian with respect to the joints positions, so this leads to
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial L_{com}}{\partial q} = \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right] \ \ \dot{q} - \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)}"> 
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{\partial L_{com}}{\partial q} = \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right] \ \ \dot{q} - \sum_{j = 1}^{r_b} \left(m_j \ \ g^T \ \ \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)}"> 
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\implies \left( \frac{\partial L_{com}}{\partial q} \right)^{T} = \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \ \ \dot{q} - \sum_{j = 1}^{r_b} \left[m_j \ \ \left( \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)^{T} \right]  \ \ g }"> 
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\implies \left( \frac{\partial L_{com}}{\partial q} \right)^{T} = \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \ \ \dot{q} - \sum_{j = 1}^{r_b} \left[m_j \ \ \left( \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)^{T} \right]  \ \ g }"> 
 
 Using the equation shown in [this section](#euler---lagrange-formulation), is possible to expand it as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \ \ \dot{q} %2b \sum_{j = 1}^{r_b} \left[m_j \ \ \left( \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)^{T} \right]  \ \ g  = \tau}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \ \ \dot{q} %2b \sum_{j = 1}^{r_b} \left[m_j \ \ \left( \frac{\partial r_{com_{j}/0}^{0}}{\partial q} \right)^{T} \right]  \ \ g  = \tau}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{G} \left( q \right) \in \mathbb{R}^{n \times 1}}"> is the vector with the gravitational effects, that is the derivative of potential energy with respect to eac joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q \in \mathbb{R}^{n \times 1}}">, who is defined as <img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial r_{com_{j}/0}^{0}}{\partial q} \in \mathbb{R}^{3 \times n}}">, that is a rectangular matrix with the derivatives of the centers of mass' positions. The rest of the terms will be discussed in the next section, but in the meantime, calculation of gravitational effects can be performed with this library as follows:
+where <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{G} \left( q \right) \in \mathbb{R}^{n \times 1}}"> is the vector with the gravitational effects, that is the derivative of potential energy with respect to eac joint <img src="https://latex.codecogs.com/svg.image?{\color{red}q \in \mathbb{R}^{n \times 1}}">, who is defined as <img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{\partial r_{com_{j}/0}^{0}}{\partial q} \in \mathbb{R}^{3 \times n}}">, that is a rectangular matrix with the derivatives of the centers of mass' positions. The rest of the terms will be discussed in the next section, but in the meantime, calculation of gravitational effects can be performed with this library as follows:
 
 ```python
 """
@@ -2471,57 +2426,57 @@ The step size ```dq``` is equal to ```0.001``` by default, but it can be changed
 
 As part of the Euler - Lagrange formulation, it is mandatory to calculate the rate of change of the lagrangian with respect to the joints velocities, so this leads to
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial L_{com}}{\partial \dot{q}} = \dot{q}^{T} \ \ \mathrm{D} \left( q \right) \implies \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^{T} = \mathrm{D} \left( q \right)^{T} \ \ \dot{q} = \mathrm{D} \left( q \right) \ \ \dot{q}}"> 
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{\partial L_{com}}{\partial \dot{q}} = \dot{q}^{T} \ \ \mathrm{D} \left( q \right) \implies \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^{T} = \mathrm{D} \left( q \right)^{T} \ \ \dot{q} = \mathrm{D} \left( q \right) \ \ \dot{q}}"> 
 
 Using the equation shown in [this section](#euler---lagrange-formulation), is possible to expand it as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \left( \frac{\partial L_{com}}{\partial q}\right)^T = \tau}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{d}{dt} \left( \frac{\partial L_{com}}{\partial \dot{q}} \right)^T - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{d}{dt} \left[ \mathrm{D} \left( q \right) \ \ \dot{q} \right] - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">;
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{d}{dt} \left[ \mathrm{D} \left( q \right) \ \ \dot{q} \right] - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">;
 
 the time derivative is not a constant, so each term hast to be analyzed separately:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \frac{d}{dt} \left[ \mathrm{D} \left( q \right)\right] \ \ \dot{q} - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">, 
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \frac{d}{dt} \left[ \mathrm{D} \left( q \right)\right] \ \ \dot{q} - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">, 
 
 then the result can be mulitiplied by ones as follows
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \left( \frac{\partial q^{T}}{\partial q} \right) \ \ \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial t} \right) \ \ \dot{q} - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \left( \frac{\partial q^{T}}{\partial q} \right) \ \ \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial t} \right) \ \ \dot{q} - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \dot{q}^T \ \ \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right) \ \ \dot{q} - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \dot{q}^T \ \ \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right) \ \ \dot{q} - \frac{1}{2} \dot{q}^{T} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \dot{q}^T \ \ \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial q} - \frac{1}{2} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \right) \ \ \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">.
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \dot{q}^T \ \ \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial q} - \frac{1}{2} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \right) \ \ \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">.
 
 Simplification of previous result leads to
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">,
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">,
 
-that represents the robot's dynamic model. <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{C} \left( q, \dot{q} \right) \in \mathbb{R}^{n \times 1}}"> is the matrix with the coriolis and centrifugal effects based on each joint position and velocity <img src="https://render.githubusercontent.com/render/math?math={\color{red}q, \dot{q} \in \mathbb{R}^{n \times 1}}">. Its representation can be simplified by considering the dyadic expansion
+that represents the robot's dynamic model. <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{C} \left( q, \dot{q} \right) \in \mathbb{R}^{n \times 1}}"> is the matrix with the coriolis and centrifugal effects based on each joint position and velocity <img src="https://latex.codecogs.com/svg.image?{\color{red}q, \dot{q} \in \mathbb{R}^{n \times 1}}">. Its representation can be simplified by considering the dyadic expansion
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) = \sum_{i = 1}^{n} \left[ \mathrm{D}(:, i) \ \ \mathrm{e}_{i}^T\right]}">,
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) = \sum_{i = 1}^{n} \left[ \mathrm{D}(:, i) \ \ \mathrm{e}_{i}^T\right]}">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D}(:, i) \in \mathbb{R}^{n \times 1}}"> is the *i* - th column of inertia matrix; also, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{e}_{i} \in \mathbb{R}^{n \times 1}}"> is an auxiliar vector to map current column to a matrix. For example, second column (<img src="https://render.githubusercontent.com/render/math?math={\color{red}i = 2}">) of inertia matrix <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \in \mathbb{R}^{3 \times 3}}"> is analyzed, so
+where <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D}(:, i) \in \mathbb{R}^{n \times 1}}"> is the *i* - th column of inertia matrix; also, <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{e}_{i} \in \mathbb{R}^{n \times 1}}"> is an auxiliar vector to map current column to a matrix. For example, second column (<img src="https://latex.codecogs.com/svg.image?{\color{red}i = 2}">) of inertia matrix <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \in \mathbb{R}^{3 \times 3}}"> is analyzed, so
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D}(:, 2) = \begin{bmatrix} d_{12} \\ d_{22} \\ d_{32} \end{bmatrix}}">, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{e}_{2} = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D}(:, 2) = \begin{bmatrix} d_{12} \\ d_{22} \\ d_{32} \end{bmatrix}}">, <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{e}_{2} = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\implies \mathrm{D}(:, 2) \ \ \mathrm{e}_{2}^{T} = \begin{bmatrix} 0 %26%26 d_{12} %26%26 0 \\ 0 %26%26 d_{22} %26%26 0 \\ 0 %26%26 d_{32} %26%26 0 \end{bmatrix}}">,
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\implies \mathrm{D}(:, 2) \ \ \mathrm{e}_{2}^{T} = \begin{bmatrix} 0 %26%26 d_{12} %26%26 0 \\ 0 %26%26 d_{22} %26%26 0 \\ 0 %26%26 d_{32} %26%26 0 \end{bmatrix}}">,
 
 so derivative can be rewriten as
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial \mathrm{D} \left( q \right)}{\partial q} = \frac{\partial}{\partial q} \left( \sum_{i = 1}^{n} \left[ \mathrm{D}(:, i) \ \ \mathrm{e}_{i}^T\right] \right) = \sum_{i = 1}^{n} \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} \ \ \mathrm{e}_{i}^T %2b \mathrm{D}(:, i) \ \ \frac{\partial \mathrm{e}_{i}^T }{\partial q} \right]}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{\partial \mathrm{D} \left( q \right)}{\partial q} = \frac{\partial}{\partial q} \left( \sum_{i = 1}^{n} \left[ \mathrm{D}(:, i) \ \ \mathrm{e}_{i}^T\right] \right) = \sum_{i = 1}^{n} \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} \ \ \mathrm{e}_{i}^T %2b \mathrm{D}(:, i) \ \ \frac{\partial \mathrm{e}_{i}^T }{\partial q} \right]}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial \mathrm{D} \left( q \right)}{\partial q} = \sum_{i = 1}^{n} \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} \ \ \mathrm{e}_{i}^T \right] \implies \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right)^{T} = \sum_{i = 1}^{n} \left[ \mathrm{e}_{i} \left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right]}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{\partial \mathrm{D} \left( q \right)}{\partial q} = \sum_{i = 1}^{n} \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} \ \ \mathrm{e}_{i}^T \right] \implies \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right)^{T} = \sum_{i = 1}^{n} \left[ \mathrm{e}_{i} \left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right]}">
 
-where each <img src="https://render.githubusercontent.com/render/math?math={\color{red}\frac{\partial \mathrm{D}(:, i)}{\partial q} \in \mathbb{R}^{n \times n}}"> is a square matrix. With this result is possible to simplify <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{C} \left( q, \dot{q} \right) \dot{q}}">:
+where each <img src="https://latex.codecogs.com/svg.image?{\color{red}\frac{\partial \mathrm{D}(:, i)}{\partial q} \in \mathbb{R}^{n \times n}}"> is a square matrix. With this result is possible to simplify <img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{C} \left( q, \dot{q} \right) \dot{q}}">:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \dot{q}^T \ \ \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial q} - \frac{1}{2} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \right) \ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \dot{q}^T \ \ \left( \frac{\partial \mathrm{D} \left( q \right)}{\partial q} - \frac{1}{2} \left[ \frac{\partial \mathrm{D} \left( q \right)}{\partial q} \right]^{T} \right) \ \ \dot{q}}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \dot{q}^T \ \ \left( \sum_{i = 1}^{n} \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} \ \ \mathrm{e}_{i}^T \right] - \frac{1}{2} \sum_{i = 1}^{n} \left[ \mathrm{e}_{i} \left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right] \right) \ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \dot{q}^T \ \ \left( \sum_{i = 1}^{n} \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} \ \ \mathrm{e}_{i}^T \right] - \frac{1}{2} \sum_{i = 1}^{n} \left[ \mathrm{e}_{i} \left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right] \right) \ \ \dot{q}}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \dot{q}^T \ \ \left( \sum_{i = 1}^{n} \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} \ \ \mathrm{e}_{i}^T - \frac{1}{2} \mathrm{e}_{i} \left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right] \right) \ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \dot{q}^T \ \ \left( \sum_{i = 1}^{n} \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} \ \ \mathrm{e}_{i}^T - \frac{1}{2} \mathrm{e}_{i} \left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right] \right) \ \ \dot{q}}">
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \sum_{i = 1}^{n} \left( \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} - \frac{1}{2}\left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right] \ \ \dot{q}_{i} \right)\ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} = \sum_{i = 1}^{n} \left( \left[ \frac{\partial \mathrm{D}(:, i)}{\partial q} - \frac{1}{2}\left( \frac{\partial \mathrm{D}(:, i)}{\partial q} \right)^{T} \right] \ \ \dot{q}_{i} \right)\ \ \dot{q}}">
 
 that is easier to calculate compared with the original result. It can be performed with this library as follows:
 
@@ -2558,7 +2513,7 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 Given the equation
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">,
+<img src="https://latex.codecogs.com/svg.image?{\color{red}\mathrm{D} \left( q \right) \ \ \ddot{q} %2b \mathrm{C} \left( q, \dot{q} \right) \ \ \dot{q} %2b \mathrm{G} \left( q \right) = \tau}">,
 
 it is possible to build the robot dynamic model by calculating each term individually and then build the complete model. This can be done as follows:
 
@@ -2594,7 +2549,7 @@ Matrix([[2.19614724949073*qdd1 - 0.529809692293813*qdd2 - 0.361583479510541*qdd3
         [-0.940364805482366*qdd1 + 0.18369710671051*qdd2 + 0.18369710671051*qdd3 + 0.670906731541869*qdd4 - 0.160951111845721]])
 ```
 
-Please notice that this result is partially numerical because it includes joints accelerations (<img src="https://render.githubusercontent.com/render/math?math={\color{red} \ddot{q}_{i}}">) in symbolic form; they are stored in ```uRobot.qddSymbolic``` and are the variables that have to be solved. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that this result is partially numerical because it includes joints accelerations (<img src="https://latex.codecogs.com/svg.image?{\color{red} \ddot{q}_{i}}">) in symbolic form; they are stored in ```uRobot.qddSymbolic``` and are the variables that have to be solved. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 

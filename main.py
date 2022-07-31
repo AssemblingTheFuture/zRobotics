@@ -149,7 +149,11 @@ if __name__ == '__main__':
   
   # Inertial angular acceleration propagation to each reference frame
   dV = accelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), dw0 = np.zeros((3, 1)), V = V, qd = qd, qdd = qdd)
-  # symbolicdV = accelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), dw0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  # symbolicdV = accelerationPropagation(uRobot, dv0 = Zeros(3, 1), dw0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  
+  """
+    4.1 DIFFERENTIAL KINEMATICS TO EACH CENTER OF MASS (Velocities and Accelerations using Homogeneous Transformation Matrices)
+  """
   
   # Inertial Velocity of each Center of Mass using Geometric Jacobian Matrix
   geometricXdCOM = geometricCOMStateSpace(uRobot, COM = 2)
@@ -161,22 +165,18 @@ if __name__ == '__main__':
   
   # Inertial velocity propagation to each center of mass
   Vcom = velocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), wCOM0 = np.zeros((3, 1)), V = V, qd = qd)
-  # symbolicVcom = velocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), wCOM0 = np.zeros((3, 1)), V = V, qd = qd, symbolic = True)
+  # symbolicVcom = velocityPropagationCOM(uRobot, vCOM0 = zeros(3, 1), wCOM0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, symbolic = True)
   
   # Inertial Acceleration of each Center of Mass using Geometric Jacobian Matrix and its derivative
   geometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 2)
   # symbolicGeometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 1, symbolic = True)
   
   # Inertial angular acceleration propagation to each reference frame
-  dWcom = angularAccelerationPropagationCOM(uRobot, dwCOM0 = np.zeros((3, 1)), Wcom = Wcom, dW = dW, qd = qd, qdd = qdd)
-  # symbolicdWcom = angularAccelerationPropagationCOM(uRobot, dwCOM0 = zeros(3, 1), Wcom = symbolicWcom, dW = symbolicdW, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
-  
-  # Inertial linear acceleration propagation to each center of mass
-  dVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = np.zeros((3, 1)), Wcom = Wcom, dWcom = dWcom, dV = dV)
-  # symbolicdVcom = linearAccelerationPropagationCOM(uRobot, dvCOM0 = zeros(3, 1), Wcom = symbolicWcom, dWcom = symbolicdWcom, dV = symbolicdV, symbolic = True)
+  dVcom = accelerationPropagationCOM(uRobot, dvCOM0 = np.zeros((3, 1)), dwCOM0 = np.zeros((3, 1)), Vcom = Vcom, dV = dV, qd = qd, qdd = qdd)
+  # symbolicdVcom = accelerationPropagationCOM(uRobot, dvCOM0 = zeros(3, 1), dwCOM0 = np.zeros(3, 1), Vcom = symbolicVcom, dV = symbolicdV, qd = uRobot.qd, qdd = uRobot.qddSymbolic, symbolic = True)
   
   """
-    4.1 DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Dual Quaternions)
+    4.2 DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Dual Quaternions)
   """
 
   # Inertial velocity propagation using Dual Quaternions

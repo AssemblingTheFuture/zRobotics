@@ -268,7 +268,7 @@ def accelerationPropagation(robot : object, dv0 : np.array, dw0 : np.array, V : 
       dVjoint = zeros(6, 1) if symbolic else np.zeros((6, 1))
           
     # Calculate acceleration up to this point
-    dv = trigsimp((Mi * dV[-1]) + dVjoint) if symbolic else Mi.dot(dV[-1]) + dVjoint + np.append((np.cross(V[k][3 : 6], np.cross(V[k][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
+    dv = trigsimp((Mi * dV[-1]) + dVjoint + Matrix([V[k][3 : 6].cross(V[k][3 : 6].cross(ri))], [zeros(3, 1)])) if symbolic else Mi.dot(dV[-1]) + dVjoint + np.append((np.cross(V[k][3 : 6], np.cross(V[k][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
 
     # Append each calculated acceleration
     dV.append(nsimplify(dv.evalf(), tolerance = 1e-10) if symbolic else dv)
@@ -337,7 +337,7 @@ def velocityPropagationCOM(robot : object, vCOM0 : np.array, wCOM0 : np.array, V
       vJoint = Mi * Matrix([zeros(3, 1), z]) * qd[joint] if symbolic else Mi.dot(np.append(np.zeros((3, 1)), z.reshape((3, 1)), axis = 0)) * qd[joint]
       
       # Calculate velocity up to this point
-      vCOM = trigsimp((Mi * V[k - 1]) + vJoint) if symbolic else Mi.dot(V[k - 1]) + vJoint
+      vCOM = trigsimp((Mi * V[joint]) + vJoint) if symbolic else Mi.dot(V[joint]) + vJoint
       
       # Append each calculated velocity
       Vcom.append(nsimplify(vCOM.evalf(), tolerance = 1e-10) if symbolic else vCOM)
@@ -359,25 +359,29 @@ def velocityPropagationCOM(robot : object, vCOM0 : np.array, wCOM0 : np.array, V
   
   return Vcom
 
-def angularAccelerationPropagationCOM(robot : object, dwCOM0 : np.array, Wcom : list, dW : list, qd : np.array, qdd : np.array, symbolic = False):
-  """Using Homogeneous Transformation Matrices, this function computes angular acceleration to the j-th center of mass of a serial robot given initial acceleration. Serial robot's kinematic parameters have to be set before using this function
+def accelerationPropagationCOM(robot : object, dvCOM0 : np.array, dwCOM0 : np.array, Vcom : list, dV : list, qd : np.array, qdd : np.array, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes both angular and linear accelerations to the j-th center of mass of a serial robot given initial acceleration. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
+    dvCOM0 (np.array): initial linear acceleration of the system (equals to zero if the robot's base is not mobile)
     dwCOM0 (np.array): initial angular acceleration of the system (equals to zero if the robot's base is not mobile)
-    Wcom (list): angular velocities of each center of mass (this have to be calculated with "angularVelocityPropagationCOM" function)
-    dW (list): angular accelerations of the system (this have to be calculated with "angularAccelerationPropagation" function)
+    Vcom (list): velocities of each center of mass (this have to be calculated with "velocityPropagationCOM" function)
+    dV (list): accelerations of the system (this have to be calculated with "accelerationPropagation" function)
     qd (np.array): velocities of each joint
     qdd (np.array): accelerations of each joint
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    dWcom (np.array): angular acceleration to each center of mass (numerical)
-    dWcom (SymPy Matrix): angular acceleration to each center of mass (symbolic)
+    dVcom (np.array): acceleration to each center of mass (numerical)
+    dVcom (SymPy Matrix): acceleration to each center of mass (symbolic)
   """
   
   # Initial conditions
-  dWcom = [dwCOM0]
+  dVcom = [np.append(dvCOM0, dwCOM0, axis = 0)]
+  
+  # Calculate forward kinematics to know the position and axis of actuation of each joint
+  fkHTM = forwardHTM(robot, symbolic)
   
   # Calculate forward kinematics to know the position and axis of actuation of each center of mass
   fkCOMHTM = forwardCOMHTM(robot, symbolic)
@@ -397,88 +401,57 @@ def angularAccelerationPropagationCOM(robot : object, dwCOM0 : np.array, Wcom : 
     # Check if current frame contains any of the centers of mass
     containedCOMs = np.in1d(robot.symbolicCOMs, frame)
     
-    # If any joint is in the current reference frame and also there is a center of mass
-    if any(element == True for element in containedJoints) and any(element == True for element in containedCOMs):
-          
-      # Get the number of the center of mass (this is because of the way Python indexes arrays)
+    # If any joint is in the current reference frame
+    if any(element == True for element in containedCOMs) and any(element == True for element in containedJoints):
+      
+      # Get the number of the center of mass (the sum is because of the way Python indexes arrays)
       COM = np.where(containedCOMs == True)[0][-1] + 1
       
       # Get the number of the associated joint
       joint = np.where(containedJoints == True)[0][-1]
+      
+      # Relative position between center of mass and i-th frame
+      r = fkCOMHTM[COM][0 : 3, -1] - fkHTM[joint][0 : 3, -1]
+      
+      # Get relative position of center of mass with respect to the i-th joint
+      ri = crossMatrix(r, symbolic)
+      
+      # Relative position matrix between i-th and center of mass frames
+      Mi = Matrix([[eye(3), -ri], [zeros(3), eye(3)]]) if symbolic else np.append(np.append(np.eye(3), -ri, axis = 1), np.append(np.zeros((3, 3)), np.eye(3), axis = 1), axis = 0)
     
-      # Get axis of actuation where joint is attached
-      z = fkCOMHTM[COM][0: 3, 2]
+      # Get axis of actuation of the joint
+      z = fkHTM[joint][0 : 3, 2]
       
-      # Relative angular acceleration calculation equals to ((w x z) * qdi) + (z * qddi)
-      dwCOMJoint = ((Wcom[COM].cross(z)) * qd[joint]) + (z * qdd[joint]) if symbolic else (np.cross(Wcom[COM], z, axis = 0) * qd[joint]) + (z * qdd[joint]).reshape((3, 1))
-      
-      # Calculate angular velocity up to this point
-      
-      dwCOM = trigsimp(dW[k - 1] + dwCOMJoint) if symbolic else dW[k - 1] + dwCOMJoint.reshape((3, 1))
+      # Relative position matrix for non-linear terms
+      M = Matrix([[zeros(3), ri * crossMatrix(z, symbolic)], [zeros(3), -crossMatrix(z, symbolic)]]) if symbolic else np.append(np.append(np.zeros((3, 3)), ri.dot(crossMatrix(z)), axis = 1), np.append(np.zeros((3, 3)), -crossMatrix(z), axis = 1), axis = 0)
 
-      # Append each calculated angular velocity
-      dWcom.append(nsimplify(dwCOM.evalf(), tolerance = 1e-10) if symbolic else dwCOM)
+      # Relative acceleration calculation caused by the joint
+      dvJoint = (M * Vcom[COM] * qd[joint]) + (Mi * Matrix([zeros(3, 1), z]) * qdd[joint]) if symbolic else (M.dot(Vcom[COM]) * qd[joint]) + (Mi.dot(np.append(np.zeros((3, 1)), z.reshape((3, 1)), axis = 0)) * qdd[joint])
+      
+      # Calculate acceleration up to this point
+      dvCOM = trigsimp((Mi * dV[joint]) + dvJoint + Matrix([Vcom[COM][3 : 6].cross(Vcom[COM][3 : 6].cross(r))], [zeros(3, 1)])) if symbolic else Mi.dot(dV[joint]) + dvJoint + np.append((np.cross(Vcom[COM][3 : 6], np.cross(Vcom[COM][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
+      
+      # Append each calculated velocity
+      dVcom.append(nsimplify(dvCOM.evalf(), tolerance = 1e-10) if symbolic else dvCOM)
     
-    # Else, if there's no joint but a center of mass only
+    # If there's no joint in current frame
     elif any(element == True for element in containedCOMs):
       
-      # Append previously calculated angular velocity
-      dWcom.append(nsimplify(dwCOM.evalf(), tolerance = 1e-10) if symbolic else dwCOM)
-  
-  return dWcom
-
-def linearAccelerationPropagationCOM(robot : object, dvCOM0 : np.array, Wcom : np.array, dWcom : np.array, dV : list, symbolic = False):
-  """Using Homogeneous Transformation Matrices, this function computes linear acceleration to the j-th center of mass of a serial robot given initial acceleration. Serial robot's kinematic parameters have to be set before using this function
-
-  Args:
-    robot (object): serial robot (this won't work with other type of robots)
-    dvCOM0 (np.array): initial linear acceleration of the system (equals to zero if the robot's base is not mobile)
-    Wcom (list): angular velocities to each center of mass (this have to be calculated with "angularVelocityPropagationCOM" function)
-    dWcom (list): angular accelerations to each center of mass (this have to be calculated with "angularAccelerationPropagationCOM" function)
-    dV (list): linear velocities to each reference frame (this have to be calculated with "linearAccelerationPropagation" function)
-    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
-
-  Returns:
-    dVcom (np.array): acceleration of each center of mass (numerical)
-    dVcom (SymPy Matrix): acceleration of each center of mass (symbolic)
-  """
-  
-  # Initial conditions
-  dVcom = [dvCOM0]
-  
-  # Calculate forward kinematics to know the position and axis of actuation of each joint
-  fkHTM = forwardHTM(robot, symbolic)
-  
-  # Calculate forward kinematics to know the position and axis of actuation of each center of mass
-  fkCOMHTM = forwardCOMHTM(robot, symbolic)
-  
-  # Get number of reference frames
-  m = robot.dhParameters.shape[0]
-  
-  # Iterates through all reference frames (excepting inertial one)
-  for k in range(1, m):
-        
-    # Get Denavit - Hartenberg Parameters Matrix of current frame
-    frame = robot.symbolicDHParametersCOM[k, :]
-    
-    # Check if current frame contains any of the centers of mass
-    containedCOMs = np.in1d(robot.symbolicCOMs, frame)
-    
-    # If any joint is in the current reference frame and also there is a center of mass
-    if any(element == True for element in containedCOMs):
-          
-      # Get the number of the center of mass (the sum is because of the way Python indexes arrays)
-      COM = np.where(containedCOMs == True)[0][-1] + 1
+      # Relative position between center of mass and i-th frame
+      r = fkCOMHTM[COM][0 : 3, -1] - fkHTM[joint][0 : 3, -1]
       
-      # Get relative position of center of mass
-      rCOM = fkCOMHTM[COM][0 : 3, - 1] - fkHTM[k - 1][0 : 3, - 1]
+      # Get relative position of center of mass with respect to the i-th joint
+      ri = crossMatrix(r, symbolic)
       
-      # Calculate linear velocity up to this point
-      dvCOM = trigsimp(dV[k -1] + (dWcom[COM].cross(rCOM)) + (Wcom[COM].cross(Wcom[COM].cross(rCOM)))) if symbolic else dV[k - 1] + (np.cross(dWcom[COM], rCOM, axis = 0)) + (np.cross(Wcom[COM], np.cross(Wcom[COM], rCOM, axis = 0), axis = 0))
-
-      # Append each calculated linear velocity
+      # Relative position matrix between i-th and center of mass frames
+      Mi = Matrix([[eye(3), -ri], [zeros(3), eye(3)]]) if symbolic else np.append(np.append(np.eye(3), -ri, axis = 1), np.append(np.zeros((3, 3)), np.eye(3), axis = 1), axis = 0)
+    
+      # Calculate velocity up to this point
+      dvCOM = trigsimp(Mi * dV[k - 1] + Matrix([Vcom[COM][3 : 6].cross(Vcom[COM][3 : 6].cross(r))], [zeros(3, 1)])) if symbolic else Mi.dot(dV[k - 1]) + np.append((np.cross(Vcom[COM][3 : 6], np.cross(Vcom[COM][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
+      
+      # Append each calculated velocity
       dVcom.append(nsimplify(dvCOM.evalf(), tolerance = 1e-10) if symbolic else dvCOM)
-      
+  
   return dVcom
 
 if __name__ == '__main__':
