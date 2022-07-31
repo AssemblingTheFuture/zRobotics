@@ -159,13 +159,9 @@ if __name__ == '__main__':
   analyticXdCOM = analyticCOMStateSpace(uRobot, COM = 2)
   # symbolicAnalyticXdCOM = analyticCOMStateSpace(uRobot, COM = 2, symbolic = True)
   
-  # Inertial angular velocity propagation to each center of mass
-  Wcom = angularVelocityPropagationCOM(uRobot, wCOM0 = np.zeros((3, 1)), W = W, qd = qd)
-  # symbolicWcom = angularVelocityPropagationCOM(uRobot, wCOM0 = zeros(3, 1), W = symbolicW, qd = uRobot.qdSymbolic, symbolic = True)
-  
-  # Inertial linear velocity propagation to each center of mass
-  Vcom = linearVelocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), Wcom  = Wcom, V = V)
-  # symbolicVcom = linearVelocityPropagationCOM(uRobot, vCOM0 = zeros(3, 1), Wcom  = symbolicWcom, V = symbolicV, symbolic = True)
+  # Inertial velocity propagation to each center of mass
+  Vcom = velocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), wCOM0 = np.zeros((3, 1)), V = V, qd = qd)
+  # symbolicVcom = velocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), wCOM0 = np.zeros((3, 1)), V = V, qd = qd, symbolic = True)
   
   # Inertial Acceleration of each Center of Mass using Geometric Jacobian Matrix and its derivative
   geometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 2)

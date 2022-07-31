@@ -41,8 +41,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
         - [Inertial Acceleration Propagation](#inertial-acceleration-propagation)
         - [Inertial Acceleration Propagation Using Dual Quaternions](#inertial-acceleration-propagation-using-dual-quaternions)
       - [Inertial Velocity to Centers of Mass](#inertial-velocity-to-centers-of-mass)
-        - [Inertial Angular Velocity Propagation to Centers of Mass](#inertial-angular-velocity-propagation-to-centers-of-mass)
-        - [Inertial Linear Velocity Propagation to Centers of Mass](#inertial-linear-velocity-propagation-to-centers-of-mass)
+        - [Inertial Velocity Propagation to Centers of Mass](#inertial-velocity-propagation-to-centers-of-mass)
         - [Inertial Velocity Propagation to Centers of Mass Using Dual Quaternions](#inertial-velocity-propagation-to-centers-of-mass-using-dual-quaternions)
       - [Inertial Acceleration to Centers of Mass](#inertial-acceleration-to-centers-of-mass)
         - [Inertial Angular Acceleration Propagation to Centers of Mass](#inertial-angular-acceleration-propagation-to-centers-of-mass)
@@ -1626,7 +1625,7 @@ where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%
 
 <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%5Cleft%5B%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5CPhi%20%26%20%5Cleft%5B%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5Cleft%5B%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20-%5Cleft%5B%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%5Ccdot%20%5Cdot%7B%5Ctheta%7D_i%20+%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cleft%28%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%29%20%5C%5C%200_%7B3%20%5Ctimes%201%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%5Cleft%5B%20%5Cvec%7Br%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Ccdot%20%5Cddot%7B%5Ctheta%7D_i%20%7D">
 
-with <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D">, representing an identity matrix and a zeros one respectively. With the aforementioned terms, acceleration propagation can be calculated with the library as follows:
+with <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D">, representing an identity matrix and a zeros one respectively. With the aforementioned terms, acceleration propagation can be calculated with the library as follows:
 
 ```python
 """
@@ -1698,11 +1697,11 @@ Please notice that initial angular and linear accelerations (```dw0``` and ```dv
 
 Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its acceleration. In this case, a dual quaternion contains the angular and linear accelerations, from the base to the end-effector, in a single result with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{i %2b 1 / 0}^{0} \\ \dot{\mathbf{v}}_{i %2b 1 / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{i / 0}^{0} \\ \dot{\mathbf{v}}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathcal{O} \\ \omega_{i %2b 1 / 0}^{0} \times \mathbf{v}_{i %2b 1 / 0}^{0} - \omega_{i / 0}^{0} \times \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{i %2b 1 / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red} \Bigg( \hat{\mathrm{q}}_{i / 0}^{0} \ \ \big[ \dot{\xi}_{i %2b 1 / i}^{i} \dot{q}_{i} %2b \xi_{i %2b 1 / i}^{i} \ddot{q}_{i} %2b \Big( \hat{\mathrm{q}}_{i / 0}^{*} \ \ \begin{bmatrix} \mathbb{I} %26 \Phi \\ \left[\mathbf{r}_{i / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} \ \ \hat{\mathrm{q}}_{i / 0} \Big) \times \left( \xi_{i %2b 1 / i}^{i} \dot{q}_{i} \right) \Bigg] \ \ \hat{\mathrm{q}}_{i / 0}^{*} \Bigg)}">
+<img src="https://latex.codecogs.com/svg.image?%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathcal%7BO%7D%20%5C%5C%20%5Comega_%7Bi%20+%201%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bi%20+%201%20/%200%7D%20-%20%5Comega_%7Bi%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5C%5C%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cleft%5B%20%5Cdot%7B%5Cxi%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cddot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%29%20%5Ctimes%20%5Cleft%28%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%5Cright%29%20%5Cright%20%5D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cright%20%29%20%7D">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{i %2b 1 / 0}^{0}, \dot{\mathbf{v}}_{i %2b 1 / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear accelerations of the *i + 1* frame, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}, \mathcal{O} \in \mathbb{R}^{4 \times 1}}"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{i %2b 1 / i}^{i}, \dot{\xi}_{i %2b 1 / i}^{i} \in \mathbb{H}}"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any) and its rate of change.
+where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%2C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D"> are the angular and linear accelerations of the *i + 1* frame, meanwhile <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%2C%20%5Cmathcal%7BO%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%201%7D%7D"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%7D"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%2C%20%5Cdot%7B%5Cxi%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Ctheta_i%7D"> (if any) and its rate of change.
 
-On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{i / 0}^{0}, \mathbf{r}_{i %2b 1 / 0}^{0}, \mathbf{r}_{i %2b 1 / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality. Furthermore, it's mandatory to calculate the [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions) to get the angular and linear velocities of the *i*-th frame <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \mathbf{v}_{i / 0}^{i} \in \mathbb{H}^{v}}">.
+On the other hand, <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%2C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D"> are the relative positions, expressed as quaternions, of the frames with respect to the inertial one and between *i* and *i + 1*. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality. Furthermore, it's mandatory to calculate the [Inertial Velocity Propagation Using Dual Quaternions](#inertial-velocity-propagation-using-dual-quaternions) to get the angular and linear velocities of the *i*-th frame <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%2C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D">.
 
 With the aforementioned terms, acceleration propagation using dual quaternions can be calculated with the library as follows:
 
@@ -1776,7 +1775,7 @@ array([[ 0.        ],
        [ 0.36473287]])
 ```
 
-Please notice that initial acceleration ```dw0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation) and  [Inertial Linear Acceleration Propagation](#inertial-linear-acceleration-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial acceleration ```dw0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Acceleration Propagation](#inertial-acceleration-propagation) algorithm. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -1786,7 +1785,7 @@ Please notice that initial acceleration ```dw0``` was set to zero because the ba
 
 **For dynamic modelling, it will be mandatory to know the velocity of each center of mass**. As stated in previous sections, inertial velocities can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130). In this case, it maps the effect of each joint directly to the each center of mass, so linear and angular velocities can be calculated:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathrm{v}_{com_j} = \begin{bmatrix} v_{x_{com_j}} \\ v_{y_{com_j}} \\ v_{z_{com_j}} \\ \omega_{x_{com_j}} \\ \omega_{y_{com_j}} \\ \omega_{z_{com_j}} \end{bmatrix} = J_{com_j} \left ( \vec{r}, \vec{n} \right) \ \ \dot{q}}">
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20v_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bx_com_j%7D%20%5C%5C%20v_%7By_com_j%7D%20%5C%5C%20v_%7Bz_com_j%7D%20%5C%5C%20%5Comega_%7Bx_com_j%7D%20%5C%5C%20%5Comega_%7By_com_j%7D%20%5C%5C%20%5Comega_%7Bz_com_j%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%3D%20J_%7Bcom_j%7D%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
 
 This can be calculated with the library as follows:
 
@@ -1840,23 +1839,29 @@ array([[ 0.09348339],
        [ 0.51563446]])
 ```
 
-Please notice that jacobian matrix is zero in columns two to four because these joints (<img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{3}, q_{4}}">) don't affect the center of mass number two because they are attached after it. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that jacobian matrix is zero in columns two to four because these joints (<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Ctheta_3%2C%20%5Ctheta_4%7D">) don't affect the center of mass number two because they are attached after it. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
 ---
 
-### Inertial Angular Velocity Propagation to Centers of Mass
+### Inertial Velocity Propagation to Centers of Mass
 
 The velocity propagation can be used to analize centers of mass. In this case, angular velocity from the base up to each center of mass is defined with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j / 0}^{0} = \omega_{i / 0}^{0} %2b \vec{n}_{com_j / i}^{i} \cdot q_{i}}">,
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20v_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%3D%20v_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Comega_%7Bcom_j%20/%200%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%7D">,
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{i / 0}^{0}, \omega_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial angular velocities of the *i* - th frame and the one for the *j* - th rigid body; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{n}_{com_j / i}^{i} \in \mathbb{R}^{3 \times 1}}"> is the axis of actuation of the *i* - th joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}q_{i}}">. This can be calculated with the library as follows:
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%3D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20+%20%5Cvec%7Bn%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%7D">,
+
+where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%2C%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the inertial angular velocities of the *i* - th frame and the one for the *j* - th rigid body; on the other hand, <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cvec%7Bn%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> is the axis of actuation of the *i* - th joint <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Ctheta_i%7D">. Also, <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20v_%7Bi%20/%200%7D%5E%7B0%7D%2C%20v_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> are the inertial linear velocities of the *i* - th frame and the *j* - th reference frame, meanwhile <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cvec%7Br%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). Based on the [Screw Theory](https://en.wikipedia.org/wiki/Screw_theory), both angular and linear velocities to the centers of mass can be calculated as follows:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bi/%200%7D%5E%7B0%7D%20%5C%5C%20%5Comega_%7Bi/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20-%20%5Cleft%5B%20r_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%5C%5C%20%5CPhi%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%200_%7B3%20%5Ctimes%201%7D%20%5C%5C%20%5Cvec%7Bn%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7B%5Ctheta%7D_i%20%7D">
+
+with <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D">, representing an identity matrix and a zeros one respectively. With the aforementioned terms, acceleration propagation can be calculated with the library as follows:
 
 ```python
 """
-  Inertial Angular Velocity Propagation to Centers of Mass
+  Inertial Velocity Propagation to Centers of Mass
 """
 
 # Differential Kinematics library
@@ -1865,62 +1870,8 @@ from lib.kinematics.DifferentialHTM import *
 # NumPy
 import numpy as np
 
-# Inertial angular velocity propagation to each center of mass
-Wcom = angularVelocityPropagationCOM(uRobot, wCOM0 = np.zeros((3, 1)), W = W, qd = qd, symbolic = False)
-```
-
-So the outputs will be
-
-```bash
-# NumPy Array
->>> Wcom[0]
-array([[0.],
-       [0.],
-       [0.]])
-
->>> Wcom[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [-1.05732882]])
-
->>> Wcom[2]
-array([[-0.57402137],
-       [-0.18194517],
-       [-1.05732882]])
-
->>> Wcom[3]
-array([[-1.30851066],
-       [-0.54050335],
-       [-1.1174245 ]])
-```
-
-Please notice that initial angular velocity ```vCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each reference frame ```W``` before using this function, this is because we have to send the results as parameters. On the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
-
-[*Return to top*](#zrobotics-02)
-
----
-
-### Inertial Linear Velocity Propagation to Centers of Mass
-
-As shown in previous sections, velocities can be calculated recursively. In this case, linear velocity propagation can be analyzed from the base of the robot to each center of mass with the following equation:
-
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{com_j / 0}^{0} = v_{i / 0}^{0} %2b \omega_{com_j / 0}^{0} \times \vec{r}_{com_j / i}^{i}}">,
-
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}v_{i / 0}^{0}, v_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> are the inertial linear velocities of the *i* - th frame and the *j* - th reference frame; on the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j / 0}^{0} \in \mathbb{R}^{3 \times 1}}"> is the angular velocity calculated as shown in previous sections, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\vec{r}_{com_j / i}^{i} \in \mathbb{R}^{3 \times 1}}"> represents the relative position between two reference frames (their positions can be obtained from the [Forward Kinematics](#forward-kinematics) algorithm). These velocities be calculated with the library as follows:
-
-```python
-"""
-  Inertial Linear Velocity Propagation to Centers of Mass
-"""
-
-# Differential Kinematics library
-from lib.kinematics.DifferentialHTM import *
-
-# NumPy
-import numpy as np
-
-# Inertial linear velocity propagation to each center of mass
-Vcom = linearVelocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), Wcom  = Wcom, V = V, symbolic = False)
+# Inertial velocity propagation to each center of mass
+Vcom = velocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), wCOM0 = np.zeros((3, 1)), V = V, qd = qd, symbolic = False)
 ```
 
 So the outputs will be
@@ -1930,25 +1881,37 @@ So the outputs will be
 >>> Vcom[0]
 array([[0.],
        [0.],
-       [0.]])
-
->>> Vcom[1]
-array([[0.],
+       [0.],
+       [0.],
        [0.],
        [0.]])
 
+>>> Vcom[1]
+array([[0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.35564369]])
+
 >>> Vcom[2]
-array([[ 0.4448908 ],
-       [ 0.00526772],
-       [-0.24243665]])
+array([[-0.36438662],
+       [-0.17051326],
+       [ 0.07442306],
+       [ 0.41686245],
+       [-0.73560853],
+       [ 0.35564369]])
 
 >>> Vcom[3]
-array([[ 1.0190801 ],
-       [ 0.17229587],
-       [-0.71452688]])
+array([[-0.80875088],
+       [-0.2510647 ],
+       [ 0.37097696],
+       [ 1.06787763],
+       [-0.16632348],
+       [ 0.45184671]])
 ```
 
-Please notice that initial linear velocity ```vCOM0``` was set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each center of mass ```Wcom``` and the linear velocities to each reference frame ```V```, this is because we have to send the results as parameters. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial linear and angular velocitis (```vCOM0``` and ```wCOM0```) were set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each reference frame ```V``` before using this function, this is because we have to send the results as parameters. On the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -1958,11 +1921,11 @@ Please notice that initial linear velocity ```vCOM0``` was set to zero because t
 
 Dual Quaternions can be used to represent the relative pose of a center of mass, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the *j*-th center of mass, in a single result with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{com_j / 0}^{0} \\ \mathbf{v}_{com_j / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{com_j / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{com_j / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\left[\hat{\mathrm{q}}_{i / 0}^{0}\right]_{\mathrm{L}} \left[\hat{\mathrm{q}}_{i / 0}^{*}\right]_{\mathrm{R}} \xi_{com_j / i}^{i}\dot{q}_{i}}">
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%20%5D_%7B%5Cmathrm%7BL%7D%7D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cright%20%5D_%7B%5Cmathrm%7BR%7D%7D%20%5Cxi_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%7D">
 
-where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\omega_{com_j / 0}^{0}, \mathbf{v}_{com_j / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear velocities of the *j*-th center of mass, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}}"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{com_j / i}^{i} \in \mathbb{H}}"> is the screw vector that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any).
+where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bcom_j%20/%200%7D%5E%7B0%7D%2C%20%5Cmathrm%7Bv%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D"> are the angular and linear velocities of the *j*-th center of mass, meanwhile <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%7D"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cxi_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D"> is the screw vector that represent the axis of actuation of the joint <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Ctheta%7D_i%7D"> (if any).
 
-On the other hand, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbf{r}_{com_j / 0}^{0}, \mathbf{r}_{com_j / i}^{i} \in \mathbb{H}^{v}}"> are the relative positions, expressed as quaternions, of the *j*-th center of mass with respect to the inertial frame and the *i*-th one. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
+On the other hand, <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20r_%7Bcom_j%20/%200%7D%5E%7B0%7D%2C%20r_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D"> are the relative positions, expressed as quaternions, of the *j*-th center of mass with respect to the inertial frame and the *i*-th one. These can be calculated with the [Dual Quaternions to Euclidian Space](#dual-quaternions-to-euclidian-space) functionality.
 
 With the aforementioned terms, velocity propagation using dual quaternions can be calculated with the library as follows:
 
@@ -2026,7 +1989,7 @@ array([[ 0.        ],
        [-0.71452688]])
 ```
 
-Please notice that initial velocity ```WdqCOM0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Velocity Propagation to Centers of Mass](#inertial-angular-velocity-propagation-to-centers-of-mass) and  [Inertial Linear Velocity Propagation to Centers of Mass](#inertial-linear-velocity-propagation-to-centers-of-mass) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+Please notice that initial velocity ```WdqCOM0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Velocity Propagation to Centers of Mass](#inertial-velocity-propagation-to-centers-of-mass) algorithm. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -2186,7 +2149,7 @@ Please notice that initial linear acceleration ```dvCOM0``` was set to zero beca
 
 Dual Quaternions can be used to represent the relative pose of a center of mass, therefore they can be used to calculate its acceleration. In this case, a dual quaternion contains the angular and linear accelerations, from the base to the center of mass, in a single result with the following equation:
 
-<img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{com_j / 0}^{0} \\ \dot{\mathbf{v}}_{com_j / 0}^{0}\end{bmatrix}=}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{com_j / i}^{i}\right]^{\times} %26 \mathbb{I} \end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\dot{\omega}_{i / 0}^{0} \\ \dot{\mathbf{v}}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\mathcal{O} \\ \omega_{com_j / 0}^{0} \times \mathbf{v}_{com_j / 0}^{0} - \omega_{i / 0}^{0} \times \mathbf{v}_{i / 0}^{0}\end{bmatrix} %2b}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix} \mathbb{I} %26 \Phi \\ -\left[\mathbf{r}_{com_j / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red} \Bigg( \hat{\mathrm{q}}_{i / 0}^{0} \ \ \big[ \dot{\xi}_{com_j / i}^{i} \dot{q}_{i} %2b \xi_{com_j / i}^{i} \ddot{q}_{i} %2b \Big( \hat{\mathrm{q}}_{i / 0}^{*} \ \ \begin{bmatrix} \mathbb{I} %26 \Phi \\ \left[\mathbf{r}_{i / 0}^{0}\right]^{\times} %26 \mathbb{I}\end{bmatrix}}"> <img src="https://render.githubusercontent.com/render/math?math={\color{red}\begin{bmatrix}\omega_{i / 0}^{0} \\ \mathbf{v}_{i / 0}^{0}\end{bmatrix} \ \ \hat{\mathrm{q}}_{i / 0} \Big) \times \left( \xi_{com_j / i}^{i} \dot{q}_{i} \right) \Bigg] \ \ \hat{\mathrm{q}}_{i / 0}^{*} \Bigg)}">
+<img src="https://latex.codecogs.com/svg.image?%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathcal%7BO%7D%20%5C%5C%20%5Comega_%7Bcom_j%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bcom_j%20/%200%7D%20-%20%5Comega_%7Bi%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5C%5C%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cleft%5B%20%5Cdot%7B%5Cxi%7D_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cxi_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cddot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%29%20%5Ctimes%20%5Cleft%28%20%5Cxi_%7Bcom_j%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%5Cright%29%20%5Cright%20%5D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cright%20%29%20%7D">
 
 where <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{\omega}_{com_j / 0}^{0}, \dot{\mathbf{v}}_{com_j / 0}^{0} \in \mathbb{H}^{v}}"> are the angular and linear accelerations of the *j*-th center of mass, meanwhile <img src="https://render.githubusercontent.com/render/math?math={\color{red}\mathbb{I}, \Phi \in \mathbb{R}^{4 \times 4}, \mathcal{O} \in \mathbb{R}^{4 \times 1}}"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://render.githubusercontent.com/render/math?math={\color{red}\hat{\mathrm{q}}_{i / 0}}"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://render.githubusercontent.com/render/math?math={\color{red}\xi_{com_j / i}^{i}, \dot{\xi}_{com_j / i}^{i} \in \mathbb{H}}"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://render.githubusercontent.com/render/math?math={\color{red}\dot{q}_{i}}"> (if any) and its rate of change.
 
