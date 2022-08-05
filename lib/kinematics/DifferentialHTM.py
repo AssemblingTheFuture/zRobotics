@@ -45,7 +45,7 @@ def geometricDerivativeStateSpace(robot : object, symbolic = False):
   J = geometricJacobian(robot, symbolic)
   
   # Calculate derivative of Inertial Geometric Jacobian Matrix 
-  dJ = geometricJacobianDerivative(robot, symbolic = symbolic)
+  dJ = geometricJacobianDerivative(robot, qd = robot.qdSymbolic if symbolic else robot.jointsVelocities, symbolic = symbolic)
     
   # Calculate derivative of state-space equation (symbolic or numerical)
   Xdd = (dJ * robot.qdSymbolic) + (J * robot.qddSymbolic) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
@@ -268,7 +268,7 @@ def accelerationPropagation(robot : object, dv0 : np.array, dw0 : np.array, V : 
       dVjoint = zeros(6, 1) if symbolic else np.zeros((6, 1))
           
     # Calculate acceleration up to this point
-    dv = trigsimp((Mi * dV[-1]) + dVjoint + Matrix([V[k][3 : 6].cross(V[k][3 : 6].cross(ri))], [zeros(3, 1)])) if symbolic else Mi.dot(dV[-1]) + dVjoint + np.append((np.cross(V[k][3 : 6], np.cross(V[k][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
+    dv = trigsimp((Mi * dV[-1]) + dVjoint + Matrix([V[k][3 : 6, :].cross(V[k][3 : 6, :].cross(r)), zeros(3, 1)])) if symbolic else Mi.dot(dV[-1]) + dVjoint + np.append((np.cross(V[k][3 : 6], np.cross(V[k][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
 
     # Append each calculated acceleration
     dV.append(nsimplify(dv.evalf(), tolerance = 1e-10) if symbolic else dv)
@@ -447,7 +447,7 @@ def accelerationPropagationCOM(robot : object, dvCOM0 : np.array, dwCOM0 : np.ar
       Mi = Matrix([[eye(3), -ri], [zeros(3), eye(3)]]) if symbolic else np.append(np.append(np.eye(3), -ri, axis = 1), np.append(np.zeros((3, 3)), np.eye(3), axis = 1), axis = 0)
     
       # Calculate velocity up to this point
-      dvCOM = trigsimp(Mi * dV[k - 1] + Matrix([Vcom[COM][3 : 6].cross(Vcom[COM][3 : 6].cross(r))], [zeros(3, 1)])) if symbolic else Mi.dot(dV[k - 1]) + np.append((np.cross(Vcom[COM][3 : 6], np.cross(Vcom[COM][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
+      dvCOM = trigsimp(Mi * dV[k - 1] + Matrix([Matrix(Vcom[COM][3 : 6]).cross(Matrix(Vcom[COM][3 : 6]).cross(r)), zeros(3, 1)])) if symbolic else Mi.dot(dV[k - 1]) + np.append((np.cross(Vcom[COM][3 : 6], np.cross(Vcom[COM][3 : 6], r, axis = 0), axis = 0)), np.zeros((3, 1)), axis = 0)
       
       # Append each calculated velocity
       dVcom.append(nsimplify(dvCOM.evalf(), tolerance = 1e-10) if symbolic else dvCOM)

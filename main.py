@@ -98,9 +98,9 @@ if __name__ == '__main__':
   # symbolicJg = geometricJacobian(uRobot, symbolic = True)
   
   # Derivative of Geometric Jacobian Matrix (OPTIONAL)
-  dJg = geometricJacobianDerivative(uRobot)
-  # symbolicdJg = geometricJacobianDerivative(uRobot, symbolic = True)
-  
+  dJg = geometricJacobianDerivative(uRobot, qd = qd)
+  # symbolicdJg = geometricJacobianDerivative(uRobot, qd = uRobot.qdSymbolic, symbolic = True)
+   
   # Geometric Jacobian Matrix to any Center of Mass (OPTIONAL)
   JgCOM = geometricJacobianCOM(uRobot, COM = 2)
   # symbolicJgCOM = geometricJacobianCOM(uRobot, COM = 2, symbolic = True)
@@ -142,14 +142,14 @@ if __name__ == '__main__':
   # Inertial velocity propagation to each reference frame 
   V = velocityPropagation(uRobot, v0 = np.zeros((3, 1)), w0 = np.zeros((3, 1)), qd = qd)
   # symbolicV = velocityPropagation(uRobot, v0 = zeros(3, 1), w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
-  
+    
   # End-effector inertial acceleration (using geometric jacobian matrix and its derivative) with Homogeneous Transformation Matrices
   geometricXdd = geometricDerivativeStateSpace(uRobot)
   # symbolicGeometricXdd = geometricDerivativeStateSpace(uRobot, symbolic = True)
   
   # Inertial angular acceleration propagation to each reference frame
   dV = accelerationPropagation(uRobot, dv0 = np.zeros((3, 1)), dw0 = np.zeros((3, 1)), V = V, qd = qd, qdd = qdd)
-  # symbolicdV = accelerationPropagation(uRobot, dv0 = Zeros(3, 1), dw0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  # symbolicdV = accelerationPropagation(uRobot, dv0 = zeros(3, 1), dw0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
   """
     4.1 DIFFERENTIAL KINEMATICS TO EACH CENTER OF MASS (Velocities and Accelerations using Homogeneous Transformation Matrices)

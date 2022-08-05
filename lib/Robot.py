@@ -90,7 +90,7 @@ class Serial(Robot):
     """ 
     
     if symbolic:
-          
+      
       """
       # Two-link planar robot
       self.symbolicDHParameters = Matrix([[0, 0, 0, 0],
@@ -171,7 +171,7 @@ class Serial(Robot):
                                              [(np.pi / 2) + 0.0000, 0.000000000000000000, 0.000000000000000000, np.pi / 2],
                                              [0.000000000000000000, self.symbolicCOMs[4], 0.000000000000000000, 0.0000000]])
       """
-      
+
       # 4 degrees-of-freedom robot
       self.symbolicDHParametersCOM = Matrix([[0, 0, 0, 0],
                                              [self.qSymbolic[0, 0], self.symbolicCOMs[0], 0.000000000000000000, np.pi / 2],
@@ -198,7 +198,7 @@ class Serial(Robot):
                                        [(np.pi / 2) + 0.0000000000, 0.0000000000, 0.0000000000, np.pi / 2],
                                        [0.000000000000000000000000, self.COMs[4], 0.0000000000, 0.0000000]])
       """
-      
+
       # 4 degrees-of-freedom robot
       self.dhParametersCOM = np.array([[0, 0, 0, 0],
                                         [self.jointsPositions[0, 0], self.COMs[0], 0.0000000000, np.pi / 2],
