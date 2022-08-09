@@ -105,6 +105,10 @@ if __name__ == '__main__':
   JgCOM = geometricJacobianCOM(uRobot, COM = 2)
   # symbolicJgCOM = geometricJacobianCOM(uRobot, COM = 2, symbolic = True)
   
+  # Derivative of Geometric Jacobian Matrix to any acenter of mass (OPTIONAL)
+  dJgCOM = geometricJacobianDerivativeCOM(uRobot, qd = qd, COM = 2)
+  # symbolicdJgCOM = geometricJacobianDerivativeCOMz(uRobot, qd = uRobot.qdSymbolic, COM = 2, symbolic = True)
+  
   # Analytic Jacobian Matrix (OPTIONAL)
   Ja = analyticJacobian(uRobot)
   # symbolicJa = analyticJacobian(uRobot, symbolic = True)
@@ -168,8 +172,8 @@ if __name__ == '__main__':
   # symbolicVcom = velocityPropagationCOM(uRobot, vCOM0 = zeros(3, 1), wCOM0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, symbolic = True)
   
   # Inertial Acceleration of each Center of Mass using Geometric Jacobian Matrix and its derivative
-  geometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 2)
-  # symbolicGeometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 1, symbolic = True)
+  geometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, qd = qd, COM = 2)
+  # symbolicGeometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, qd = uRobot.qdSymbolic, COM = 2, symbolic = True)
   
   # Inertial angular acceleration propagation to each reference frame
   dVcom = accelerationPropagationCOM(uRobot, dvCOM0 = np.zeros((3, 1)), dwCOM0 = np.zeros((3, 1)), Vcom = Vcom, dV = dV, qd = qd, qdd = qdd)

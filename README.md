@@ -31,6 +31,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Axis - Angle Vector](#axis---angle-vector)
       - [Inertial Jacobian Matrix](#inertial-jacobian-matrix)
         - [Derivative of Geometric Jacobian Matrix](#derivative-of-geometric-jacobian-matrix)
+        - [Derivative of Geometric Jacobian Matrix of a Center of Mass](#derivative-of-geometric-jacobian-matrix-of-a-center-of-mass)
       - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
     - [Differential Kinematics](#differential-kinematics)
       - [Total Inertial Rate of Change](#total-inertial-rate-of-change)
@@ -122,7 +123,7 @@ We are working, or will start working soon, on the following tasks for future re
 
 ## Before Starting :warning:
 
-This library can be used with [Python :snake: 3.8.10 - 64 bits](https://www.python.org/downloads/release/python-3810/) or superior. Please install the following dependencies or make sure that they're already in your computer:
+This library can be used with [Python :snake: 3.10.4 - 64 bits](https://www.python.org/downloads/release/python-3104/) or above. Please install the following dependencies or make sure that they're already in your computer:
 
 ```bash
 pip3 install numpy
@@ -1238,6 +1239,45 @@ array([[ 1.15393988,  0.31198438, -0.17393471, -0.28141928],
        [-0.66229389,  0.6116456 ,  0.6116456 ,  0.        ],
        [-1.17576549,  0.00828597,  0.00828597,  0.        ],
        [ 0.        , -1.16668634, -1.16668634,  0.        ]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+#### Derivative of Geometric Jacobian Matrix of a Center of Mass
+
+This is **OPTIONAL**. If you need to calculate the acceleration of any center of mass (COM), you will need the derivative of a Jacobian Matrix:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cfrac%7Bd%7D%7Bdt%7D%20%5Cleft%28%20J_%7Bcom_j%7D%5E%7BI%7D%20%5Cright%29%20%3D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J_%7Bcom_j%7D%5E%7BI%7D%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%7D">,
+
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbar%7B%5Ctheta%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D"> is the vector of generalized coordinates of the system, however, calculating this leads to differentiate every single term in the jacobian matrix of the *j* - th center of mass (that's a really hard task). To solve it, a Geometric solution to this problem is described with the following equation:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7BJ%7D_%7Bcom%7D%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Bn%7D%2C%20%5Cvec%7Br%7D%20%5Cright%20%29%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Csum_%7Bi%20%3D%200%7D%5E%7Bj%7D%20%5Cleft%5B%20%5Cleft%28%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Ctimes%20%5Cleft%28%20%5Cvec%7Bn%7D_%7Bj%20+%201%20/%20j%7D%5E%7Bj%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bn%20/%20j%7D%5E%7Bj%7D%20%5Cright%29%20+%20%5Cleft%28%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Ctimes%20%5Cvec%7Bn%7D_%7Bj%20+%201%20/%20j%7D%5E%7Bj%7D%20%5Cright%29%20%5Ctimes%20%5Cvec%7Br%7D_%7Bn%20/%20j%7D%5E%7Bj%7D%20%5Cright%29%20%5Cdot%7B%5Ctheta%7D_%7Bi%20+%201%7D%20%5Cright%20%5D%20+%20%5Csum_%7Bi%20%3D%20j%7D%5E%7Bcom%7D%20%5Cleft%5B%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Ctimes%20%5Cleft%28%20%5Cvec%7Bn%7D_%7Bj%20+%201%20/%20j%7D%5E%7Bj%7D%20%5Ctimes%20%5Cvec%7Br%7D_%7Bn%20/%20j%7D%5E%7Bj%7D%20%5Cright%29%20%5Cdot%7B%5Ctheta%7D_%7Bi%20+%201%7D%20%5Cright%5D%20%5C%5C%20%5Csum_%7Bi%20%3D%20j%7D%5E%7Bcom%7D%20%5Cleft%5B%20%5Cleft%28%20%5Cvec%7Bn%7D_%7Bj%20+%201%20/%20j%7D%5E%7Bj%7D%20%5Ctimes%20%5Cvec%7Bn%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%29%20%5Cdot%7B%5Ctheta%7D_%7Bi%20+%201%7D%20%5Cright%20%5D%20%5Cend%7Bbmatrix%7D%20%7D">
+
+Because of the size of the equation, this was shortened to a single column to exemplify how this is calculated. In this case, *j* represents the *j* - th joint and column of the matrix, so its dimensions are <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7BJ%7D_%7Bcom%7D%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Bn%7D%2C%20%5Cvec%7Br%7D%20%5Cright%20%29%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%20n%7D%7D">. Then, the derivative can be calculated with the library as follows
+
+```python
+# Kinematics libraries
+from lib.kinematics.HTM import *
+  
+# Derivative of Geometric Jacobian Matrix to any acenter of mass (OPTIONAL)
+dJgCOM = geometricJacobianDerivativeCOM(uRobot, qd = qd, COM = 2, symbolic = False)
+```
+
+Then, the output will be
+
+```bash
+# NumPy Array
+>>> dJgCOM
+array([[ 5.89677598e-02 -1.60894524e-01  0.00000000e+00  0.00000000e+00]
+       [ 6.07744491e-02  1.00827098e-01  0.00000000e+00  0.00000000e+00]
+       [-7.05724225e-18 -4.35017413e-02  0.00000000e+00  0.00000000e+00]
+       [ 1.77058883e-01  0.00000000e+00  0.00000000e+00  0.00000000e+00]
+       [ 1.82483718e-01  0.00000000e+00  0.00000000e+00  0.00000000e+00]
+       [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]])
 ```
 
 You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow

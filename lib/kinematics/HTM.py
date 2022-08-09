@@ -316,64 +316,111 @@ def geometricJacobianCOM(robot : object, COM: int, symbolic = False):
     
   return J
 
-def geometricJacobianDerivativeCOM(robot : object, COM : int, dq = 0.001, symbolic = False):
-  """Using Homogeneous Transformation Matrices, this function computes the derivative of Geometric Jacobian Matrix of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+def geometricJacobianDerivativeCOM(robot : object, qd : np.array, COM : int, symbolic = False):
+  """Using Homogeneous Transformation Matrices, this function computes the derivative of Geometric Jacobian Matrix of a serial robot given joints positions and velocities. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (Serial): serial robot (this won't work with other type of robots)
-    COM (int): center of mass that will be analyzed
-    dq (float, optional): step size for numerical derivative. Defaults to 0.001.
+    qd (np.array): joints velocities
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
-    dJ (np.array): Derivative of Geometric Jacobian Matrix for a Center of Mass (numerical)
-    dJ (SymPy Matrix): Derivative of Geometric Jacobian Matrix for a Center of Mass (symbolical)
+    dJ (np.array): Derivative of Geometric Jacobian Matrix (numerical)
+    dJ (SymPy Matrix): Derivative of Geometric Jacobian Matrix (symbolical)
   """
 
   # Get number of joints (generalized coordinates)
   n = robot.jointsPositions.shape[0]
   
-  # Auxiliar variable to keep original joints positions
-  q = robot.jointsPositions.copy()
+  # Calculate forward kinematics
+  fkHTM = forwardHTM(robot, symbolic)
   
-  # Initializes auxiliar derivative matrix with zeros
-  V = zeros(6, n) if symbolic else np.zeros((6, n))
+  # Calculate forward kinematics to each Center of Mass
+  fkCOMHTM = forwardCOMHTM(robot, symbolic)
+    
+  # Check in what row of Denavit Hartenberg Parameters Matrix is the Center of Mass
+  rowCOM = robot.whereIsTheCOM(COM)[0]
   
   # Derivative of Jacobian Matrix
   dJ = zeros(6, n) if symbolic else np.zeros((6, n))
   
-  # Calculate jacobian matrix
-  J = geometricJacobianCOM(robot, COM, symbolic)
-  
   # Iterates through all colums (generalized coordinates)
   for j in range(n):
+        
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row, column = robot.whereIsTheJoint(j + 1)
     
-    # If symbolic calculation was requested
-    if symbolic:
+    # If the current joint is coupled after the desired center of mass, and any Center of Mass is analyzed
+    if row > rowCOM:
+      
+      # Stop the algorithm, because current joint won't affect the desired center of mass
+      break
+    
+    # Get row where joint is stored
+    frame = robot.symbolicDHParameters[4 * (row) : 4 * (row + 1)] if symbolic else robot.dhParameters[row, :]
+    
+    # Get pose of the joint
+    H = fkHTM[row - 1] * rz(frame[0] if column >= 0 else 0, symbolic) * tz(frame[1] if column >= 1 else 0, symbolic) * tx(frame[2] if column >= 2 else 0) * rx(frame[3] if column >= 3 else 0)  if symbolic else fkHTM[row - 1].dot(rz(frame[0] if column >= 0 else 0)).dot(tz(frame[1] if column >= 1 else 0)).dot(tx(frame[2] if column >= 2 else 0, symbolic)).dot(rx(frame[3] if column >= 3 else 0))
+    
+    # Get the distance between the current joint and the end effector
+    r = fkCOMHTM[COM][0 : 3, -1] - H[0 : 3, -1]
+    
+    # Get axis of actuation of current joint
+    z = H[0: 3, 2]
+        
+    # Iterates through the remaining joints for the recursive sum for linear acceleration terms
+    for i in range(j):
+          
+      # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+      rowi, columni = robot.whereIsTheJoint(i + 1)
+      
+      # If the current frame is coupled after the desired center of mass, and any Center of Mass is analyzed
+      if rowi > rowCOM:
+      
+        # Stop the algorithm, because current joint won't affect the desired center of mass
+        break
+      
+      # Get row where joint is stored
+      framei = robot.symbolicDHParameters[4 * (rowi) : 4 * (rowi + 1)] if symbolic else robot.dhParameters[rowi, :]
+      
+      # Get pose of the joint
+      Hi = fkHTM[rowi - 1] * rz(framei[0] if columni >= 0 else 0, symbolic) * tz(framei[1] if columni >= 1 else 0, symbolic) * tx(framei[2] if columni >= 2 else 0) * rx(framei[3] if columni >= 3 else 0)  if symbolic else fkHTM[rowi - 1].dot(rz(framei[0] if columni >= 0 else 0)).dot(tz(framei[1] if columni >= 1 else 0)).dot(tx(framei[2] if columni >= 2 else 0, symbolic)).dot(rx(framei[3] if columni >= 3 else 0))
             
-      # Differentiates current column with respect to joints positions
-      V = J[:, j].jacobian(robot.qSymbolic)
-
-    # Else, calculate derivative numerically
-    else:
+      # Get axis of actuation of current joint
+      zi = Hi[0: 3, 2]
+      
+      # Set linear acceleration part
+      dJ[0 : 3, j] += ((zi.cross(z)).cross(r) + zi.cross(z.cross(r))) * qd[i] if symbolic else (np.cross(np.cross(zi, z, axis = 0), r, axis = 0) + np.cross(zi, np.cross(z, r, axis = 0), axis = 0)) * qd[i]
+    
+    # Iterates through the remaining joints for the recursive sum for both linear and angular acceleration terms
+    for i in range(j, n):
+      
+      # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+      rowi, columni = robot.whereIsTheJoint(i + 1)
+      
+      # If the current frame is coupled after the desired center of mass, and any Center of Mass is analyzed
+      if rowi > rowCOM:
+      
+        # Stop the algorithm, because current joint won't affect the desired center of mass
+        break
+      
+      # Get row where joint is stored
+      framei = robot.symbolicDHParameters[4 * (rowi) : 4 * (rowi + 1)] if symbolic else robot.dhParameters[rowi, :]
+      
+      # Get pose of the joint
+      Hi = fkHTM[rowi - 1] * rz(framei[0] if columni >= 0 else 0, symbolic) * tz(framei[1] if columni >= 1 else 0) * tx(framei[2] if columni >= 2 else 0) * rx(framei[3] if columni >= 3 else 0)  if symbolic else fkHTM[rowi - 1].dot(rz(framei[0] if columni >= 0 else 0)).dot(tz(framei[1] if columni >= 1 else 0)).dot(tx(framei[2] if columni >= 2 else 0)).dot(rx(framei[3] if columni >= 3 else 0))
             
-      # Iterates through all the generalized coordinates to calculate the derivative of current column
-      for k in range(n):
-                  
-        # Set increment to current generalized coordinate: z[j] = q[j] + dq
-        robot.jointsPositions[k] += dq
-                      
-        # Calculate geometric jacobian matrix with current step size
-        Ji = geometricJacobianCOM(robot, COM, symbolic)
-                      
-        # Calculate derivative: [Ji[:, j](q + dq) - J[:, j](q)] / dq
-        V[:, k] = ((Ji[:, j] - J[:, j]) / dq)
-                      
-        # Eliminates step size by copying original values from auxiliar variable
-        robot.jointsPositions[:, :] = q
-
-    # Sum the previous derivative to get the derivative of jacobian matrix and multiply it by qi'(t)
-    dJ += V * robot.qdSymbolic[j] if symbolic else V * robot.jointsVelocities[j]
+      # Get axis of actuation of current joint
+      zi = Hi[0: 3, 2]
+      
+      # Relative position between i-th and i + 1 frames
+      ri = fkCOMHTM[COM][0 : 3, 3] - Hi[0 : 3, 3]
+        
+      # Set linear acceleration part
+      dJ[0 : 3, j] += nsimplify(trigsimp(zi.cross(z.cross(ri)) * qd[i]).evalf(), tolerance = 1e-10) if symbolic else np.cross(zi, np.cross(z, ri, axis = 0), axis = 0) * qd[i]
+                 
+      # Set angular acceleration part
+      dJ[3 : 6, j] += nsimplify(trigsimp(z.cross(zi) * qd[i]).evalf(), tolerance = 1e-10) if symbolic else np.cross(z, zi, axis = 0) * qd[i]
     
   return dJ
 
