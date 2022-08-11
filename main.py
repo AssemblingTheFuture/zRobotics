@@ -14,10 +14,10 @@ if __name__ == '__main__':
   """
   
   # Number of rigid bodies
-  rb = 3
+  rb = 2
   
   # Number of Generalized Coordinates
-  n = 4
+  n = 2
   
   # Generalized coordinates
   q = np.random.randn(n, 1)
@@ -98,16 +98,16 @@ if __name__ == '__main__':
   # symbolicJg = geometricJacobian(uRobot, symbolic = True)
   
   # Derivative of Geometric Jacobian Matrix (OPTIONAL)
-  dJg = geometricJacobianDerivative(uRobot, qd = qd)
-  # symbolicdJg = geometricJacobianDerivative(uRobot, qd = uRobot.qdSymbolic, symbolic = True)
+  dJg = geometricJacobianDerivative(uRobot)
+  # symbolicdJg = geometricJacobianDerivative(uRobot, symbolic = True)
    
   # Geometric Jacobian Matrix to any Center of Mass (OPTIONAL)
   JgCOM = geometricJacobianCOM(uRobot, COM = 2)
   # symbolicJgCOM = geometricJacobianCOM(uRobot, COM = 2, symbolic = True)
   
   # Derivative of Geometric Jacobian Matrix to any acenter of mass (OPTIONAL)
-  dJgCOM = geometricJacobianDerivativeCOM(uRobot, qd = qd, COM = 2)
-  # symbolicdJgCOM = geometricJacobianDerivativeCOMz(uRobot, qd = uRobot.qdSymbolic, COM = 2, symbolic = True)
+  dJgCOM = geometricJacobianDerivativeCOM(uRobot, COM = 2)
+  # symbolicdJgCOM = geometricJacobianDerivativeCOMz(uRobot, COM = 2, symbolic = True)
   
   # Analytic Jacobian Matrix (OPTIONAL)
   Ja = analyticJacobian(uRobot)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
   
   # Inertial velocity propagation to each reference frame 
   V = velocityPropagation(uRobot, v0 = np.zeros((3, 1)), w0 = np.zeros((3, 1)), qd = qd)
-  # symbolicV = velocityPropagation(uRobot, v0 = zeros(3, 1), w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
+  symbolicV = velocityPropagation(uRobot, v0 = zeros(3, 1), w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
     
   # End-effector inertial acceleration (using geometric jacobian matrix and its derivative) with Homogeneous Transformation Matrices
   geometricXdd = geometricDerivativeStateSpace(uRobot)
@@ -169,10 +169,10 @@ if __name__ == '__main__':
   
   # Inertial velocity propagation to each center of mass
   Vcom = velocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), wCOM0 = np.zeros((3, 1)), V = V, qd = qd)
-  # symbolicVcom = velocityPropagationCOM(uRobot, vCOM0 = zeros(3, 1), wCOM0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, symbolic = True)
+  symbolicVcom = velocityPropagationCOM(uRobot, vCOM0 = zeros(3, 1), wCOM0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, symbolic = True)
   
   # Inertial Acceleration of each Center of Mass using Geometric Jacobian Matrix and its derivative
-  geometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, qd = qd, COM = 2)
+  geometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 2)
   # symbolicGeometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, qd = uRobot.qdSymbolic, COM = 2, symbolic = True)
   
   # Inertial angular acceleration propagation to each reference frame
@@ -221,7 +221,7 @@ if __name__ == '__main__':
   
   # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
   G = dPdqCOM(uRobot)
-  # symbolicG = dPdqCOM(uRobot, symbolic = True)
+  # symbolicG = dPdqCOM(uRobot, g = Matrix([[0], [0], ['-g']]), symbolic = True)
   
   # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
   T = (D * uRobot.qddSymbolic) + (C.dot(uRobot.jointsVelocities)) + G

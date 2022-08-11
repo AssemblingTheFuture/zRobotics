@@ -47,7 +47,7 @@ def inertiaMatrixCOM(robot : object, symbolic = False):
         # (m * Jv^T * JV) + (m * Jw^T * Icom * Jw)
         D += (robot.symbolicMass[j] * (Jv.T * Jv) )+ ((Jw.T * Icom * Jw)) if symbolic else (robot.mass[j] * (Jv.T.dot(Jv))) + ((Jw.T.dot(Icom).dot(Jw)))
         
-    return D
+    return nsimplify(trigsimp(D), tolerance = 1e-10) if symbolic else D
 
 def kineticEnergyCOM(robot : object, symbolic = False):
     """This function calculates the total kinetic energy, with respect to each center of mass, given linear and angular velocities
@@ -114,7 +114,7 @@ def dPdqCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, sy
     if symbolic:
         
         # Total Derivative
-        return p.jacobian(robot.qSymbolic).T
+        return nsimplify(p.jacobian(robot.qSymbolic).T, tolerance = 1e-10)
     
     else:
         
@@ -192,7 +192,7 @@ def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
         # Sum the previous derivative to get the "C" matrix and multiply it by qi'(t)
         C += (V - (0.5 * V.T)) * robot.qdSymbolic[j] if symbolic else (V - (0.5 * V.T)) * robot.jointsVelocities[j]
             
-    return C
+    return nsimplify(trigsimp(C), tolerance = 1e-10) if symbolic else C
 
 if __name__ == '__main__':
     

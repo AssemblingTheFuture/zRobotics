@@ -172,12 +172,11 @@ def geometricJacobian(robot : object, symbolic = False):
     
   return J
 
-def geometricJacobianDerivative(robot : object, qd : np.array, symbolic = False):
+def geometricJacobianDerivative(robot : object, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes the derivative of Geometric Jacobian Matrix of a serial robot given joints positions and velocities in radians. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (Serial): serial robot (this won't work with other type of robots)
-    qd (np.array): joints velocities
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
@@ -190,6 +189,9 @@ def geometricJacobianDerivative(robot : object, qd : np.array, symbolic = False)
   
   # Calculate forward kinematics
   fkHTM = forwardHTM(robot, symbolic)
+  
+  # Define joints velocities
+  qd = robot.qdSymbolic if symbolic else robot.jointsVelocities
   
   # Derivative of Jacobian Matrix
   dJ = zeros(6, n) if symbolic else np.zeros((6, n))
@@ -226,9 +228,9 @@ def geometricJacobianDerivative(robot : object, qd : np.array, symbolic = False)
             
       # Get axis of actuation of current joint
       zi = Hi[0: 3, 2]
-      
+
       # Set linear acceleration part
-      dJ[0 : 3, j] += ((zi.cross(z)).cross(r) + zi.cross(z.cross(r))) * qd[i] if symbolic else (np.cross(np.cross(zi, z, axis = 0), r, axis = 0) + np.cross(zi, np.cross(z, r, axis = 0), axis = 0)) * qd[i]
+      dJ[0 : 3, j] += nsimplify(trigsimp(((zi.cross(z)).cross(r) + zi.cross(z.cross(r))) * qd[i]).evalf(), tolerance = 1e-10) if symbolic else (np.cross(np.cross(zi, z, axis = 0), r, axis = 0) + np.cross(zi, np.cross(z, r, axis = 0), axis = 0)) * qd[i]
     
     # Iterates through the remaining joints for the recursive sum for both linear and angular acceleration terms
     for i in range(j, n):
@@ -316,12 +318,12 @@ def geometricJacobianCOM(robot : object, COM: int, symbolic = False):
     
   return J
 
-def geometricJacobianDerivativeCOM(robot : object, qd : np.array, COM : int, symbolic = False):
+def geometricJacobianDerivativeCOM(robot : object, COM : int, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes the derivative of Geometric Jacobian Matrix of a serial robot given joints positions and velocities. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (Serial): serial robot (this won't work with other type of robots)
-    qd (np.array): joints velocities
+    COM (int): center of mass that will be analyzed
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
@@ -337,6 +339,9 @@ def geometricJacobianDerivativeCOM(robot : object, qd : np.array, COM : int, sym
   
   # Calculate forward kinematics to each Center of Mass
   fkCOMHTM = forwardCOMHTM(robot, symbolic)
+  
+  # Define joints velocities
+  qd = robot.qdSymbolic if symbolic else robot.jointsVelocities
     
   # Check in what row of Denavit Hartenberg Parameters Matrix is the Center of Mass
   rowCOM = robot.whereIsTheCOM(COM)[0]
@@ -390,7 +395,7 @@ def geometricJacobianDerivativeCOM(robot : object, qd : np.array, COM : int, sym
       zi = Hi[0: 3, 2]
       
       # Set linear acceleration part
-      dJ[0 : 3, j] += ((zi.cross(z)).cross(r) + zi.cross(z.cross(r))) * qd[i] if symbolic else (np.cross(np.cross(zi, z, axis = 0), r, axis = 0) + np.cross(zi, np.cross(z, r, axis = 0), axis = 0)) * qd[i]
+      dJ[0 : 3, j] += nsimplify(trigsimp(((zi.cross(z)).cross(r) + zi.cross(z.cross(r))) * qd[i]).evalf(), tolerance = 1e-10) if symbolic else (np.cross(np.cross(zi, z, axis = 0), r, axis = 0) + np.cross(zi, np.cross(z, r, axis = 0), axis = 0)) * qd[i]
     
     # Iterates through the remaining joints for the recursive sum for both linear and angular acceleration terms
     for i in range(j, n):

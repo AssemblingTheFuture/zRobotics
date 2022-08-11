@@ -45,7 +45,7 @@ def geometricDerivativeStateSpace(robot : object, symbolic = False):
   J = geometricJacobian(robot, symbolic)
   
   # Calculate derivative of Inertial Geometric Jacobian Matrix 
-  dJ = geometricJacobianDerivative(robot, qd = robot.qdSymbolic if symbolic else robot.jointsVelocities, symbolic = symbolic)
+  dJ = geometricJacobianDerivative(robot, symbolic = symbolic)
     
   # Calculate derivative of state-space equation (symbolic or numerical)
   Xdd = (dJ * robot.qdSymbolic) + (J * robot.qddSymbolic) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
@@ -73,12 +73,11 @@ def geometricCOMStateSpace(robot : object, COM : int, symbolic = False):
     
   return Xd
 
-def geometricCOMDerivativeStateSpace(robot : object, qd : np.array, COM : int, symbolic = False):
+def geometricCOMDerivativeStateSpace(robot : object, COM : int, symbolic = False):
   """Using Homogeneous Transformation Matrices, this function computes derivative of state-space equation (using Geometric Jacobian Matrix) for centers of mass of a serial robot given joints velocities and accelerations. Serial robot's kinematic parameters have to be set before using this function
 
   Args:
     robot (object): serial robot (this won't work with other type of robots)
-    qd (np.array): joints velocities
     symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
   Returns:
@@ -90,7 +89,7 @@ def geometricCOMDerivativeStateSpace(robot : object, qd : np.array, COM : int, s
   J = geometricJacobianCOM(robot, COM, symbolic)
     
   # Calculate derivative of Inertial Geometric Jacobian Matrix to Center of Mass
-  dJ = geometricJacobianDerivativeCOM(robot, qd, COM, symbolic = symbolic)
+  dJ = geometricJacobianDerivativeCOM(robot, COM, symbolic = symbolic)
     
   # Calculate derivative of state-space equation (symbolic or numerical)
   Xdd = (dJ * robot.qdSymbolic) + (J * robot.qddSymbolic) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
