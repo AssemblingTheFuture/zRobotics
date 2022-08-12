@@ -2011,6 +2011,68 @@ array([[ 0.09348339],
        [ 0.51563446]])
 ```
 
+For the case of velocities calculated with dual quaternions, it is possible to use the [Dual Inertial Velcocity Jacobian Matrix](#dual-inertial-jacobian-matrix), because this maps the effect of each joint directly to the end-effector in dual space, so linear and angular velocities can be calculated:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bv%7D%7D_%7Bcom_j%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%200%20%5C%5C%20%5Comega_%7Bx_%7Bcom_j%7D%7D%20%5C%5C%20%5Comega_%7By_%7Bcom_j%7D%7D%20%5C%5C%20%5Comega_%7Bz_%7Bcom_j%7D%7D%20%5C%5C%200%20%5C%5C%20v_%7Bx_%7Bcom_j%7D%7D%20%5C%5C%20v_%7By_%7Bcom_j%7D%7D%20%5C%5C%20v_%7Bz_%7Bcom_j%7D%7D%20%5Cend%7Bbmatrix%7D%20%3D%20J_%7B%5Chat%7B%5Cmathrm%7Bv%7D%7D_%7Bcom_j%7D%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
+
+This can be calculated with the library as follows:
+
+```python
+"""
+  Total Inertial Velocity (using Dual Quaternions)
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Dual Inertial Velocity Jacobian Matrix
+JvdqCOM = jacobianVelocityDQCOM(uRobot, COM = 2, symbolic = False)
+
+# Total Inertial Velocity (calculated by Dual Inertial Velocity Jacobian Matrix and joints velocities)
+dqXd1COM = JvdqCOM.dot(uRobot.jointsVelocities)
+
+# Total Dual Inertial Velocity (calculated by library's module)
+dqXd2COM = dqStateSpaceCOM(uRobot, COM = 2, symbolic = Fals)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> JvdqCOM
+array([[ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
+       [ 0.00000000e+00 -1.96806839e-02  0.00000000e+00  0.00000000e+00]
+       [ 0.00000000e+00 -9.99806317e-01  0.00000000e+00  0.00000000e+00]
+       [ 1.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
+       [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
+       [ 1.92986700e-04 -5.41920045e-02  0.00000000e+00  0.00000000e+00]
+       [ 9.80399476e-03  1.06674232e-03  0.00000000e+00  0.00000000e+00]
+       [ 0.00000000e+00  9.80589400e-03  0.00000000e+00  0.00000000e+00]])
+
+>>> dqXd1COM
+array([[ 0.        ],
+       [-0.10991743],
+       [ 0.11912085],
+       [ 0.51563446],
+       [ 0.        ],
+       [ 0.09348339],
+       [-0.03018717],
+       [ 0.02690157]])
+
+>>> dqXd2COM
+array([[ 0.        ],
+       [-0.10991743],
+       [ 0.11912085],
+       [ 0.51563446],
+       [ 0.        ],
+       [ 0.09348339],
+       [-0.03018717],
+       [ 0.02690157]])
+```
+
 Please notice that jacobian matrix is zero in columns two to four because these joints (<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Ctheta_3%2C%20%5Ctheta_4%7D">) don't affect the center of mass number two because they are attached after it. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
@@ -2568,7 +2630,7 @@ where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmath
 from lib.dynamics.DynamicsHTM import *
 
 # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
-G = dPdqCOM(robot, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = False)
+G = gravitationalCOM(robot, g = np.array([[0], [0], [-9.80665]]), symbolic = False)
 ```
 
 So the output will be
@@ -2582,7 +2644,7 @@ array([[ 0.        ],
        [ 0.        ]])
 ```
 
-The step size ```dq``` is equal to ```0.001``` by default, but it can be changed. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
