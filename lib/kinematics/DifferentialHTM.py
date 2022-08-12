@@ -25,7 +25,7 @@ def geometricStateSpace(robot : object, symbolic = False):
   J = geometricJacobian(robot, symbolic)
     
   # Calculate state-space equation (symbolic or numerical)
-  Xd = J * robot.qdSymbolic if symbolic else J.dot(robot.jointsVelocities)
+  Xd = nsimplify(trigsimp(J * robot.qdSymbolic).evalf(), tolerance = 1e-10) if symbolic else J.dot(robot.jointsVelocities)
     
   return Xd
 
@@ -48,7 +48,7 @@ def geometricDerivativeStateSpace(robot : object, symbolic = False):
   dJ = geometricJacobianDerivative(robot, symbolic = symbolic)
     
   # Calculate derivative of state-space equation (symbolic or numerical)
-  Xdd = (dJ * robot.qdSymbolic) + (J * robot.qddSymbolic) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
+  Xdd = nsimplify(trigsimp((dJ * robot.qdSymbolic) + (J * robot.qddSymbolic)).evalf(), tolerance = 1e-10) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
     
   return Xdd
 
@@ -69,7 +69,7 @@ def geometricCOMStateSpace(robot : object, COM : int, symbolic = False):
   Jcom = geometricJacobianCOM(robot, COM, symbolic)
     
   # Calculate state-space equation (symbolic or numerical)
-  Xd = Jcom * robot.qdSymbolic if symbolic else Jcom.dot(robot.jointsVelocities)
+  Xd = nsimplify(trigsimp(Jcom * robot.qdSymbolic).evalf(), tolerance = 1e-10) if symbolic else Jcom.dot(robot.jointsVelocities)
     
   return Xd
 
@@ -92,7 +92,7 @@ def geometricCOMDerivativeStateSpace(robot : object, COM : int, symbolic = False
   dJ = geometricJacobianDerivativeCOM(robot, COM, symbolic = symbolic)
     
   # Calculate derivative of state-space equation (symbolic or numerical)
-  Xdd = (dJ * robot.qdSymbolic) + (J * robot.qddSymbolic) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
+  Xdd = nsimplify(trigsimp((dJ * robot.qdSymbolic) + (J * robot.qddSymbolic)).evalf(), tolerance = 1e-10) if symbolic else (dJ.dot(robot.jointsVelocities)) + (J.dot(robot.jointsAccelerations))
     
   return Xdd
 
@@ -113,7 +113,7 @@ def analyticStateSpace(robot : object, dq = 0.001, symbolic = False):
   J = analyticJacobian(robot, dq, symbolic)
     
   # Calculate state-space equation (symbolic or numerical)
-  Xd = J * robot.qdSymbolic if symbolic else J.dot(robot.jointsVelocities)
+  Xd = nsimplify(trigsimp(J * robot.qdSymbolic).evalf(), tolerance = 1e-10) if symbolic else J.dot(robot.jointsVelocities)
     
   return Xd
 
@@ -135,7 +135,7 @@ def analyticCOMStateSpace(robot : object, COM : int, dq = 0.001, symbolic = Fals
   J = analyticJacobianCOM(robot, COM, dq, symbolic)
     
   # Calculate state-space equation (symbolic or numerical)
-  Xd = J * robot.qdSymbolic if symbolic else J.dot(robot.jointsVelocities)
+  Xd = nsimplify(trigsimp(J * robot.qdSymbolic).evalf(), tolerance = 1e-10) if symbolic else J.dot(robot.jointsVelocities)
     
   return Xd
 

@@ -14,10 +14,10 @@ if __name__ == '__main__':
   """
   
   # Number of rigid bodies
-  rb = 2
+  rb = 3
   
   # Number of Generalized Coordinates
-  n = 2
+  n = 4
   
   # Generalized coordinates
   q = np.random.randn(n, 1)
@@ -90,7 +90,7 @@ if __name__ == '__main__':
   # symbolicX = axisAngle(symbolicFKHTM[-1], symbolic = True)
   
   """
-    3. JACOBIAN MATRICES
+    3. JACOBIAN MATRICES (USING HOMOGENEOUS TRANSFORMATION MATRICES)
   """
   
   # Geometric Jacobian Matrix (OPTIONAL)
@@ -117,12 +117,24 @@ if __name__ == '__main__':
   JaCOM = analyticJacobianCOM(uRobot, COM = 2)
   # symbolicJa = analyticJacobianCOM(uRobot, COM = 1, symbolic = True)
   
+  """
+    3.1 JACOBIAN MATRICES (USING DUAL QUATERNIONS)
+  """
+  
   # Dual Jacobian Matrix (OPTIONAL)
   Jdq = jacobianDQ(uRobot)
   # symbolicJdq = jacobianDQ(uRobot, symbolic = True)
   
+  # Dual Inertial Velocity Jacobian Matrix (OPTIONAL)
+  Jvdq = jacobianVelocityDQ(uRobot)
+  # symbolicJvdq = jacobianVelocityDQ(uRobot, symbolic = True)
+  
+  # Geometric Jacobian Matrix to any Center of Mass (OPTIONAL)
+  JvdqCOM = jacobianVelocityDQCOM(uRobot, COM = 2)
+  # symbolicJvdqCOM = jacobianVelocityDQCOM(uRobot, COM = 2, symbolic = True)
+  
   """
-    3. INVERSE KINEMATICS
+    4. INVERSE KINEMATICS
   """ 
   
   # Calculate robot's Inverse Kinematics to a single point (using Homogeneous Transformation Matrices)
@@ -132,7 +144,7 @@ if __name__ == '__main__':
   qDQ = inverseDQ(uRobot, q0 = np.random.rand(n, 1), Qd = fkDQ[-1], K = 50 * np.eye(8))
   
   """
-    4. DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Homogeneous Transformation Matrices)
+    5. DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Homogeneous Transformation Matrices)
   """
   
   # End-effector inertial velocity (using geometric jacobian matrix) with Homogeneous Transformation Matrices
@@ -145,7 +157,7 @@ if __name__ == '__main__':
   
   # Inertial velocity propagation to each reference frame 
   V = velocityPropagation(uRobot, v0 = np.zeros((3, 1)), w0 = np.zeros((3, 1)), qd = qd)
-  symbolicV = velocityPropagation(uRobot, v0 = zeros(3, 1), w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
+  # symbolicV = velocityPropagation(uRobot, v0 = zeros(3, 1), w0 = zeros(3, 1), qd = uRobot.qdSymbolic, symbolic = True)
     
   # End-effector inertial acceleration (using geometric jacobian matrix and its derivative) with Homogeneous Transformation Matrices
   geometricXdd = geometricDerivativeStateSpace(uRobot)
@@ -156,7 +168,7 @@ if __name__ == '__main__':
   # symbolicdV = accelerationPropagation(uRobot, dv0 = zeros(3, 1), dw0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
   """
-    4.1 DIFFERENTIAL KINEMATICS TO EACH CENTER OF MASS (Velocities and Accelerations using Homogeneous Transformation Matrices)
+    5.1 DIFFERENTIAL KINEMATICS TO EACH CENTER OF MASS (Velocities and Accelerations using Homogeneous Transformation Matrices)
   """
   
   # Inertial Velocity of each Center of Mass using Geometric Jacobian Matrix
@@ -169,7 +181,7 @@ if __name__ == '__main__':
   
   # Inertial velocity propagation to each center of mass
   Vcom = velocityPropagationCOM(uRobot, vCOM0 = np.zeros((3, 1)), wCOM0 = np.zeros((3, 1)), V = V, qd = qd)
-  symbolicVcom = velocityPropagationCOM(uRobot, vCOM0 = zeros(3, 1), wCOM0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, symbolic = True)
+  # symbolicVcom = velocityPropagationCOM(uRobot, vCOM0 = zeros(3, 1), wCOM0 = zeros(3, 1), V = symbolicV, qd = uRobot.qdSymbolic, symbolic = True)
   
   # Inertial Acceleration of each Center of Mass using Geometric Jacobian Matrix and its derivative
   geometricXddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 2)
@@ -180,8 +192,12 @@ if __name__ == '__main__':
   # symbolicdVcom = accelerationPropagationCOM(uRobot, dvCOM0 = zeros(3, 1), dwCOM0 = np.zeros(3, 1), Vcom = symbolicVcom, dV = symbolicdV, qd = uRobot.qd, qdd = uRobot.qddSymbolic, symbolic = True)
   
   """
-    4.2 DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Dual Quaternions)
+    5.2 DIFFERENTIAL KINEMATICS (Velocities and Accelerations using Dual Quaternions)
   """
+
+  # End-effector inertial velocity (using dual inertial velocity jacobian matrix) with Dual Quaternions
+  dqXd = dqStateSpace(uRobot)
+  # symbolicdqXd = dqStateSpace(uRobot, symbolic = True)
 
   # Inertial velocity propagation using Dual Quaternions
   Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
@@ -190,6 +206,14 @@ if __name__ == '__main__':
   # Inertial acceleration propagation using Dual Quaternions
   dWdq = dqAccelerationPropagation(uRobot, dw0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd, qdd = qdd)
   # symbolicdWdq = dqAccelerationPropagation(uRobot, dw0 = zeros(8, 1), Wdq = symbolicWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
+  
+  """
+    5.1 DIFFERENTIAL KINEMATICS TO EACH CENTER OF MASS (Velocities and Accelerations using Dual Quaternions)
+  """
+  
+  # Inertial Velocity of each Center of Mass using Dual Inertial Velocity Jacobian Matrix
+  dqXdCOM = dqStateSpaceCOM(uRobot, COM = 2)
+  # symbolicdqXdCOM = dqStateSpaceCOM(uRobot, COM = 2, symbolic = True)
   
   # Inertial velocity propagation to each center of mass using Dual Quaternions
   WdqCOM = dqVelocityPropagationCOM(uRobot, WdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd)
@@ -200,7 +224,7 @@ if __name__ == '__main__':
   # symbolicdWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = zeros(8, 1), Wdq = symbolicWdq, WdqCOM = symbolicWdqCOM, dWdq = symbolicdWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
   
   """
-    5. DYNAMICS
+    6. DYNAMICS
   """
   
   # Inertia Matrix for Kinetic Energy equation: D(q)
@@ -220,7 +244,7 @@ if __name__ == '__main__':
   # symbolicC = centrifugalCoriolisCOM(uRobot, symbolic = True)
   
   # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
-  G = dPdqCOM(uRobot)
+  G = gravitationalCOM(uRobot, g = np.array([[0], [0], [-9.80665]]))
   # symbolicG = dPdqCOM(uRobot, g = Matrix([[0], [0], ['-g']]), symbolic = True)
   
   # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T

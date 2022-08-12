@@ -8,6 +8,47 @@ from lib.kinematics.DQ import *
 from lib.movements.DQ import *
 from sympy import *
 
+def dqStateSpace(robot : object, symbolic = False):
+  """Using Dual Quaternions, this function computes state-space equation (using Dual Inertial Jacobian Matrix) of a serial robot given joints velocities. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    Xd (np.array): state-space equation (X'(t), numerical)
+    Xd (SymPy Matrix): state-space equation (X'(t), symbolic)
+  """
+
+  # Calculate Dual Inertial Jacobian Matrix
+  J = jacobianVelocityDQ(robot, symbolic)
+    
+  # Calculate state-space equation (symbolic or numerical)
+  Xd = nsimplify(trigsimp(J * robot.qdSymbolic).evalf(), tolerance = 1e-10) if symbolic else J.dot(robot.jointsVelocities)
+    
+  return Xd
+
+def dqStateSpaceCOM(robot : object, COM : int, symbolic = False):
+  """Using Dual Quaternions, this function computes state-space equation (using Dual Inertial Jacobian Matrix) of any center of mass in a serial robot. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    COM (int): center of mass that will be analyzed
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    XdCOM (np.array): state-space equation (X'(t), numerical)
+    XdCOM (SymPy Matrix): state-space equation (X'(t), symbolic)
+  """
+
+  # Calculate Dual Inertial Jacobian Matrix
+  JvdqCOM = jacobianVelocityDQCOM(robot, COM, symbolic)
+    
+  # Calculate state-space equation (symbolic or numerical)
+  XdCOM = nsimplify(trigsimp(JvdqCOM * robot.qdSymbolic).evalf(), tolerance = 1e-10) if symbolic else JvdqCOM.dot(robot.jointsVelocities)
+    
+  return XdCOM
+
 def dqVelocityPropagation(robot : object, w0 : np.array, qd : np.array, symbolic = False):
   """Using Dual Quaternions, this function computes velocity (both linear and angular) to the i-th reference frame of a serial robot given initial velocity. Serial robot's kinematic parameters have to be set before using this function
 

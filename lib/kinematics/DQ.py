@@ -45,7 +45,7 @@ def forwardDQ(robot : object, symbolic = False):
     fkDQ = trigsimp(dqMultiplication(dqMultiplication(dqMultiplication(dqMultiplication(fkDQ, dqRz(DH[frame, 0], symbolic), symbolic), dqTz(DH[frame, 1], symbolic), symbolic), dqTx(DH[frame, 2], symbolic), symbolic), dqRx(DH[frame, 3], symbolic), symbolic)) if symbolic else dqMultiplication(dqMultiplication(dqMultiplication(dqMultiplication(fkDQ, dqRz(frame[0])), dqTz(frame[1])), dqTx(frame[2])), dqRx(frame[3]))
 
     # Append each calculated Homogeneous Transformation Matrix
-    framesDQ.append(nsimplify(fkDQ.evalf()) if symbolic else fkDQ)
+    framesDQ.append(nsimplify(fkDQ.evalf(), tolerance = 1e-10) if symbolic else fkDQ)
     
   return framesDQ
 
@@ -130,6 +130,101 @@ def jacobianDQ(robot : object, symbolic = False):
     J[:, j] = nsimplify(trigsimp(0.5 * dqMultiplication(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1]), symbolic), fkDQ[-1], symbolic)).evalf(), tolerance = 1e-10) if symbolic else 0.5 * dqMultiplication(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])), fkDQ[-1]).flatten()
   
   return J
+
+def jacobianVelocityDQ(robot : object, symbolic = False):
+  """Using Dual Quaternions, this function computes the Dual Inertial Velocity Jacobian Matrix for velocity calcuation of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    Jv (NumPy Array): Dual Inertial Velocity Jacobian Matrix (numeric)
+    Jv (SymPy Matrix): Dual Inertial Velocity Jacobian Matrix (symbolic)
+  """
+
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Calculate forward kinematics
+  fkDQ = forwardDQ(robot, symbolic)
+  
+  # Initializes jacobian matrix with zeros
+  J = zeros(8, n) if symbolic else np.zeros((8, n))
+  
+  # Iterates through all generalized coordinates
+  for j in range(n):
+    
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row, column = robot.whereIsTheJoint(j + 1)
+    
+    # Axis of actuation of current joint
+    xi = Matrix(robot.xi[:, j]) if symbolic else robot.xi[:, j].reshape((8, 1))
+    
+    # Calculate Jacobian Matrix
+    J[:, j] = nsimplify(trigsimp(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic)).evalf(), tolerance = 1e-10) if symbolic else dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])).flatten()
+  
+  # Create position vector from inertial frame to end - effector (from DQ space to R3)
+  r = dqToR3(fkDQ[-1], symbolic)
+  
+  # Create position matrix
+  M = Matrix([[eye(4), zeros(4)], [-crossOperatorExtension(r, symbolic), eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+  
+  return nsimplify(trigsimp(M * J).evalf(), tolerance = 1e-10) if symbolic else M.dot(J)
+
+def jacobianVelocityDQCOM(robot : object, COM : int, symbolic = False):
+  """Using Dual Quaternions, this function computes the Dual Inertial Velocity Jacobian Matrix for any center of mass of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    COM (int): center of mass that will be analyzed
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    Jv (NumPy Array): Inertial Velocity Jacobian Matrix (numeric)
+    Jv (SymPy Matrix): Inertial Velocity Jacobian Matrix (symbolic)
+  """
+
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Calculate forward kinematics
+  fkDQ = forwardDQ(robot, symbolic)
+  
+  # Calculate forward kinematics to each Center of Mass
+  fkCOMDQ = forwardCOMDQ(robot, symbolic)
+    
+  # Check in what row of Denavit Hartenberg Parameters Matrix is the Center of Mass (the sum is because of the way Python indexes arrays)
+  rowCOM = robot.whereIsTheCOM(COM)[0]
+  
+  # Initializes jacobian matrix with zeros
+  J = zeros(8, n) if symbolic else np.zeros((8, n))
+  
+  # Iterates through all generalized coordinates
+  for j in range(n):
+    
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row, column = robot.whereIsTheJoint(j + 1)
+    
+    # If the current joint is coupled after the desired center of mass, and any Center of Mass is analyzed
+    if row > rowCOM:
+      
+      # Stop the algorithm, because current joint won't affect the desired center of mass
+      break
+    
+    # Axis of actuation of current joint
+    xi = Matrix(robot.xi[:, j]) if symbolic else robot.xi[:, j].reshape((8, 1))
+    
+    # Calculate Jacobian Matrix
+    J[:, j] = nsimplify(trigsimp(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic)).evalf(), tolerance = 1e-10) if symbolic else dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])).flatten()
+  
+  # Create position vector from inertial frame to end - effector (from DQ space to R3)
+  r = dqToR3(fkCOMDQ[COM], symbolic)
+  
+  # Create position matrix
+  M = Matrix([[eye(4), zeros(4)], [-crossOperatorExtension(r, symbolic), eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+  
+  return nsimplify(trigsimp(M * J).evalf(), tolerance = 1e-10) if symbolic else M.dot(J)
 
 def inverseDQ(robot : object, q0 : np.array, Qd : np.array, K : np.array):
   """Using Dual Quaternions, this function computes Inverse Kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function

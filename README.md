@@ -32,6 +32,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Inertial Jacobian Matrix](#inertial-jacobian-matrix)
         - [Derivative of Geometric Jacobian Matrix](#derivative-of-geometric-jacobian-matrix)
         - [Derivative of Geometric Jacobian Matrix of a Center of Mass](#derivative-of-geometric-jacobian-matrix-of-a-center-of-mass)
+      - [Dual Inertial Jacobian Matrix](#dual-inertial-jacobian-matrix)
       - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
     - [Differential Kinematics](#differential-kinematics)
       - [Total Inertial Rate of Change](#total-inertial-rate-of-change)
@@ -1120,12 +1121,11 @@ Matrix([[                                                                       
 
 ### Inertial Jacobian Matrix
 
-This is **OPTIONAL**, because each function that needs an Inertials Jacobian Matrix <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20J%5EI%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%20n%7D%7D"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form:
+This is **OPTIONAL**, because each function that needs an Inertial Jacobian Matrix <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20J%5EI%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%20n%7D%7D"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form as follows:
 
 ```python
 # Kinematics libraries
 from lib.kinematics.HTM import *
-from lib.kinematics.DQ import *
   
 # Geometric Jacobian Matrix (OPTIONAL)
 Jg = geometricJacobian(uRobot)
@@ -1134,10 +1134,6 @@ symbolicJg = geometricJacobian(uRobot, symbolic = True)
 # Analytic Jacobian Matrix (OPTIONAL)
 Ja = analyticJacobian(uRobot)
 symbolicJa = analyticJacobian(uRobot, symbolic = True)
-  
-# Dual Jacobian Matrix (OPTIONAL)
-Jdq = jacobianDQ(uRobot, xi)
-symbolicJdq = jacobianDQ(uRobot, xi, symbolic = True)
 ```
 
 Then the output will be:
@@ -1286,6 +1282,77 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
+### Dual Inertial Jacobian Matrix
+
+This is **OPTIONAL**, because each function that needs a Dual Inertial Jacobian Matrix <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20J%5EI%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B8%20%5Ctimes%20n%7D%7D"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form as follows:
+
+```python
+# Kinematics libraries
+from lib.kinematics.DQ import *
+  
+# Dual Jacobian Matrix (OPTIONAL)
+Jdq = jacobianDQ(uRobot)
+symbolicJdq = jacobianDQ(uRobot, symbolic = True)
+  
+# Dual Velocity Jacobian Matrix (OPTIONAL)
+Jvdq = jacobianVelocityDQ(uRobot)
+symbolicJvdq = jacobianVelocityDQ(uRobot, symbolic = True)
+```
+
+Then the output will be:
+
+```bash
+# NumPy Array
+>>> Jdq
+array([[-0.1080318 , -0.26155557, -0.26155557, -0.1080318 ],
+       [ 0.19613282, -0.11742141, -0.11742141, -0.19613282],
+       [ 0.44161581,  0.05214984,  0.05214984, -0.44161581],
+       [-0.06954512,  0.40630197,  0.40630197, -0.06954512],
+       [ 0.07135409, -0.10805327, -0.09509771,  0.07135409],
+       [-0.01503999,  0.03786138, -0.04307636,  0.01503999],
+       [ 0.00667964,  0.08524929, -0.09699143, -0.00667964],
+       [-0.11084186, -0.06955894, -0.06121884, -0.11084186]])
+
+# SymPy Matrix
+>>> symbolicJdq
+Matrix([[                                                 -sin(q2/2 + q3/2)*cos(q1/2 + q4/2)/2,                                                                                                                                                                                          -sin(q1/2 - q2/2 - q3/2 + q4/2)/4 - sin(q1/2 + q2/2 + q3/2 + q4/2)/4,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -sin(q1/2 - q2/2 - q3/2 + q4/2)/4 - sin(q1/2 + q2/2 + q3/2 + q4/2)/4,                                                                                                                                                                                                 -sin(q2/2 + q3/2)*cos(q1/2 + q4/2)/2],
+        [                                                 -sin(q1/2 - q4/2)*cos(q2/2 + q3/2)/2,                                                                                                                                                                                         -sin(-q1/2 + q2/2 + q3/2 + q4/2)/4 - sin(q1/2 + q2/2 + q3/2 - q4/2)/4,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -sin(-q1/2 + q2/2 + q3/2 + q4/2)/4 - sin(q1/2 + q2/2 + q3/2 - q4/2)/4,                                                                                                                                                                                                  sin(q1/2 - q4/2)*cos(q2/2 + q3/2)/2],
+        [                                                  cos(q1/2 - q4/2)*cos(q2/2 + q3/2)/2,                                                                                                                                                                                         -cos(-q1/2 + q2/2 + q3/2 + q4/2)/4 + cos(q1/2 + q2/2 + q3/2 - q4/2)/4,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -cos(-q1/2 + q2/2 + q3/2 + q4/2)/4 + cos(q1/2 + q2/2 + q3/2 - q4/2)/4,                                                                                                                                                                                                 -cos(q1/2 - q4/2)*cos(q2/2 + q3/2)/2],
+        [                                                 -sin(q1/2 + q4/2)*sin(q2/2 + q3/2)/2,                                                                                                                                                                                           cos(q1/2 - q2/2 - q3/2 + q4/2)/4 + cos(q1/2 + q2/2 + q3/2 + q4/2)/4,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    cos(q1/2 - q2/2 - q3/2 + q4/2)/4 + cos(q1/2 + q2/2 + q3/2 + q4/2)/4,                                                                                                                                                                                                 -sin(q1/2 + q4/2)*sin(q2/2 + q3/2)/2],
+        [ (L1*sin(q2/2 + q3/2) + L2*cos(q2/2 - q3/2) + L3*sin(q2/2 + q3/2))*sin(q1/2 + q4/2)/4,  L1*sin(q1/2)*sin(q4/2)*cos(q2/2 + q3/2)/2 - L1*cos(q1/2 - q4/2)*cos(q2/2 + q3/2)/4 - L2*sin(q1/2)*sin(q4/2)*sin(q2/2 - q3/2)/2 + L2*sin(q2/2 - q3/2)*cos(q1/2 - q4/2)/4 + L3*sin(q1/2)*sin(q4/2)*cos(q2/2 + q3/2)/2 - L3*cos(q1/2 - q4/2)*cos(q2/2 + q3/2)/4,                                                                                                                                                                                                                                                                                                                                                                       L1*sin(q2/2)**3*sin(q3/2)*cos(q1/2 + q4/2)/4 + L1*sin(q2/2)**2*cos(q2/2)*cos(q3/2)*cos(q1/2 + q4/2)/4 - L1*sin(q2/2)*sin(q2/2 - q3/2)*cos(q2/2)*cos(q1/2 + q4/2)/4 - L1*cos(q2/2)*cos(q3/2)*cos(q1/2 + q4/2)/4 - L2*sin(q2/2)**3*cos(q3/2)*cos(q1/2 + q4/2)/4 - L2*sin(q2/2)**2*sin(q3/2)*cos(q2/2)*cos(q1/2 + q4/2)/4 - L2*sin(q2/2)*cos(q2/2)*cos(q1/2 + q4/2)*cos(q2/2 + q3/2)/4 + L2*sin(q3/2)*cos(q2/2)*cos(q1/2 + q4/2)/4 + L3*sin(q2/2)**3*sin(q3/2)*cos(q1/2 + q4/2)/4 + L3*sin(q2/2)**2*cos(q2/2)*cos(q3/2)*cos(q1/2 + q4/2)/4 - L3*sin(q2/2)*sin(q2/2 - q3/2)*cos(q2/2)*cos(q1/2 + q4/2)/4 - L3*cos(q2/2)*cos(q3/2)*cos(q1/2 + q4/2)/4,    L1*cos(q1/2 - q2/2 - q3/2 + q4/2)/8 - L1*cos(q1/2 + q2/2 + q3/2 + q4/2)/8 + L2*sin(q1/2 - q2/2 + q3/2 + q4/2)/8 + L2*sin(q1/2 + q2/2 - q3/2 + q4/2)/8 + L3*cos(q1/2 - q2/2 - q3/2 + q4/2)/8 - L3*cos(q1/2 + q2/2 + q3/2 + q4/2)/8],
+        [(-L1*cos(q2/2 + q3/2) - L2*sin(q2/2 - q3/2) + L3*cos(q2/2 + q3/2))*cos(q1/2 - q4/2)/4,  L1*sin(q1/2)*sin(q2/2 + q3/2)*cos(q4/2)/2 - L1*sin(q1/2 + q4/2)*sin(q2/2 + q3/2)/4 - L2*sin(q1/2)*cos(q4/2)*cos(q2/2 - q3/2)/2 + L2*sin(q1/2 + q4/2)*cos(q2/2 - q3/2)/4 - L3*sin(q1/2)*sin(q2/2 + q3/2)*cos(q4/2)/2 + L3*sin(q1/2 + q4/2)*sin(q2/2 + q3/2)/4,  L1*sin(q1/2)**2*sin(q2/2)**2*sin(q1/2 - q4/2)*sin(q2/2 + q3/2)/4 + L1*sin(q1/2)**2*sin(q1/2 - q4/2)*sin(q2/2 + q3/2)*cos(q2/2)**2/4 + L1*sin(q2/2)**3*sin(q1/2 - q4/2)*cos(q1/2)**2*cos(q3/2)/4 + L1*sin(q2/2)*sin(q1/2 - q4/2)*cos(q1/2)**2*cos(q2/2)*cos(q2/2 - q3/2)/4 + L1*sin(q3/2)*sin(q1/2 - q4/2)*cos(q1/2)**2*cos(q2/2)**3/4 + L2*sin(q1/2)**2*sin(q2/2)**2*sin(q1/2 - q4/2)*cos(q2/2 - q3/2)/4 + L2*sin(q1/2)**2*sin(q1/2 - q4/2)*cos(q2/2)**2*cos(q2/2 - q3/2)/4 + L2*sin(q2/2)**3*sin(q3/2)*sin(q1/2 - q4/2)*cos(q1/2)**2/4 + L2*sin(q2/2)*sin(q1/2 - q4/2)*sin(q2/2 + q3/2)*cos(q1/2)**2*cos(q2/2)/4 + L2*sin(q1/2 - q4/2)*cos(q1/2)**2*cos(q2/2)**3*cos(q3/2)/4 - L3*sin(q1/2)**2*sin(q2/2)**3*sin(q1/2 - q4/2)*cos(q3/2)/4 - L3*sin(q1/2)**2*sin(q2/2)*sin(q1/2 - q4/2)*cos(q2/2)*cos(q2/2 - q3/2)/4 - L3*sin(q1/2)**2*sin(q3/2)*sin(q1/2 - q4/2)*cos(q2/2)**3/4 - L3*sin(q2/2)**2*sin(q1/2 - q4/2)*sin(q2/2 + q3/2)*cos(q1/2)**2/4 - L3*sin(q1/2 - q4/2)*sin(q2/2 + q3/2)*cos(q1/2)**2*cos(q2/2)**2/4,  L1*cos(-q1/2 + q2/2 + q3/2 + q4/2)/8 + L1*cos(q1/2 + q2/2 + q3/2 - q4/2)/8 - L2*sin(q1/2 - q2/2 + q3/2 - q4/2)/8 + L2*sin(q1/2 + q2/2 - q3/2 - q4/2)/8 - L3*cos(-q1/2 + q2/2 + q3/2 + q4/2)/8 - L3*cos(q1/2 + q2/2 + q3/2 - q4/2)/8],
+        [(-L1*cos(q2/2 + q3/2) - L2*sin(q2/2 - q3/2) + L3*cos(q2/2 + q3/2))*sin(q1/2 - q4/2)/4, -L1*sin(q1/2)*sin(q4/2)*sin(q2/2 + q3/2)/2 - L1*sin(q2/2 + q3/2)*cos(q1/2 + q4/2)/4 + L2*sin(q1/2)*sin(q4/2)*cos(q2/2 - q3/2)/2 + L2*cos(q1/2 + q4/2)*cos(q2/2 - q3/2)/4 + L3*sin(q1/2)*sin(q4/2)*sin(q2/2 + q3/2)/2 + L3*sin(q2/2 + q3/2)*cos(q1/2 + q4/2)/4,                                                                                                                                                                                                                                                                                                                                                                      -L1*sin(q2/2)**3*cos(q3/2)*cos(q1/2 - q4/2)/4 + L1*sin(q2/2)**2*sin(q3/2)*cos(q2/2)*cos(q1/2 - q4/2)/4 - L1*sin(q2/2)*cos(q2/2)*cos(q1/2 - q4/2)*cos(q2/2 - q3/2)/4 - L1*sin(q3/2)*cos(q2/2)*cos(q1/2 - q4/2)/4 - L2*sin(q2/2)**3*sin(q3/2)*cos(q1/2 - q4/2)/4 + L2*sin(q2/2)**2*cos(q2/2)*cos(q3/2)*cos(q1/2 - q4/2)/4 - L2*sin(q2/2)*sin(q2/2 + q3/2)*cos(q2/2)*cos(q1/2 - q4/2)/4 - L2*cos(q2/2)*cos(q3/2)*cos(q1/2 - q4/2)/4 + L3*sin(q2/2)**3*cos(q3/2)*cos(q1/2 - q4/2)/4 - L3*sin(q2/2)**2*sin(q3/2)*cos(q2/2)*cos(q1/2 - q4/2)/4 + L3*sin(q2/2)*cos(q2/2)*cos(q1/2 - q4/2)*cos(q2/2 - q3/2)/4 + L3*sin(q3/2)*cos(q2/2)*cos(q1/2 - q4/2)/4, -L1*sin(-q1/2 + q2/2 + q3/2 + q4/2)/8 + L1*sin(q1/2 + q2/2 + q3/2 - q4/2)/8 + L2*cos(q1/2 - q2/2 + q3/2 - q4/2)/8 - L2*cos(q1/2 + q2/2 - q3/2 - q4/2)/8 + L3*sin(-q1/2 + q2/2 + q3/2 + q4/2)/8 - L3*sin(q1/2 + q2/2 + q3/2 - q4/2)/8],
+        [-(L1*sin(q2/2 + q3/2) + L2*cos(q2/2 - q3/2) + L3*sin(q2/2 + q3/2))*cos(q1/2 + q4/2)/4, -L1*sin(q1/2)*cos(q4/2)*cos(q2/2 + q3/2)/2 + L1*sin(q1/2 - q4/2)*cos(q2/2 + q3/2)/4 + L2*sin(q1/2)*sin(q2/2 - q3/2)*cos(q4/2)/2 - L2*sin(q1/2 - q4/2)*sin(q2/2 - q3/2)/4 - L3*sin(q1/2)*cos(q4/2)*cos(q2/2 + q3/2)/2 + L3*sin(q1/2 - q4/2)*cos(q2/2 + q3/2)/4, -L1*sin(q1/2)**3*cos(q2/2)**2*cos(q4/2)*cos(q2/2 + q3/2)/4 - L1*sin(q1/2)**2*sin(q2/2)**2*sin(q1/2 + q4/2)*cos(q2/2 + q3/2)/4 - L1*sin(q1/2)*cos(q1/2)*cos(q2/2)**2*cos(q1/2 - q4/2)*cos(q2/2 + q3/2)/4 - L1*sin(q2/2)**2*sin(q1/2 + q4/2)*cos(q1/2)**2*cos(q2/2 + q3/2)/4 - L1*sin(q4/2)*cos(q1/2)**3*cos(q2/2)**2*cos(q2/2 + q3/2)/4 - L2*sin(q1/2)**3*sin(q2/2)**2*sin(q2/2 - q3/2)*cos(q4/2)/4 - L2*sin(q1/2)**2*sin(q1/2 + q4/2)*sin(q2/2 - q3/2)*cos(q2/2)**2/4 - L2*sin(q1/2)*sin(q2/2)**2*sin(q2/2 - q3/2)*cos(q1/2)*cos(q1/2 - q4/2)/4 - L2*sin(q2/2)**2*sin(q4/2)*sin(q2/2 - q3/2)*cos(q1/2)**3/4 - L2*sin(q1/2 + q4/2)*sin(q2/2 - q3/2)*cos(q1/2)**2*cos(q2/2)**2/4 - L3*sin(q1/2)**3*cos(q2/2)**2*cos(q4/2)*cos(q2/2 + q3/2)/4 - L3*sin(q1/2)**2*sin(q2/2)**2*sin(q1/2 + q4/2)*cos(q2/2 + q3/2)/4 - L3*sin(q1/2)*cos(q1/2)*cos(q2/2)**2*cos(q1/2 - q4/2)*cos(q2/2 + q3/2)/4 - L3*sin(q2/2)**2*sin(q1/2 + q4/2)*cos(q1/2)**2*cos(q2/2 + q3/2)/4 - L3*sin(q4/2)*cos(q1/2)**3*cos(q2/2)**2*cos(q2/2 + q3/2)/4,    L1*sin(q1/2 - q2/2 - q3/2 + q4/2)/8 - L1*sin(q1/2 + q2/2 + q3/2 + q4/2)/8 - L2*cos(q1/2 - q2/2 + q3/2 + q4/2)/8 - L2*cos(q1/2 + q2/2 - q3/2 + q4/2)/8 + L3*sin(q1/2 - q2/2 - q3/2 + q4/2)/8 - L3*sin(q1/2 + q2/2 + q3/2 + q4/2)/8]])
+
+# NumPy Array
+>>> Jvdq
+array([[ 0.00000000e+00  0.00000000e+00  0.00000000e+00 -1.73472348e-18]
+       [ 0.00000000e+00 -1.31343750e-01 -1.31343750e-01  3.38454149e-01]
+       [ 0.00000000e+00 -9.91336885e-01 -9.91336885e-01 -4.48423113e-02]
+       [ 1.00000000e+00  0.00000000e+00  0.00000000e+00 -9.39913802e-01]
+       [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
+       [ 7.04338427e-03  2.02542641e-02  9.15924166e-02 -2.77555756e-17]
+       [ 5.31610116e-02 -2.68351863e-03 -1.21352203e-02 -1.38777878e-16]
+       [ 0.00000000e+00  5.36255761e-02  3.35605294e-02  2.16690945e-17]])
+
+>>> symbolicJvdq
+Matrix([
+       [                                      0,                                       0,                       0,                                                                           0],
+       [                                      0,                                 sin(q1),                 sin(q1),                                                        sin(q2 + q3)*cos(q1)],
+       [                                      0,                                -cos(q1),                -cos(q1),                                                        sin(q1)*sin(q2 + q3)],
+       [                                      1,                                       0,                       0,                                                               -cos(q2 + q3)],
+       [                                      0,                                       0,                       0,                                                                           0],
+       [-(L2*cos(q2) + L3*sin(q2 + q3))*sin(q1), (-L2*sin(q2) + L3*cos(q2 + q3))*cos(q1), L3*cos(q1)*cos(q2 + q3), L3*(-sin(q2)*cos(q2) - sin(q3)*cos(q3) + sin(q2 + q3)*cos(q2 - q3))*sin(q1)],
+       [ (L2*cos(q2) + L3*sin(q2 + q3))*cos(q1), (-L2*sin(q2) + L3*cos(q2 + q3))*sin(q1), L3*sin(q1)*cos(q2 + q3),  L3*(sin(q2)*cos(q2) + sin(q3)*cos(q3) - sin(q2 + q3)*cos(q2 - q3))*cos(q1)],
+       [                                      0,            L2*cos(q2) + L3*sin(q2 + q3),         L3*sin(q2 + q3),                                                                           0]])
+```
+
+**IMPORTANT NOTE:** **Dual Inertal Jacobian Matrix** (```Jdq```)  and **Dual Inertial Velocity Jacobian Matrix** (```Jvdq```) are not used for the same purposes, so please take a look at our [online workshop](https://bit.ly/RoboticZ) (in spanish) on robotics with dual quaternions. Aso, please notice that symbolic computation is slower than numerical one, so use those commands only if you need to know the equations of your system. Take a look at [Symbolic Computation](#symbolic-computation-warning) for more information :wink:
+
+[*Return to top*](#zrobotics-02)
+
+---
+
 #### Inverse Kinematics (*Error Feedback*)
 
 Instead of calculating horrible and complex equations, we use a numeiical algorithm to calculate inverse kinematics. It is asymptotically stable only if the pose to be reached is inside the robot's workspace, i.e. the point to be reached is reachable
@@ -1384,15 +1451,15 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ### Total Inertial Velocity
 
-End-effector velocity can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130), because this maps the effect of each joint directly to the end-effector, so linear and angular velocities can be calculated:
+End-effector velocity can be calculated with [Inertial Geometric Jacobian Matrix](#inertial-jacobian-matrix), because this maps the effect of each joint directly to the end-effector, so linear and angular velocities can be calculated:
 
-<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20v_%7B%5Ctext%7Bend%20-%20effector%7D%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20v_x%20%5C%5C%20v_y%20%5C%5C%20v_z%20%5C%5C%20%5Comega_x%20%5C%5C%20%5Comega_y%20%5C%5C%20%5Comega_z%20%5Cend%7Bbmatrix%7D%20%3D%20J%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
+<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20v_%7B%5Ctext%7Bend%20-%20effector%7D%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20v_x%20%5C%5C%20v_y%20%5C%5C%20v_z%20%5C%5C%20%5Comega_x%20%5C%5C%20%5Comega_y%20%5C%5C%20%5Comega_z%20%5Cend%7Bbmatrix%7D%20%3D%20J%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">,
 
 This can be calculated with the library as follows:
 
 ```python
 """
-  Total Inertial Velocity
+  Total Inertial Velocity (using Homogeneous Transformation Matrices)
 """
 
 # Differential Kinematics library
@@ -1438,6 +1505,68 @@ array([[ 1.03536641],
        [-0.88688895],
        [-1.78716601],
        [-0.50703242]])
+```
+
+For the case of velocities calculated with dual quaternions, it is possible to use the [Dual Inertial Velcocity Jacobian Matrix](#dual-inertial-jacobian-matrix), because this maps the effect of each joint directly to the end-effector in dual space, so linear and angular velocities can be calculated:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bv%7D%7D_%7B%5Ctext%7Bend%20-%20effector%7D%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%200%20%5C%5C%20%5Comega_x%20%5C%5C%20%5Comega_y%20%5C%5C%20%5Comega_z%20%5C%5C%200%20%5C%5C%20v_x%20%5C%5C%20v_y%20%5C%5C%20v_z%20%5Cend%7Bbmatrix%7D%20%3D%20J_%7B%5Chat%7B%5Cmathrm%7Bv%7D%7D%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
+
+This can be calculated with the library as follows:
+
+```python
+"""
+  Total Inertial Velocity (using Dual Quaternions)
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Dual Inertial Velocity Jacobian Matrix
+Jvdq = jacobianVelocityDQ(uRobot, symbolic = False)
+
+# Total Inertial Velocity (calculated by Dual Inertial Velocity Jacobian Matrix and joints velocities)
+Xd1 = Jvdq.dot(uRobot.jointsVelocities)
+
+# Total Dual Inertial Velocity (calculated by library's module)
+Xd2 = geometricStateSpace(uRobot, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Jvdq
+array([[ 0.00000000e+00  0.00000000e+00  0.00000000e+00 -1.73472348e-18]
+       [ 0.00000000e+00 -1.31343750e-01 -1.31343750e-01  3.38454149e-01]
+       [ 0.00000000e+00 -9.91336885e-01 -9.91336885e-01 -4.48423113e-02]
+       [ 1.00000000e+00  0.00000000e+00  0.00000000e+00 -9.39913802e-01]
+       [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
+       [ 7.04338427e-03  2.02542641e-02  9.15924166e-02 -2.77555756e-17]
+       [ 5.31610116e-02 -2.68351863e-03 -1.21352203e-02 -1.38777878e-16]
+       [ 0.00000000e+00  5.36255761e-02  3.35605294e-02  2.16690945e-17]])
+
+>>> Xd1
+array([[ 0.        ],
+       [-0.88688895],
+       [-1.78716601],
+       [-0.50703242],
+       [ 0.        ],
+       [ 1.03536641],
+       [-0.93900157],
+       [ 1.25371126]])
+
+>>> Xd2
+array([[ 0.        ],
+       [-0.88688895],
+       [-1.78716601],
+       [-0.50703242],
+       [ 0.        ],
+       [ 1.03536641],
+       [-0.93900157],
+       [ 1.25371126]])
 ```
 
 Please notice that angular velocities are not the same as the angular rate of change on [Total Inertial Rate of Change](#total-inertial-rate-of-change) results. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1530,7 +1659,7 @@ Please notice that initial angular and linear velocities (```w0``` and ```v0```)
 
 Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its velocity. In this case, a dual quaternion contains the angular and linear velocity, from the base to the end-effector, in a single result with the following equation:
 
-<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%26%20%5CPhi%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%26%20%5CPhi%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E0%20%5Cright%20%5D_%7B%5Cmathrm%7BL%7D%7D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E*%20%5Cright%20%5D_%7B%5Cmathrm%7BR%7D%7D%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%7D">
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cright%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E0%20%5Cright%20%5D_%7B%5Cmathrm%7BL%7D%7D%20%5Cleft%5B%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E*%20%5Cright%20%5D_%7B%5Cmathrm%7BR%7D%7D%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%7D">
 
 where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Comega_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%2C%20%5Cmathrm%7Bv%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D"> are the angular and linear velocities of the *i + 1* frame, meanwhile <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%7D"> represent an identity matrix and a zeros one respectively. Moreover, <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%7D"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D"> is the screw vector that represent the axis of actuation of the joint <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Ctheta%7D_i%7D"> (if any).
 

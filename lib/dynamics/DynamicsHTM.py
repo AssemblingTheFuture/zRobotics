@@ -47,7 +47,7 @@ def inertiaMatrixCOM(robot : object, symbolic = False):
         # (m * Jv^T * JV) + (m * Jw^T * Icom * Jw)
         D += (robot.symbolicMass[j] * (Jv.T * Jv) )+ ((Jw.T * Icom * Jw)) if symbolic else (robot.mass[j] * (Jv.T.dot(Jv))) + ((Jw.T.dot(Icom).dot(Jw)))
         
-    return nsimplify(trigsimp(D), tolerance = 1e-10) if symbolic else D
+    return nsimplify(trigsimp(D).evalf(), tolerance = 1e-10) if symbolic else D
 
 def kineticEnergyCOM(robot : object, symbolic = False):
     """This function calculates the total kinetic energy, with respect to each center of mass, given linear and angular velocities
@@ -63,7 +63,7 @@ def kineticEnergyCOM(robot : object, symbolic = False):
     # Kinetic Matrix calculation
     D = inertiaMatrixCOM(robot, symbolic)
     
-    return 0.5 * (robot.qdSymbolic.T * D * robot.qdSymbolic) if symbolic else 0.5 * (robot.jointsVelocities.T.dot(D).dot(robot.jointsVelocities))
+    return nsimplify(trigsimp(0.5 * (robot.qdSymbolic.T * D * robot.qdSymbolic)).evalf(), tolerance = 1e-10) if symbolic else 0.5 * (robot.jointsVelocities.T.dot(D).dot(robot.jointsVelocities))
 
 def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
     """This function calculates the potential energy, with respect to each center of mass, given linear and angular velocities
@@ -91,49 +91,38 @@ def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), sym
         r = fkCOMHTM[j + 1][0 : 3, -1]
         
         # m * g^T * r
-        P += robot.symbolicMass[j] * ((g.T) * r) if symbolic else robot.mass[j] * ((g.T).dot(r))
+        P += nsimplify(trigsimp(robot.symbolicMass[j] * ((g.T) * r)).evalf(), tolerance = 1e-10) if symbolic else robot.mass[j] * ((g.T).dot(r))
 
     return P
 
-def dPdqCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), dq = 0.001, symbolic = False):
+def gravitationalCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
     """This function calculates the derivative of COMs' potential energy with respect to joints positions for dynamic model D(q) * q''(t) + C(q, q') * q'(t) + g(q) = τ
 
     Args:
         robot (object): serial robot (this won't work with other type of robots)
         g (np.array, optional): gravity acceleration in Euclidian Space (R3). Defaults to np.array([[0], [0], [-9.80665]]).
-        dq (float, optional): step size for numeric derivative calculation. Defaults to 0.001
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
         dP/dq (SymPy Matrix): derivative of total energy with respect to joints positions
     """
     
-    # Potential Energy
-    p = potentialEnergyCOM(robot, g, symbolic)
-    
-    if symbolic:
+    # Get number of joints
+    n = robot.jointsPositions.shape[0]
         
-        # Total Derivative
-        return nsimplify(p.jacobian(robot.qSymbolic).T, tolerance = 1e-10)
-    
-    else:
+    # Initialize differential term with zeros
+    dP_dq = zeros(n, 1) if symbolic else np.zeros((n, 1))
         
-        # Get number of joints
-        n = robot.jointsPositions.shape[0]
-        
-        # Initialize differential term with zeros
-        dP_dq = np.zeros((n, 1))
-        
-        # Iteration through each center of mass
-        for j in range(len(robot.COMs)):
+    # Iteration through each center of mass
+    for j in range(len(robot.COMs)):
             
-            # Jacobian matrix to current center of mass
-            JgCOM = geometricJacobianCOM(robot, COM = j + 1, symbolic = symbolic)
+        # Jacobian matrix to current center of mass
+        JgCOM = geometricJacobianCOM(robot, COM = j + 1, symbolic = symbolic)
             
-            # m * (JvCOM)^T * g
-            dP_dq += robot.symbolicMass[j] * JgCOM[0 : 3, :].T * g if symbolic else robot.mass[j] * (JgCOM[0 : 3, :].T).dot(g)
+        # m * (JvCOM)^T * g
+        dP_dq += nsimplify(trigsimp(robot.symbolicMass[j] * JgCOM[0 : 3, :].T * g).evalf(), tolerance = 1e-10) if symbolic else robot.mass[j] * (JgCOM[0 : 3, :].T).dot(g)
         
-        return dP_dq
+    return dP_dq
 
 def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
     """This function calculates the Centrifugal and Coriolis matrix for dynamic model
@@ -192,7 +181,7 @@ def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
         # Sum the previous derivative to get the "C" matrix and multiply it by qi'(t)
         C += (V - (0.5 * V.T)) * robot.qdSymbolic[j] if symbolic else (V - (0.5 * V.T)) * robot.jointsVelocities[j]
             
-    return nsimplify(trigsimp(C), tolerance = 1e-10) if symbolic else C
+    return nsimplify(trigsimp(C).evalf(), tolerance = 1e-10) if symbolic else C
 
 if __name__ == '__main__':
     

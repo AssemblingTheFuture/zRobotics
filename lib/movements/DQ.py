@@ -218,7 +218,7 @@ def dqMultiplication(Qa : np.array, Qb : np.array, symbolic = False):
     # Second term of dual part
     y = quaternionMultiplication(Qa[4 : 8, :], Qb[0 : 4, :], symbolic)
     
-    return Matrix([[r], [x + y]]) if symbolic else np.array([r, x + y]).reshape((8, 1))
+    return nsimplify(trigsimp(Matrix([[r], [x + y]])).evalf(), tolerance = 1e-10) if symbolic else np.array([r, x + y]).reshape((8, 1))
 
 def leftOperator(Q : np.array, symbolic = False):
     """Left operator for Dual Quaternions multiplication
@@ -468,7 +468,7 @@ def dqToR3(Q : np.array, symbolic = False):
     # Transformation to R3
     r = 2 * leftOperator(Q, symbolic = True) * conjugateDQ(qr, symbolic = True)  if symbolic else 2 * (leftOperator(Q).dot(conjugateDQ(qr)))
         
-    return r[4 : 8, 0]
+    return nsimplify(trigsimp(r[4 : 8, 0]).evalf(), tolerance = 1e-10) if symbolic else r[4 : 8, 0]
 
 if __name__ == '__main__':
     
