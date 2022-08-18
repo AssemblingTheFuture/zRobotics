@@ -183,18 +183,18 @@ def quaternionMultiplication(q1 : np.array, q2 : np.array, symbolic = False):
     """
     
     # Real part of quaternion
-    r = (q1[0, :] * q2[0, :]) - (q1[1, :] * q2[1, :]) - (q1[2, :] * q2[2, :]) - (q1[3, :] * q2[3, :])
+    r = (q1[0] * q2[0]) - (q1[1] * q2[1]) - (q1[2] * q2[2]) - (q1[3] * q2[3])
     
     # i
-    i = (q1[0, :] * q2[1, :]) + (q1[1, :] * q2[0, :]) + (q1[2, :] * q2[3, :]) - (q1[3, :] * q2[2, :])
+    i = (q1[0] * q2[1]) + (q1[1] * q2[0]) + (q1[2] * q2[3]) - (q1[3] * q2[2])
     
     # j
-    j = (q1[0, :] * q2[2, :]) - (q1[1, :] * q2[3, :]) + (q1[2, :] * q2[0, :]) + (q1[3, :] * q2[1, :])
+    j = (q1[0] * q2[2]) - (q1[1] * q2[3]) + (q1[2] * q2[0]) + (q1[3] * q2[1])
     
     # k
-    k = (q1[0, :] * q2[3, :]) + (q1[1, :] * q2[2, :]) - (q1[2, :] * q2[1, :]) + (q1[3, :] * q2[0, :])
+    k = (q1[0] * q2[3]) + (q1[1] * q2[2]) - (q1[2] * q2[1]) + (q1[3] * q2[0])
     
-    return Matrix([[r], [i], [j], [k]]) if symbolic else np.array([r, i, j, k])
+    return Matrix([r, i, j, k]) if symbolic else np.array([r, i, j, k])
 
 def dqMultiplication(Qa : np.array, Qb : np.array, symbolic = False):
     """Dual Quaternion multiplication: Q = Qa * Qb
@@ -363,7 +363,7 @@ def crossOperator(q : np.array, symbolic = False):
                                                                      [float(-q[2]), float(+q[1]), 0.0000000000]])
 
 def dualCrossOperator(Q : np.array, symbolic = False):
-    """Dual Cross operator for Dual Quaternions' real part
+    """Dual Cross operator for Dual Quaternions
 
     Args:
         Q (np.array  or SymPy Symbol): Dual Quaternion
@@ -374,33 +374,17 @@ def dualCrossOperator(Q : np.array, symbolic = False):
         C (SymPy Matrix): Cross Operator Matrix (symbolic)
     """
     
-    if symbolic:
+    # Cross Operator for real part
+    Qr = crossOperatorExtension(Q[0 : 4, :], symbolic)
         
-        # Cross Operator for rotational part
-        Qr = crossOperatorExtension(Q[0 : 4], symbolic = True)
+    # Cross Operator for dual part
+    Qd = crossOperatorExtension(Q[4 : 8, :], symbolic)
         
-        # Cross Operator for translational part
-        Qd = crossOperatorExtension(Q[4 : 8], symbolic = True)
-        
-        # Auxiliar matrices
-        a = Qr.column_insert(4, zeros(4))
-        b = Qd.column_insert(4, Qr)
-        
-        return a.row_insert(4, b)
-    
-    else:
-    
-        # Cross Operator for rotational part
-        Qr = crossOperatorExtension(Q[0 : 4, :])
-        
-        # Cross Operator for translational part
-        Qd = crossOperatorExtension(Q[4 : 8, :])
-        
-        # Auxiliar matrices
-        a = np.append(Qr, np.zeros((4, 4)), axis = 1)
-        b = np.append(Qd, Qr, axis = 1)
+    # Auxiliar matrices
+    a = Matrix([[Qr, zeros(4)]]) if symbolic else np.append(Qr, np.zeros((4, 4)), axis = 1)
+    b = Matrix([[Qd, Qr]]) if symbolic else np.append(Qd, Qr, axis = 1)
 
-        return np.append(a, b, axis = 0)
+    return Matrix([[a], [b]]) if symbolic else np.append(a, b, axis = 0)
 
 def crossOperatorExtension(q : np.array, symbolic = False):
     """Cross operator extension for quaternions' multiplication

@@ -129,9 +129,17 @@ if __name__ == '__main__':
   Jvdq = jacobianVelocityDQ(uRobot)
   # symbolicJvdq = jacobianVelocityDQ(uRobot, symbolic = True)
   
+  # Time Derivative of Dual Inertial Velocity Jacobian Matrix (OPTIONAL)
+  dJvdq = jacobianVelocityDerivativeDQ(uRobot)
+  # symbolicdJvdq = jacobianVelocityDerivativeDQ(uRobot, symbolic = True)
+  
   # Geometric Jacobian Matrix to any Center of Mass (OPTIONAL)
   JvdqCOM = jacobianVelocityDQCOM(uRobot, COM = 2)
   # symbolicJvdqCOM = jacobianVelocityDQCOM(uRobot, COM = 2, symbolic = True)
+  
+  # Time Derivative of Dual Inertial Velocity Jacobian Matrix to any Center of Mass (OPTIONAL)
+  dJvdqCOM = jacobianVelocityDerivativeDQCOM(uRobot, COM = 2)
+  # symbolicdJvdqCOM = jacobianVelocityDerivativeDQCOM(uRobot, COM = 2, symbolic = True)
   
   """
     4. INVERSE KINEMATICS
@@ -203,6 +211,10 @@ if __name__ == '__main__':
   Wdq = dqVelocityPropagation(uRobot, w0 = np.zeros((8, 1)), qd = qd)
   # symbolicWdq = dqVelocityPropagation(uRobot, w0 = zeros(8, 1), qd = uRobot.qdSymbolic, symbolic = True)
   
+  # End-effector inertial acceleration (using dual inertial acceleration jacobian matrix) with Dual Quaternions
+  dqXdd = dqDerivativeStateSpace(uRobot)
+  # symbolicdqXdd = dqDerivativeStateSpace(uRobot, symbolic = True)
+  
   # Inertial acceleration propagation using Dual Quaternions
   dWdq = dqAccelerationPropagation(uRobot, dw0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd, qdd = qdd)
   # symbolicdWdq = dqAccelerationPropagation(uRobot, dw0 = zeros(8, 1), Wdq = symbolicWdq, qd = uRobot.qdSymbolic, qdd = uRobot.qddSymbolic, symbolic = True)
@@ -218,6 +230,10 @@ if __name__ == '__main__':
   # Inertial velocity propagation to each center of mass using Dual Quaternions
   WdqCOM = dqVelocityPropagationCOM(uRobot, WdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, qd = qd)
   # symbolicWdqCOM = dqVelocityPropagationCOM(uRobot, WdqCOM0 = zeros(8, 1), Wdq = symbolicWdq, qd = uRobot.qdSymbolic, symbolic = True)
+  
+  # Inertial acceleration of each Center of Mass (using dual inertial acceleration jacobian matrix) with Dual Quaternions
+  dqXddCOM = dqDerivativeStateSpaceCOM(uRobot, COM = 2)
+  # symbolicdqXddCOM = dqDerivativeStateSpaceCOM(uRobot, COM = 2, symbolic = True)
   
   # Inertial acceleration propagation to each center of mass using Dual Quaternions
   dWdqCOM = dqAccelerationPropagationCOM(uRobot, dWdqCOM0 = np.zeros((8, 1)), Wdq = Wdq, WdqCOM = WdqCOM, dWdq = dWdq, qd = qd, qdd = qdd)

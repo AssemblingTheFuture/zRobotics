@@ -91,9 +91,9 @@ def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), sym
         r = fkCOMHTM[j + 1][0 : 3, -1]
         
         # m * g^T * r
-        P += nsimplify(trigsimp(robot.symbolicMass[j] * ((g.T) * r)).evalf(), tolerance = 1e-10) if symbolic else robot.mass[j] * ((g.T).dot(r))
+        P += robot.symbolicMass[j] * ((g.T) * r) if symbolic else robot.mass[j] * ((g.T).dot(r))
 
-    return P
+    return nsimplify(trigsimp(P).evalf(), tolerance = 1e-10) if symbolic else P
 
 def gravitationalCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
     """This function calculates the derivative of COMs' potential energy with respect to joints positions for dynamic model D(q) * q''(t) + C(q, q') * q'(t) + g(q) = τ
@@ -120,9 +120,9 @@ def gravitationalCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbo
         JgCOM = geometricJacobianCOM(robot, COM = j + 1, symbolic = symbolic)
             
         # m * (JvCOM)^T * g
-        dP_dq += nsimplify(trigsimp(robot.symbolicMass[j] * JgCOM[0 : 3, :].T * g).evalf(), tolerance = 1e-10) if symbolic else robot.mass[j] * (JgCOM[0 : 3, :].T).dot(g)
+        dP_dq += robot.symbolicMass[j] * JgCOM[0 : 3, :].T * g if symbolic else robot.mass[j] * (JgCOM[0 : 3, :].T).dot(g)
         
-    return dP_dq
+    return nsimplify(trigsimp(dP_dq).evalf(), tolerance = 1e-10) if symbolic else dP_dq
 
 def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
     """This function calculates the Centrifugal and Coriolis matrix for dynamic model

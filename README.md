@@ -33,6 +33,8 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
         - [Derivative of Geometric Jacobian Matrix](#derivative-of-geometric-jacobian-matrix)
         - [Derivative of Geometric Jacobian Matrix of a Center of Mass](#derivative-of-geometric-jacobian-matrix-of-a-center-of-mass)
       - [Dual Inertial Jacobian Matrix](#dual-inertial-jacobian-matrix)
+        - [Derivative of Dual Inertial Velocity Jacobian Matrix](#derivative-of-dual-inertial-velocity-jacobian-matrix)
+        - [Derivative of Dual Inertial Velocity Jacobian Matrix of a Center of Mass](#derivative-of-dual-inertial-velocity-jacobian-matrix-of-a-center-of-mass)
       - [Inverse Kinematics (Error Feedback)](#inverse-kinematics-error-feedback)
     - [Differential Kinematics](#differential-kinematics)
       - [Total Inertial Rate of Change](#total-inertial-rate-of-change)
@@ -1353,6 +1355,88 @@ Matrix([
 
 ---
 
+#### Derivative of Dual Inertial Velocity Jacobian Matrix
+
+This is **OPTIONAL**. If you need to calculate the end-effector acceleration, you will need the derivative of a Jacobian Matrix:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cfrac%7Bd%7D%7Bdt%7D%20%5Cleft%28%20J%5EI%20%5Cright%29%20%3D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J%5EI%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">,
+
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbar%7B%5Ctheta%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D"> is the vector of generalized coordinates of the system, however, calculating this leads to differentiate every single term in the jacobian matrix (that's a really hard task). To solve it, a geometric solution to this problem is described with the following equation:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7BJ%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%20%29%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bn%20/%200%7D%5E%7B0%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cdot%7B%5Cxi%7D_1%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7B0%20/%200%7D%20%5Cright%20%29%20+%20%5Cleft%28%20%5Csum_%7Bk%20%3D%200%7D%5E%7Bj%7D%20%5Cleft%5B%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bk%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bk%20/%200%7D%20%5Cright%20%29%20%5Cdot%7B%5Ctheta%7D_%7Bk%20+%201%7D%20%5Cright%20%5D%20%5Cright%29%20%5Ctimes%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_1%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7B0%20/%200%7D%20%5Cright%20%29%20%26%20%5Ccdots%20%26%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cdot%7B%5Cxi%7D_n%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bn%20-%201%20/%200%7D%20%5Cright%20%29%20+%20%5Cleft%28%20%5Csum_%7Bk%20%3D%200%7D%5E%7Bj%7D%20%5Cleft%5B%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bk%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bk%20/%200%7D%20%5Cright%20%29%20%5Cdot%7B%5Ctheta%7D_%7Bk%20+%201%7D%20%5Cright%20%5D%20%5Cright%29%20%5Ctimes%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_n%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bn%20-%201%20/%200%7D%20%5Cright%20%29%20%5Cend%7Bbmatrix%7D%20%7D"> <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_1%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7B0%20/%200%7D%20%5Cright%20%29%20%5Ctimes%20%5Csum_%7Bk%20%3D%200%7D%5E%7Bn%7D%20%5Cleft%28%5Cbegin%7Bbmatrix%7D%20%5CPhi%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bn%20/%200%7D%5E%7B0%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bk%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bk%20/%200%7D%20%5Cright%20%29%20%5Cdot%7B%5Ctheta%7D_%7Bk%20+%201%7D%20%5Cright%29%20%26%20%5Ccdots%20%26%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_n%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bn%20-%201%20/%200%7D%20%5Cright%20%29%20%5Ctimes%20%5Csum_%7Bk%20%3D%200%7D%5E%7Bn%7D%20%5Cleft%28%5Cbegin%7Bbmatrix%7D%20%5CPhi%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bn%20/%200%7D%5E%7B0%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bk%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bk%20/%200%7D%20%5Cright%20%29%20%5Cdot%7B%5Ctheta%7D_%7Bk%20+%201%7D%20%5Cright%29%20%5Cend%7Bbmatrix%7D%20%7D">
+
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bi%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%20%5Cright%20%29%20%3D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%20%5C%20%5Cxi_%7Bi%20+%201%7D%20%5C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%7D"> represents the adjoint transformation of a dual quaternion. Also, *j* represents the *j* - th joint and column of the matrix, so its dimensions are <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7BJ%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%20%29%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B8%20%5Ctimes%20n%7D%7D">. Then, the derivative can be calculated with the library as follows
+
+```python
+# Kinematics libraries
+from lib.kinematics.DQ import *
+  
+# Derivative of Dual Inertial Velocity Jacobian Matrix (OPTIONAL)
+dJvdq = jacobianVelocityDerivativeDQ(uRobot, symbolic = False)
+```
+
+Then, the output will be
+
+```bash
+# NumPy Array
+>>> dJvdq
+array([[ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        , -0.29528491, -0.29528491, -0.8325105 ],
+       [ 0.        ,  0.23473862,  0.23473862,  1.05237222],
+       [ 0.        ,  0.        ,  0.        ,  1.80776869],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [-0.49616381, -1.01354893, -0.97080722,  0.        ],
+       [-0.70609507,  0.43024639,  0.59524827,  0.        ],
+       [ 0.        , -0.86148002, -0.81695769,  0.        ]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+#### Derivative of Dual Inertial Velocity Jacobian Matrix of a Center of Mass
+
+This is **OPTIONAL**. If you need to calculate the end-effector acceleration, you will need the derivative of a Jacobian Matrix:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cfrac%7Bd%7D%7Bdt%7D%20%5Cleft%28%20J_%7Bcom_j%7D%5E%7BI%7D%20%5Cright%29%20%3D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J_%7Bcom_j%7D%5E%7BI%7D%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">,
+
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbar%7B%5Ctheta%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D"> is the vector of generalized coordinates of the system, however, calculating this leads to differentiate every single term in the jacobian matrix (that's a really hard task). To solve it, a geometric solution to this problem is described with the following equation:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7BJ%7D_%7Bcom%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%20%29%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom%20/%200%7D%5E%7B0%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cdot%7B%5Cxi%7D_1%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7B0%20/%200%7D%20%5Cright%20%29%20+%20%5Cleft%28%20%5Csum_%7Bk%20%3D%200%7D%5E%7Bj%7D%20%5Cleft%5B%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bk%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bk%20/%200%7D%20%5Cright%20%29%20%5Cdot%7B%5Ctheta%7D_%7Bk%20+%201%7D%20%5Cright%20%5D%20%5Cright%29%20%5Ctimes%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_1%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7B0%20/%200%7D%20%5Cright%20%29%20%26%20%5Ccdots%20%26%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cdot%7B%5Cxi%7D_n%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bn%20-%201%20/%200%7D%20%5Cright%20%29%20+%20%5Cleft%28%20%5Csum_%7Bk%20%3D%200%7D%5E%7Bj%7D%20%5Cleft%5B%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bk%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bk%20/%200%7D%20%5Cright%20%29%20%5Cdot%7B%5Ctheta%7D_%7Bk%20+%201%7D%20%5Cright%20%5D%20%5Cright%29%20%5Ctimes%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_n%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bn%20-%201%20/%200%7D%20%5Cright%20%29%20%5Cend%7Bbmatrix%7D%20%7D"> <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_1%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7B0%20/%200%7D%20%5Cright%20%29%20%5Ctimes%20%5Csum_%7Bk%20%3D%200%7D%5E%7Bcom%7D%20%5Cleft%28%5Cbegin%7Bbmatrix%7D%20%5CPhi%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom%20/%200%7D%5E%7B0%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bk%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bk%20/%200%7D%20%5Cright%20%29%20%5Cdot%7B%5Ctheta%7D_%7Bk%20+%201%7D%20%5Cright%29%20%26%20%5Ccdots%20%26%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_n%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bn%20-%201%20/%200%7D%20%5Cright%20%29%20%5Ctimes%20%5Csum_%7Bk%20%3D%200%7D%5E%7Bcom%7D%20%5Cleft%28%5Cbegin%7Bbmatrix%7D%20%5CPhi%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bcom%20/%200%7D%5E%7B0%7D%20%5Cright%20%5D%5E%7B%5Ctimes%7D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bk%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bk%20/%200%7D%20%5Cright%20%29%20%5Cdot%7B%5Ctheta%7D_%7Bk%20+%201%7D%20%5Cright%29%20%5Cend%7Bbmatrix%7D%20%7D">
+
+where <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7BRed%7D%20%5Cmathrm%7BA_d%7D%20%5Cleft%28%20%5Cxi_%7Bi%20+%201%7D%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%20%5Cright%20%29%20%3D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%20%5C%20%5Cxi_%7Bi%20+%201%7D%20%5C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%7D"> represents the adjoint transformation of a dual quaternion. Also, *j* represents the *j* - th joint and column of the matrix, so its dimensions are <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7BJ%7D_%7Bcom%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%20%29%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B8%20%5Ctimes%20n%7D%7D">. Then, the derivative can be calculated with the library as follows
+
+```python
+# Kinematics libraries
+from lib.kinematics.DQ import *
+  
+# Derivative of Dual Inertial Velocity Jacobian Matrix (OPTIONAL)
+dJvdqCOM = jacobianVelocityDerivativeDQCOM(uRobot, COM = 2, symbolic = False)
+```
+
+Then, the output will be
+
+```bash
+# NumPy Array
+>>> dJvdqCOM
+array([[ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        ,  1.32888391,  0.        ,  0.        ],
+       [ 0.        , -1.22064417,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [-0.62079983, -0.5774601 ,  0.        ,  0.        ],
+       [ 0.2066157 , -0.17156286,  0.        ,  0.        ],
+       [ 0.        , -0.26779209,  0.        ,  0.        ]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
 #### Inverse Kinematics (*Error Feedback*)
 
 Instead of calculating horrible and complex equations, we use a numeiical algorithm to calculate inverse kinematics. It is asymptotically stable only if the pose to be reached is inside the robot's workspace, i.e. the point to be reached is reachable
@@ -1747,7 +1831,7 @@ Please notice that initial velocity ```w0``` was set to zero because the base of
 
 End-effector acceleration can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130) and its [derivative](#derivative-of-geometric-jacobian-matrix), because this maps the effect of each joint directly to the end-effector, so linear and angular accelerations can be calculated:
 
-<img src="https://latex.codecogs.com/svg.images?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cdot%7Bv%7D_%7B%5Ctext%7Bend%20-%20effector%7D%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_x%20%5C%5C%20%5Cdot%7Bv%7D_y%20%5C%5C%20%5Cdot%7Bv%7D_z%20%5C%5C%20%5Cdot%7B%5Comega%7D_x%20%5C%5C%20%5Cdot%7B%5Comega%7D_y%20%5C%5C%20%5Cdot%7B%5Comega%7D_z%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J%5EI%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%20%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%20%29%20%7D">
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7Bv%7D_%7B%5Ctext%7Bend%20-%20effector%7D%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_x%20%5C%5C%20%5Cdot%7Bv%7D_y%20%5C%5C%20%5Cdot%7Bv%7D_z%20%5C%5C%20%5Cdot%7B%5Comega%7D_x%20%5C%5C%20%5Cdot%7B%5Comega%7D_y%20%5C%5C%20%5Cdot%7B%5Comega%7D_z%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7BJ%7D%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%20%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J%5EI%20%5Cleft%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%20%29%20%5Cddot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
 
 This can be calculated with the library as follows:
 
@@ -1777,6 +1861,82 @@ array([[-0.16944943],
        [ 0.7560715 ],
        [-1.04773218],
        [ 0.82976722]])
+```
+
+For the case of accelerations calculated with dual quaternions, it is possible to use the [Time Derivative of Dual Inertial Velcocity Jacobian Matrix](#derivative-of-dual-inertial-velocity-jacobian-matrix), because this maps the effect of each joint directly to the end-effector in dual space, so linear and angular accelerations can be calculated:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Chat%7B%5Cmathrm%7Bv%7D%7D%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%200%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bx%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7By%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bz%7D%20%5C%5C%200%20%5C%5C%20%5Cdot%7Bv%7D_%7Bx%7D%20%5C%5C%20%5Cdot%7Bv%7D_%7By%7D%20%5C%5C%20%5Cdot%7Bv%7D_%7Bz%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7BJ%7D_%7B%5Chat%7B%5Cmathrm%7Bv%7D%7D%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J_%7B%5Chat%7B%5Cmathrm%7Bv%7D%7D%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%29%20%5Cddot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
+
+This can be calculated with the library as follows:
+
+```python
+"""
+  Total Inertial Acceleration (using Dual Quaternions)
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DQ import *
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Geometric Jacobian Matrix (OPTIONAL)
+Jvdq = jacobianVelocityDQ(uRobot, symbolic = False)
+  
+# Time Derivative of Dual Inertial Velocity Jacobian Matrix (OPTIONAL)
+dJvdq = jacobianVelocityDerivativeDQCOM(uRobot, symbolic = False)
+
+# Total Inertial Acceleration
+dqXdd1 = dJvdq.dot(uRobot.jointsVelocities) + JvdqCOM.dot(uRobot.jointsAccelerations)
+
+# Total Inertial acceleration (using dual inertial acceleration jacobian matrix) with Dual Quaternions
+dqXdd = dqDerivativeStateSpace(uRobot, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> Jvdq
+array([[ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        , -0.6222847 , -0.6222847 , -0.63443477],
+       [ 0.        , -0.782791  , -0.782791  ,  0.50434796],
+       [ 1.        ,  0.        ,  0.        , -0.58576929],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.08413183,  0.60993554,  0.28671055,  0.        ],
+       [ 0.10583201, -0.48487214, -0.22792238,  0.        ],
+       [ 0.        ,  0.1351983 , -0.50677175,  0.        ]])
+
+>>> dJvdq
+array([[ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        , -0.29528491, -0.29528491, -0.8325105 ],
+       [ 0.        ,  0.23473862,  0.23473862,  1.05237222],
+       [ 0.        ,  0.        ,  0.        ,  1.80776869],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [-0.49616381, -1.01354893, -0.97080722,  0.        ],
+       [-0.70609507,  0.43024639,  0.59524827,  0.        ],
+       [ 0.        , -0.86148002, -0.81695769,  0.        ]])
+
+>>> dqXdd1
+array([[ 0.        ],
+       [ 1.87259918],
+       [ 0.56500029],
+       [-2.49545716],
+       [ 0.        ],
+       [ 1.47434751],
+       [-0.54512459],
+       [ 2.18164402]])
+
+>>> dqXdd2
+array([[ 0.        ],
+       [ 1.87259918],
+       [ 0.56500029],
+       [-2.49545716],
+       [ 0.        ],
+       [ 1.47434751],
+       [-0.54512459],
+       [ 2.18164402]])
 ```
 
 You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1869,7 +2029,7 @@ Please notice that initial angular and linear accelerations (```dw0``` and ```dv
 
 Dual Quaternions can be used to represent the relative pose of a reference frame, therefore they can be used to calculate its acceleration. In this case, a dual quaternion contains the angular and linear accelerations, from the base to the end-effector, in a single result with the following equation:
 
-<img src="https://latex.codecogs.com/svg.image?%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathcal%7BO%7D%20%5C%5C%20%5Comega_%7Bi%20+%201%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bi%20+%201%20/%200%7D%20-%20%5Comega_%7Bi%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5C%5C%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cleft%5B%20%5Cdot%7B%5Cxi%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cddot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%29%20%5Ctimes%20%5Cleft%28%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%5Cright%29%20%5Cright%20%5D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cright%20%29%20%7D">
+<img src="https://latex.codecogs.com/svg.image?%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathcal%7BO%7D%20%5C%5C%20%5Comega_%7Bi%20+%201%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bi%20+%201%20/%200%7D%20-%20%5Comega_%7Bi%20/%200%7D%20%5Ctimes%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5C%5C%20%5Cend%7Bbmatrix%7D%20+%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20-%20%5Cleft%5B%20r_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cleft%5B%20%5Cdot%7B%5Cxi%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cddot%7B%5Ctheta%7D_%7Bi%7D%20+%20%5Cleft%28%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cbegin%7Bbmatrix%7D%20%5Cmathbb%7BI%7D%20%26%20%5CPhi%20%5C%5C%20%5Cleft%5B%20r_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%5D%20%26%20%5Cmathbb%7BI%7D%20%5C%5C%20%5Cend%7Bbmatrix%7D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bi%20/%200%7D%5E%7B0%7D%20%5C%5C%20%5Cmathrm%7Bv%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cend%7Bbmatrix%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cright%29%20%5Ctimes%20%5Cleft%28%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cdot%7B%5Ctheta%7D_i%20%5Cright%29%20%5Cright%20%5D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B*%7D%20%5Cright%20%29%20%7D">
 
 where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Comega%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%2C%20%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bi%20+%201%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%5E%7Bv%7D%7D"> are the angular and linear accelerations of the *i + 1* frame, meanwhile <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cmathbb%7BI%7D%2C%20%5CPhi%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%204%7D%2C%20%5Cmathcal%7BO%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%201%7D%7D"> represent an identity matrix, a zeros one and a zeros vector respectively. Moreover, <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%7D"> is the dual quaternion that represent the pose of the *i*-th frame and <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cxi_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%2C%20%5Cdot%7B%5Cxi%7D_%7Bi%20+%201%20/%20i%7D%5E%7Bi%7D%20%5Cin%20%5Cmathbb%7BH%7D%7D"> are the screw vector and its time derivative, that represent the axis of actuation of the joint <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Ctheta_i%7D"> (if any) and its rate of change.
 
@@ -2023,6 +2183,7 @@ This can be calculated with the library as follows:
 """
 
 # Differential Kinematics library
+from lib.kinematics.DQ import *
 from lib.kinematics.DifferentialDQ import *
 
 # NumPy
@@ -2233,7 +2394,7 @@ Please notice that initial velocity ```WdqCOM0``` was set to zero because the ba
 
 **For dynamic modelling, it will be mandatory to know the velocity of each center of mass**. As stated in previous sections, inertial accelerations can be calculated with [Geometric Jacobian Matrix](/lib/kinematics/HTM.py#130) and its [time derivative](#derivative-of-geometric-jacobian-matrix). In this case, it maps the effect of each joint directly to the each center of mass, so linear and angular accelerations can be calculated:
 
-<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bcom_j%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_%7Bx_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7Bv%7D_%7By_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7Bv%7D_%7Bz_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bx_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7By_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bz_%7Bcom_j%7D%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20J%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J_%7Bcom_j%7D%20%5Cleft%20%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%29%20%5Cddot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cdot%7B%5Cmathrm%7Bv%7D%7D_%7Bcom_j%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Cdot%7Bv%7D_%7Bx_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7Bv%7D_%7By_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7Bv%7D_%7Bz_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bx_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7By_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bz_%7Bcom_j%7D%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7BJ%7D_%7Bcom_j%7D%20%5Cleft%20%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J_%7Bcom_j%7D%20%5Cleft%20%28%20%5Cvec%7Br%7D%2C%20%5Cvec%7Bn%7D%20%5Cright%29%20%5Cddot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">
 
 This can be calculated with the library as follows:
 
@@ -2265,7 +2426,83 @@ array([[ 0.00165699],
        [ 0.38868741]])
 ```
 
-You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+For the case of accelerations calculated with dual quaternions, it is possible to use the [Time Derivative of Dual Inertial Velcocity Jacobian Matrix](#derivative-of-dual-inertial-velocity-jacobian-matrix), because this maps the effect of each joint directly to the end-effector in dual space, so linear and angular accelerations can be calculated:
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Cdot%7B%5Chat%7B%5Cmathrm%7Bv%7D%7D%7D_%7Bcom_j%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%200%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bx_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7By_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7B%5Comega%7D_%7Bz_%7Bcom_j%7D%7D%20%5C%5C%200%20%5C%5C%20%5Cdot%7Bv%7D_%7Bx_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7Bv%7D_%7By_%7Bcom_j%7D%7D%20%5C%5C%20%5Cdot%7Bv%7D_%7Bz_%7Bcom_j%7D%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cdot%7BJ%7D_%7B%5Chat%7B%5Cmathrm%7Bv%7D%7D_%7Bcom_j%7D%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20J_%7B%5Chat%7B%5Cmathrm%7Bv%7D%7D_%7Bcom_j%7D%7D%5E%7BI%7D%20%5Cleft%28%20%5Cxi%2C%20%5Chat%7B%5Cmathrm%7Bq%7D%7D%20%5Cright%29%20%5Cddot%7B%5Cbar%7B%5Ctheta%7D%7D%20%7D">
+
+This can be calculated with the library as follows:
+
+```python
+"""
+  Total Inertial Acceleration (using Dual Quaternions)
+"""
+
+# Differential Kinematics library
+from lib.kinematics.DQ import *
+from lib.kinematics.DifferentialDQ import *
+
+# NumPy
+import numpy as np
+
+# Geometric Jacobian Matrix to any Center of Mass (OPTIONAL)
+JvdqCOM = jacobianVelocityDQCOM(uRobot, COM = 2, symbolic = False)
+  
+# Time Derivative of Dual Inertial Velocity Jacobian Matrix to any Center of Mass (OPTIONAL)
+dJvdqCOM = jacobianVelocityDerivativeDQCOM(uRobot, COM = 2, symbolic = False)
+
+# Total Inertial Acceleration
+dqXdd1COM = dJvdqCOM.dot(uRobot.jointsVelocities) + JvdqCOM.dot(uRobot.jointsAccelerations)
+
+# Inertial acceleration of each Center of Mass (using dual inertial acceleration jacobian matrix) with Dual Quaternions
+dqXddCOM = dqDerivativeStateSpaceCOM(uRobot, COM = 2, symbolic = False)
+```
+
+So the outputs will be
+
+```bash
+# NumPy Array
+>>> JvdqCOM
+array([[ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        , -0.6222847 ,  0.        ,  0.        ],
+       [ 0.        , -0.782791  ,  0.        ,  0.        ],
+       [ 1.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.19974407,  0.16161249,  0.        ,  0.        ],
+       [ 0.25126419, -0.12847488,  0.        ,  0.        ],
+       [ 0.        ,  0.32098503,  0.        ,  0.        ]])
+
+>>> dJvdqCOM
+array([[ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        , -0.29528491,  0.        ,  0.        ],
+       [ 0.        ,  0.23473862,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.08092925, -0.02137086,  0.        ,  0.        ],
+       [-0.09277342, -0.08250094,  0.        ,  0.        ],
+       [ 0.        , -0.02226117,  0.        ,  0.        ]])
+
+>>> dqXdd1COM
+array([[ 0.        ],
+       [ 0.56046709],
+       [ 0.63966677],
+       [-1.17746153],
+       [ 0.        ],
+       [-0.40070392],
+       [-0.14282339],
+       [-0.27027502]])
+
+>>> dqXdd2COM
+array([[ 0.        ],
+       [ 0.56046709],
+       [ 0.63966677],
+       [-1.17746153],
+       [ 0.        ],
+       [-0.40070392],
+       [-0.14282339],
+       [-0.27027502]])
+```
+
+Please notice that jacobian matrix is zero in columns two to four because these joints (<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Ctheta_3%2C%20%5Ctheta_4%7D">) don't affect the center of mass number two because they are attached after it. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 

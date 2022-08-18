@@ -127,9 +127,9 @@ def jacobianDQ(robot : object, symbolic = False):
     xi = Matrix(robot.xi[:, j]) if symbolic else robot.xi[:, j].reshape((8, 1))
     
     # Calculate Jacobian Matrix
-    J[:, j] = nsimplify(trigsimp(0.5 * dqMultiplication(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1]), symbolic), fkDQ[-1], symbolic)).evalf(), tolerance = 1e-10) if symbolic else 0.5 * dqMultiplication(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])), fkDQ[-1]).flatten()
+    J[:, j] = 0.5 * dqMultiplication(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1]), symbolic), fkDQ[-1], symbolic) if symbolic else 0.5 * dqMultiplication(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])), fkDQ[-1]).flatten()
   
-  return J
+  return nsimplify(trigsimp(J).evalf(), tolerance = 1e-10) if symbolic else J
 
 def jacobianVelocityDQ(robot : object, symbolic = False):
   """Using Dual Quaternions, this function computes the Dual Inertial Velocity Jacobian Matrix for velocity calcuation of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
@@ -162,7 +162,7 @@ def jacobianVelocityDQ(robot : object, symbolic = False):
     xi = Matrix(robot.xi[:, j]) if symbolic else robot.xi[:, j].reshape((8, 1))
     
     # Calculate Jacobian Matrix
-    J[:, j] = nsimplify(trigsimp(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic)).evalf(), tolerance = 1e-10) if symbolic else dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])).flatten()
+    J[:, j] = dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic) if symbolic else dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])).flatten()
   
   # Create position vector from inertial frame to end - effector (from DQ space to R3)
   r = dqToR3(fkDQ[-1], symbolic)
@@ -216,7 +216,7 @@ def jacobianVelocityDQCOM(robot : object, COM : int, symbolic = False):
     xi = Matrix(robot.xi[:, j]) if symbolic else robot.xi[:, j].reshape((8, 1))
     
     # Calculate Jacobian Matrix
-    J[:, j] = nsimplify(trigsimp(dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic)).evalf(), tolerance = 1e-10) if symbolic else dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])).flatten()
+    J[:, j] = dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic) if symbolic else dqMultiplication(dqMultiplication(fkDQ[row - 1], xi), conjugateDQ(fkDQ[row - 1])).flatten()
   
   # Create position vector from inertial frame to end - effector (from DQ space to R3)
   r = dqToR3(fkCOMDQ[COM], symbolic)
@@ -225,6 +225,197 @@ def jacobianVelocityDQCOM(robot : object, COM : int, symbolic = False):
   M = Matrix([[eye(4), zeros(4)], [-crossOperatorExtension(r, symbolic), eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
   
   return nsimplify(trigsimp(M * J).evalf(), tolerance = 1e-10) if symbolic else M.dot(J)
+
+def jacobianVelocityDerivativeDQ(robot : object, symbolic = False):
+  """Using Dual Quaternions, this function computes the time derivative of Dual Inertial Velocity Jacobian Matrix for acceleration calcuation of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    dJv (NumPy Array): Time Derivative of Dual Inertial Velocity Jacobian Matrix (numeric)
+    dJv (SymPy Matrix): Time Derivative of Dual Inertial Velocity Jacobian Matrix (symbolic)
+  """
+  
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Calculate forward kinematics
+  fkDQ = forwardDQ(robot, symbolic)
+  
+  # Initializes derivative of jacobian matrix with zeros
+  dJ = zeros(8, n) if symbolic else np.zeros((8, n))
+  
+  # Create position vector from inertial frame to end - effector (from DQ space to R3)
+  r = dqToR3(fkDQ[-1], symbolic)
+  
+  # Create position matrix
+  M = Matrix([[eye(4), zeros(4)], [-crossOperatorExtension(r, symbolic), eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+  
+  # Create position matrix for non linear terms: w_{i + 1} x v_{i + 1} - w_{i} x v_{i}
+  M_k = Matrix([[zeros(4), zeros(4)], [-crossOperatorExtension(r, symbolic), eye(4)]]) if symbolic else np.append(np.append(np.zeros((4, 4)), np.zeros((4, 4)), axis = 1), np.append(-crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+    
+  # Iterates through all generalized coordinates
+  for j in range(n):
+    
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row, column = robot.whereIsTheJoint(j + 1)
+    
+    # Axis of actuation of current joint
+    xi = Matrix(robot.xi[:, j]) if symbolic else robot.xi[:, j].reshape((8, 1))
+    
+    # Calculates the adjoint transformation of the current axis of actuation (xi)
+    Ad = dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic)
+    
+    # Derivative of axis of actuation of current joint
+    xid = Matrix(robot.xid[:, j]) if symbolic else robot.xid[:, j].reshape((8, 1))
+    
+    # Calculates the adjoint transformation of the current axis of actuation (xid)
+    dAd = dqMultiplication(dqMultiplication(fkDQ[row - 1], xid, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic)
+                
+    # Iterates through all the joints to calculate cross product: W_{i} x Ad(xi)
+    for k in range(j):
+      
+      # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+      row_k, column_k = robot.whereIsTheJoint(k + 1)
+      
+      # Axis of actuation of current joint
+      xi_k = Matrix(robot.xi[:, k]) if symbolic else robot.xi[:, k].reshape((8, 1))
+      
+      # Calculates the adjoint transformation of the current axis of actuation (xi_k)
+      Ad_k = dqMultiplication(dqMultiplication(fkDQ[row_k - 1], xi_k, symbolic), conjugateDQ(fkDQ[row_k - 1], symbolic), symbolic)
+      
+      # Non linear terms calculation for th Time Derivative of Jacobian Matrix
+      dJ[:, j] += dualCrossOperator(Ad_k * robot.qdSymbolic[k], symbolic) * Ad if symbolic else (dualCrossOperator(Ad_k * robot.jointsVelocities[k]).dot(Ad)).flatten()
+    
+    # Calculates the adjoint transformation of the current derivative of the axis of actuation (xid)
+    dJ[:, j] = M * (dAd + dJ[:, j]) if symbolic else M.dot(dAd + dJ[:, j].reshape((8, 1))).flatten()
+    
+    # Iterates through all the joints to calculate non linear terms: w_{i + 1} x v_{i + 1} - w_{i} x v_{i}
+    for k in range(n):
+      
+      # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+      row_k, column_k = robot.whereIsTheJoint(k + 1)
+      
+      # Axis of actuation of current joint
+      xi_k = Matrix(robot.xi[:, k]) if symbolic else robot.xi[:, k].reshape((8, 1))
+      
+      # Calculates the adjoint transformation of the current axis of actuation (xi_k)
+      Ad_k = dqMultiplication(dqMultiplication(fkDQ[row_k - 1], xi_k, symbolic), conjugateDQ(fkDQ[row_k - 1], symbolic), symbolic)
+      
+      # Non linear terms calculation for th Time Derivative of Jacobian Matrix
+      dJ[:, j] += dualCrossOperator(Ad, symbolic) * (M_k * Ad_k * robot.qdSymbolic[k]) if symbolic else (dualCrossOperator(Ad).dot(M_k.dot(Ad_k) * robot.jointsVelocities[k])).flatten()
+  
+  return nsimplify(dJ.evalf(), tolerance = 1e-10) if symbolic else dJ
+
+def jacobianVelocityDerivativeDQCOM(robot : object, COM : int, symbolic = False):
+  """Using Dual Quaternions, this function computes the time derivative of Dual Inertial Velocity Jacobian Matrix for any center of mass of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    COM (int): center of mass that will be analyzed
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    dJvCOM (NumPy Array): Time Derivative of Dual Inertial Velocity Jacobian Matrix (numeric)
+    dJvCOM (SymPy Matrix): Time Derivative of Dual Inertial Velocity Jacobian Matrix (symbolic)
+  """
+  
+  # Get number of joints (generalized coordinates)
+  n = robot.jointsPositions.shape[0]
+  
+  # Calculate forward kinematics
+  fkDQ = forwardDQ(robot, symbolic)
+  
+  # Calculate forward kinematics to each Center of Mass
+  fkCOMDQ = forwardCOMDQ(robot, symbolic)
+  
+  # Check in what row of Denavit Hartenberg Parameters Matrix is the Center of Mass (the sum is because of the way Python indexes arrays)
+  rowCOM = robot.whereIsTheCOM(COM)[0]
+  
+  # Initializes derivative of jacobian matrix with zeros
+  dJ = zeros(8, n) if symbolic else np.zeros((8, n))
+  
+  # Create position vector from inertial frame to end - effector (from DQ space to R3)
+  r = dqToR3(fkCOMDQ[COM], symbolic)
+  
+  # Create position matrix
+  M = Matrix([[eye(4), zeros(4)], [-crossOperatorExtension(r, symbolic), eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(-crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+  
+  # Create position matrix for non linear terms: w_{i + 1} x v_{i + 1} - w_{i} x v_{i}
+  M_k = Matrix([[zeros(4), zeros(4)], [-crossOperatorExtension(r, symbolic), eye(4)]]) if symbolic else np.append(np.append(np.zeros((4, 4)), np.zeros((4, 4)), axis = 1), np.append(-crossOperatorExtension(r), np.eye(4), axis = 1), axis = 0)
+    
+  # Iterates through all generalized coordinates
+  for j in range(n):
+    
+    # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+    row, column = robot.whereIsTheJoint(j + 1)
+    
+    # If the current joint is coupled after the desired center of mass, and any Center of Mass is analyzed
+    if row > rowCOM:
+      
+      # Stop the algorithm, because current joint won't affect the desired center of mass
+      break
+    
+    # Axis of actuation of current joint
+    xi = Matrix(robot.xi[:, j]) if symbolic else robot.xi[:, j].reshape((8, 1))
+    
+    # Calculates the adjoint transformation of the current axis of actuation (xi)
+    Ad = dqMultiplication(dqMultiplication(fkDQ[row - 1], xi, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic)
+    
+    # Derivative of axis of actuation of current joint
+    xid = Matrix(robot.xid[:, j]) if symbolic else robot.xid[:, j].reshape((8, 1))
+    
+    # Calculates the adjoint transformation of the current axis of actuation (xid)
+    dAd = dqMultiplication(dqMultiplication(fkDQ[row - 1], xid, symbolic), conjugateDQ(fkDQ[row - 1], symbolic), symbolic)
+                
+    # Iterates through all the joints to calculate cross product: W_{i} x Ad(xi)
+    for k in range(j):
+      
+      # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+      row_k, column_k = robot.whereIsTheJoint(k + 1)
+      
+      # If the current joint is coupled after the desired center of mass, and any Center of Mass is analyzed
+      if row_k > rowCOM:
+        
+        # Stop the algorithm, because current joint won't affect the desired center of mass
+        break
+      
+      # Axis of actuation of current joint
+      xi_k = Matrix(robot.xi[:, k]) if symbolic else robot.xi[:, k].reshape((8, 1))
+      
+      # Calculates the adjoint transformation of the current axis of actuation (xi_k)
+      Ad_k = dqMultiplication(dqMultiplication(fkDQ[row_k - 1], xi_k, symbolic), conjugateDQ(fkDQ[row_k - 1], symbolic), symbolic)
+      
+      # Non linear terms calculation for th Time Derivative of Jacobian Matrix
+      dJ[:, j] += dualCrossOperator(Ad_k * robot.qdSymbolic[k], symbolic) * Ad if symbolic else (dualCrossOperator(Ad_k * robot.jointsVelocities[k]).dot(Ad)).flatten()
+    
+    # Calculates the adjoint transformation of the current derivative of the axis of actuation (xid)
+    dJ[:, j] = M * (dAd + dJ[:, j]) if symbolic else M.dot(dAd + dJ[:, j].reshape((8, 1))).flatten()
+    
+    # Iterates through all the joints to calculate non linear terms: w_{i + 1} x v_{i + 1} - w_{i} x v_{i}
+    for k in range(n):
+      
+      # Check in what row of Denavit Hartenberg Parameters Matrix is the current joint (the sum is because of the way Python indexes arrays)
+      row_k, column_k = robot.whereIsTheJoint(k + 1)
+      
+      # If the current joint is coupled after the desired center of mass, and any Center of Mass is analyzed
+      if row_k > rowCOM:
+        
+        # Stop the algorithm, because current joint won't affect the desired center of mass
+        break
+      
+      # Axis of actuation of current joint
+      xi_k = Matrix(robot.xi[:, k]) if symbolic else robot.xi[:, k].reshape((8, 1))
+      
+      # Calculates the adjoint transformation of the current axis of actuation (xi_k)
+      Ad_k = dqMultiplication(dqMultiplication(fkDQ[row_k - 1], xi_k, symbolic), conjugateDQ(fkDQ[row_k - 1], symbolic), symbolic)
+      
+      # Non linear terms calculation for th Time Derivative of Jacobian Matrix
+      dJ[:, j] += dualCrossOperator(Ad, symbolic) * (M_k * Ad_k * robot.qdSymbolic[k]) if symbolic else (dualCrossOperator(Ad).dot(M_k.dot(Ad_k) * robot.jointsVelocities[k])).flatten()
+  
+  return nsimplify(dJ.evalf(), tolerance = 1e-10) if symbolic else dJ
 
 def inverseDQ(robot : object, q0 : np.array, Qd : np.array, K : np.array):
   """Using Dual Quaternions, this function computes Inverse Kinematics of a serial robot given joints positions in radians. Serial robot's kinematic parameters have to be set before using this function

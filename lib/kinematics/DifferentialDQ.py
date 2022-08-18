@@ -28,6 +28,29 @@ def dqStateSpace(robot : object, symbolic = False):
     
   return Xd
 
+def dqDerivativeStateSpace(robot : object, symbolic = False):
+  """Using Dual Quaternions, this function computes the time derivative of state-space equation (using Dual Inertial Jacobian Matrix and its time derivative) of a serial robot given. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    Xdd (np.array): time derivative of state-space equation (X''(t), numerical)
+    Xdd (SymPy Matrix): time derivative of state-space equation (X''(t), symbolic)
+  """
+
+  # Calculate Dual Inertial Jacobian Matrix
+  J = jacobianVelocityDQ(robot, symbolic)
+  
+  # Calculate Time Derivative of Dual Inertial Jacobian Matrix
+  dJ = jacobianVelocityDerivativeDQ(robot, symbolic)
+    
+  # Calculate state-space equation (symbolic or numerical)
+  Xdd = nsimplify(trigsimp((dJ * robot.qdSymbolic) + (J * robot.qddSymbolic)).evalf(), tolerance = 1e-10) if symbolic else dJ.dot(robot.jointsVelocities) + J.dot(robot.jointsAccelerations)
+    
+  return Xdd
+
 def dqStateSpaceCOM(robot : object, COM : int, symbolic = False):
   """Using Dual Quaternions, this function computes state-space equation (using Dual Inertial Jacobian Matrix) of any center of mass in a serial robot. Serial robot's kinematic parameters have to be set before using this function
 
@@ -48,6 +71,30 @@ def dqStateSpaceCOM(robot : object, COM : int, symbolic = False):
   XdCOM = nsimplify(trigsimp(JvdqCOM * robot.qdSymbolic).evalf(), tolerance = 1e-10) if symbolic else JvdqCOM.dot(robot.jointsVelocities)
     
   return XdCOM
+
+def dqDerivativeStateSpaceCOM(robot : object, COM : int, symbolic = False):
+  """Using Dual Quaternions, this function computes the time derivative of state-space equation (using Dual Inertial Jacobian Matrix) of any center of mass in a serial robot. Serial robot's kinematic parameters have to be set before using this function
+
+  Args:
+    robot (object): serial robot (this won't work with other type of robots)
+    COM (int): center of mass that will be analyzed
+    symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+  Returns:
+    XddCOM (np.array): time derivative of state-space equation (X''(t), numerical)
+    XddCOM (SymPy Matrix): time derivative of state-space equation (X''(t), symbolic)
+  """
+
+  # Calculate Dual Inertial Jacobian Matrix
+  JvdqCOM = jacobianVelocityDQCOM(robot, COM, symbolic)
+  
+  # Calculate Time Derivative of Dual Inertial Jacobian Matrix
+  dJvdqCOM = jacobianVelocityDerivativeDQCOM(robot, COM, symbolic)
+    
+  # Calculate state-space equation (symbolic or numerical)
+  XddCOM = nsimplify(trigsimp((dJvdqCOM * robot.qdSymbolic) + (JvdqCOM * robot.qddSymbolic)).evalf(), tolerance = 1e-10) if symbolic else dJvdqCOM.dot(robot.jointsVelocities) + JvdqCOM.dot(robot.jointsAccelerations)
+    
+  return XddCOM
 
 def dqVelocityPropagation(robot : object, w0 : np.array, qd : np.array, symbolic = False):
   """Using Dual Quaternions, this function computes velocity (both linear and angular) to the i-th reference frame of a serial robot given initial velocity. Serial robot's kinematic parameters have to be set before using this function
@@ -177,7 +224,7 @@ def dqAccelerationPropagation(robot : object, dw0 : np.array, Wdq : list, qd : n
       ri = crossOperatorExtension(dqToR3(fkDQ[k - 1], symbolic), symbolic)
       
       # Create position matrix for i-th reference frame
-      Mi = Matrix([[eye(4), zeros(4, 1)], [ri, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(ri, np.eye(4), axis = 1), axis = 0)
+      Mi = Matrix([[eye(4), zeros(4)], [ri, eye(4)]]) if symbolic else np.append(np.append(np.eye(4), np.zeros((4, 4)), axis = 1), np.append(ri, np.eye(4), axis = 1), axis = 0)
       
       # Dual velocity of the i-th frame seen from itself
       dualW = dqMultiplication(dqMultiplication(conjugateDQ(Q, symbolic), Mi * Wdq[k - 1], symbolic), Q, symbolic) if symbolic else dqMultiplication(dqMultiplication(conjugateDQ(Q), Mi.dot(Wdq[k - 1])), Q)
