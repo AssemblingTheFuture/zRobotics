@@ -1503,28 +1503,28 @@ So the outputs will be
 ```bash
 # NumPy Array
 >>> Ja
-array([[ 0.29672459, -0.04726979,  0.38999721,  0.        ],
-       [-0.32124701, -0.04361767,  0.35986554,  0.        ],
-       [ 0.        , -0.43734803, -0.10510702,  0.        ],
-       [-0.11043124,  0.73688832,  0.73688832, -0.02344649],
-       [ 1.49976911,  0.02134172,  0.02134172, -1.50364647],
-       [ 0.10196457,  1.08967036,  1.08967036,  0.10196457]])
+array([[ 0.182977  , -0.38393173, -0.62026731,  0.        ],
+       [ 0.28277371,  0.24870669,  0.40180224,  0.        ],
+       [ 0.        ,  0.33658218, -0.51224527,  0.        ],
+       [ 0.04369075,  1.20061659,  1.20061659, -0.48314347],
+       [ 0.52885716, -0.84524269, -0.84524269, -0.21947929],
+       [ 0.91602413,  0.4473779 ,  0.4473779 ,  0.91602413]])
 
 >>> Xd1
-array([[ 0.20836402],
-       [-0.11456081],
-       [ 0.05803193],
-       [-0.02882665],
-       [ 4.45519401],
-       [-0.24049479]])
+array([[-0.63617328],
+       [ 0.36004356],
+       [-1.61991614],
+       [ 0.67665821],
+       [-0.22858399],
+       [-0.49209642]])
 
 >>> Xd2
-array([[ 0.20836402],
-       [-0.11456081],
-       [ 0.05803193],
-       [-0.02882665],
-       [ 4.45519401],
-       [-0.24049479]])
+array([[-0.63617328],
+       [ 0.36004356],
+       [-1.61991614],
+       [ 0.67665821],
+       [-0.22858399],
+       [-0.49209642]])
 ```
 
 You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1567,28 +1567,28 @@ So the outputs will be
 ```bash
 # NumPy Array
 >>> Jg
-array([[ 1.01445583e-01,  4.75555206e-01,  6.18228022e-01,  0.00000000e+00],
-       [ 7.03542717e-01, -6.85714937e-02, -8.91438436e-02,  0.00000000e+00],
-       [-0.00000000e+00,  7.10818937e-01,  6.56425113e-01,  1.38777878e-17],
-       [ 0.00000000e+00, -1.42716489e-01, -1.42716489e-01,  7.17022541e-01],
-       [ 0.00000000e+00, -9.89763610e-01, -9.89763610e-01, -1.03389272e-01],
-       [ 1.00000000e+00,  6.12323400e-17,  6.12323400e-17, -6.89339782e-01]])
+array([[ 0.18311838, -0.38379045, -0.62048222,  0.        ],
+       [ 0.2826822 ,  0.24861517,  0.40194146,  0.        ],
+       [ 0.        ,  0.33681088, -0.51187571,  0.        ],
+       [ 0.        , -0.54368308, -0.54368308, -0.47776856],
+       [ 0.        , -0.8392906 , -0.8392906 ,  0.30949314],
+       [ 1.        ,  0.        ,  0.        ,  0.82216251]])
 
 >>> Xd1
-array([[ 1.03536641],
-       [-0.93900157],
-       [ 1.25371126],
-       [-0.88688895],
-       [-1.78716601],
-       [-0.50703242]])
+array([[-0.63687136],
+       [ 0.36049576],
+       [-1.61955115],
+       [ 0.08980563],
+       [-0.46080748],
+       [-0.60043404]])
 
 >>> Xd2
-array([[ 1.03536641],
-       [-0.93900157],
-       [ 1.25371126],
-       [-0.88688895],
-       [-1.78716601],
-       [-0.50703242]])
+array([[-0.63687136],
+       [ 0.36049576],
+       [-1.61955115],
+       [ 0.08980563],
+       [-0.46080748],
+       [-0.60043404]])
 ```
 
 For the case of velocities calculated with dual quaternions, it is possible to use the [Dual Inertial Velcocity Jacobian Matrix](#dual-inertial-jacobian-matrix), because this maps the effect of each joint directly to the end-effector in dual space, so linear and angular velocities can be calculated:
@@ -1612,10 +1612,10 @@ import numpy as np
 Jvdq = jacobianVelocityDQ(uRobot, symbolic = False)
 
 # Total Inertial Velocity (calculated by Dual Inertial Velocity Jacobian Matrix and joints velocities)
-Xd1 = Jvdq.dot(uRobot.jointsVelocities)
+dqXd1 = Jvdq.dot(uRobot.jointsVelocities)
 
 # Total Dual Inertial Velocity (calculated by library's module)
-Xd2 = geometricStateSpace(uRobot, symbolic = False)
+dqXd2 = geometricStateSpace(uRobot, symbolic = False)
 ```
 
 So the outputs will be
@@ -1623,34 +1623,34 @@ So the outputs will be
 ```bash
 # NumPy Array
 >>> Jvdq
-array([[ 0.00000000e+00  0.00000000e+00  0.00000000e+00 -1.73472348e-18]
-       [ 0.00000000e+00 -1.31343750e-01 -1.31343750e-01  3.38454149e-01]
-       [ 0.00000000e+00 -9.91336885e-01 -9.91336885e-01 -4.48423113e-02]
-       [ 1.00000000e+00  0.00000000e+00  0.00000000e+00 -9.39913802e-01]
-       [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
-       [ 7.04338427e-03  2.02542641e-02  9.15924166e-02 -2.77555756e-17]
-       [ 5.31610116e-02 -2.68351863e-03 -1.21352203e-02 -1.38777878e-16]
-       [ 0.00000000e+00  5.36255761e-02  3.35605294e-02  2.16690945e-17]])
+array([[ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        , -0.54368308, -0.54368308, -0.47776856],
+       [ 0.        , -0.8392906 , -0.8392906 ,  0.30949314],
+       [ 1.        ,  0.        ,  0.        ,  0.82216251],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.18311838, -0.38379045, -0.62048222,  0.        ],
+       [ 0.2826822 ,  0.24861517,  0.40194146,  0.        ],
+       [ 0.        ,  0.33681088, -0.51187571,  0.        ]])
 
->>> Xd1
+>>> dqXd1
 array([[ 0.        ],
-       [-0.88688895],
-       [-1.78716601],
-       [-0.50703242],
+       [ 0.08980563],
+       [-0.46080748],
+       [-0.60043404],
        [ 0.        ],
-       [ 1.03536641],
-       [-0.93900157],
-       [ 1.25371126]])
+       [-0.63687136],
+       [ 0.36049576],
+       [-1.61955115]])
 
->>> Xd2
+>>> dqXd2
 array([[ 0.        ],
-       [-0.88688895],
-       [-1.78716601],
-       [-0.50703242],
+       [ 0.08980563],
+       [-0.46080748],
+       [-0.60043404],
        [ 0.        ],
-       [ 1.03536641],
-       [-0.93900157],
-       [ 1.25371126]])
+       [-0.63687136],
+       [ 0.36049576],
+       [-1.61955115]])
 ```
 
 Please notice that angular velocities are not the same as the angular rate of change on [Total Inertial Rate of Change](#total-inertial-rate-of-change) results. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1701,36 +1701,36 @@ array([[0.],
        [0.]])
 
 >>> V[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [-1.09961297]])
+array([[ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [-0.129733]])
 
 >>> V[2]
-array([[-0.03343645],
-       [-0.05560946],
-       [ 0.00949319],
-       [-0.02490789],
-       [-0.17274052],
-       [-1.09961297]])
+array([[-0.463299  ],
+       [ 0.16893454],
+       [-1.44657525],
+       [ 0.92670074],
+       [ 1.4305599 ],
+       [-0.129733  ]])
 
 >>> V[3]
-array([[-0.03343645],
-       [-0.05560946],
-       [ 0.00949319],
-       [-0.27051133],
-       [-1.87604304],
-       [-1.09961297]])
+array([[-0.463299  ],
+       [ 0.16893454],
+       [-1.44657525],
+       [-0.18372442],
+       [-0.28361776],
+       [-0.129733  ]])
 
 >>> V[4]
-array([[ 1.03536641],
-       [-0.93900157],
-       [ 1.25371126],
-       [-0.88688895],
-       [-1.78716601],
-       [-0.50703242]])
+array([[-0.63687136],
+       [ 0.36049576],
+       [-1.61955115],
+       [ 0.08980563],
+       [-0.46080748],
+       [-0.60043404]])
 ```
 
 Please notice that initial angular and linear velocities (```w0``` and ```v0```) were set to zero because the base of the robot doesn't move; on the other hand, Python will send all the velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1781,44 +1781,44 @@ array([[0.],
        [0.]])
 
 >>> Wdq[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [-1.05732882],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ]])
+array([[ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [-0.129733],
+       [ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [ 0.      ]])
 
 >>> Wdq[2]
 array([[ 0.        ],
-       [-0.57402137],
-       [-0.18194517],
-       [-1.05732882],
+       [ 0.92670074],
+       [ 1.4305599 ],
+       [-0.129733  ],
        [ 0.        ],
-       [ 0.88978159],
-       [ 0.01053544],
-       [-0.48487331]])
+       [-0.463299  ],
+       [ 0.16893454],
+       [-1.44657525]])
 
 >>> Wdq[3]
 array([[ 0.        ],
-       [-1.34473028],
-       [-0.42623356],
-       [-1.05732882],
+       [-0.18372442],
+       [-0.28361776],
+       [-0.129733  ],
        [ 0.        ],
-       [ 0.88978159],
-       [ 0.01053544],
-       [-0.48487331]])
+       [-0.463299  ],
+       [ 0.16893454],
+       [-1.44657525]])
 
 >>> Wdq[4]
 array([[ 0.        ],
-       [-1.30851066],
-       [-0.54050335],
-       [-1.1174245 ],
+       [ 0.08980563],
+       [-0.46080748],
+       [-0.60043404],
        [ 0.        ],
-       [ 1.1483786 ],
-       [ 0.33405631],
-       [-0.94418045]])
+       [-0.63687136],
+       [ 0.36049576],
+       [-1.61955115]])
 ```
 
 Please notice that initial velocity ```w0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Velocity Propagation](#inertial-angular-velocity-propagation) and  [Inertial Linear Velocity Propagation](#inertial-linear-velocity-propagation) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1841,26 +1841,60 @@ This can be calculated with the library as follows:
 """
 
 # Differential Kinematics library
+from lib.kinematics.HTM import *
 from lib.kinematics.DifferentialHTM import *
 
 # NumPy
 import numpy as np
 
+# Geometric Jacobian Matrix (OPTIONAL)
+Jg = geometricJacobian(uRobot, symbolic = False)
+  
+# Time Derivative of Geometric Jacobian Matrix (OPTIONAL)
+dJg = geometricJacobianDerivative(uRobot, symbolic = False)
+
 # Total Inertial Acceleration
-Xdd = geometricDerivativeStateSpace(uRobot, symbolic = False)
+geometricXdd1 = dJg.dot(uRobot.jointsVelocities) + Jg.dot(uRobot.jointsAccelerations)
+
+# Total Inertial Acceleration
+geometricXdd2 = geometricDerivativeStateSpace(uRobot, symbolic = False)
 ```
 
 So the outputs will be
 
 ```bash
 #NumPy Array
->>> Xdd
-array([[-0.16944943],
-       [ 0.61173643],
-       [ 0.82593961],
-       [ 0.7560715 ],
-       [-1.04773218],
-       [ 0.82976722]])
+>>> Jg
+array([[ 0.18311838, -0.38379045, -0.62048222,  0.        ],
+       [ 0.2826822 ,  0.24861517,  0.40194146,  0.        ],
+       [ 0.        ,  0.33681088, -0.51187571,  0.        ],
+       [ 0.        , -0.54368308, -0.54368308, -0.47776856],
+       [ 0.        , -0.8392906 , -0.8392906 ,  0.30949314],
+       [ 1.        ,  0.        ,  0.        ,  0.82216251]])
+
+>>> dJg
+array([[-0.16554583,  1.70367461,  0.52936056,  0.2110293 ],
+       [ 0.10723874, -0.34886697,  0.49902499,  0.22534713],
+       [-0.1668235 , -0.73051559, -0.24982624,  0.03780247],
+       [ 0.46080748,  0.39505496,  0.39505496,  0.        ],
+       [ 0.08980563, -0.25591219, -0.25591219,  0.        ],
+       [ 0.        ,  0.32590626,  0.32590626,  0.        ]])
+
+>>> geometricXdd1
+array([[-3.68057734],
+       [ 2.62284587],
+       [-0.94773301],
+       [-1.41937091],
+       [-2.36093456],
+       [ 0.17500924]])
+
+>>> geometricXdd2
+array([[-3.68057734],
+       [ 2.62284587],
+       [-0.94773301],
+       [-1.41937091],
+       [-2.36093456],
+       [ 0.17500924]])
 ```
 
 For the case of accelerations calculated with dual quaternions, it is possible to use the [Time Derivative of Dual Inertial Velcocity Jacobian Matrix](#derivative-of-dual-inertial-velocity-jacobian-matrix), because this maps the effect of each joint directly to the end-effector in dual space, so linear and angular accelerations can be calculated:
@@ -1881,7 +1915,7 @@ from lib.kinematics.DifferentialDQ import *
 # NumPy
 import numpy as np
 
-# Geometric Jacobian Matrix (OPTIONAL)
+# Dual Inertial Velocity Jacobian Matrix (OPTIONAL)
 Jvdq = jacobianVelocityDQ(uRobot, symbolic = False)
   
 # Time Derivative of Dual Inertial Velocity Jacobian Matrix (OPTIONAL)
@@ -1890,7 +1924,7 @@ dJvdq = jacobianVelocityDerivativeDQCOM(uRobot, symbolic = False)
 # Total Inertial Acceleration
 dqXdd1 = dJvdq.dot(uRobot.jointsVelocities) + JvdqCOM.dot(uRobot.jointsAccelerations)
 
-# Total Inertial acceleration (using dual inertial acceleration jacobian matrix) with Dual Quaternions
+# Total Inertial Acceleration
 dqXdd = dqDerivativeStateSpace(uRobot, symbolic = False)
 ```
 
@@ -1900,43 +1934,43 @@ So the outputs will be
 # NumPy Array
 >>> Jvdq
 array([[ 0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.        , -0.6222847 , -0.6222847 , -0.63443477],
-       [ 0.        , -0.782791  , -0.782791  ,  0.50434796],
-       [ 1.        ,  0.        ,  0.        , -0.58576929],
+       [ 0.        , -0.54368308, -0.54368308, -0.47776856],
+       [ 0.        , -0.8392906 , -0.8392906 ,  0.30949314],
+       [ 1.        ,  0.        ,  0.        ,  0.82216251],
        [ 0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.08413183,  0.60993554,  0.28671055,  0.        ],
-       [ 0.10583201, -0.48487214, -0.22792238,  0.        ],
-       [ 0.        ,  0.1351983 , -0.50677175,  0.        ]])
+       [ 0.18311838, -0.38379045, -0.62048222,  0.        ],
+       [ 0.2826822 ,  0.24861517,  0.40194146,  0.        ],
+       [ 0.        ,  0.33681088, -0.51187571,  0.        ]])
 
 >>> dJvdq
 array([[ 0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.        , -0.29528491, -0.29528491, -0.8325105 ],
-       [ 0.        ,  0.23473862,  0.23473862,  1.05237222],
-       [ 0.        ,  0.        ,  0.        ,  1.80776869],
+       [ 0.        , -0.10888369, -0.10888369, -0.19302842],
+       [ 0.        ,  0.07053364,  0.07053364,  0.21303368],
+       [ 0.        ,  0.        ,  0.        , -0.1923651 ],
        [ 0.        ,  0.        ,  0.        ,  0.        ],
-       [-0.49616381, -1.01354893, -0.97080722,  0.        ],
-       [-0.70609507,  0.43024639,  0.59524827,  0.        ],
-       [ 0.        , -0.86148002, -0.81695769,  0.        ]])
+       [-0.36049576,  1.39152764,  0.19732212,  0.        ],
+       [-0.63687136, -0.83073227, -0.01354705,  0.        ],
+       [ 0.        , -0.73051559, -0.24982624,  0.        ]])
 
 >>> dqXdd1
 array([[ 0.        ],
-       [ 1.87259918],
-       [ 0.56500029],
-       [-2.49545716],
+       [-1.41937091],
+       [-2.36093456],
+       [ 0.17500924],
        [ 0.        ],
-       [ 1.47434751],
-       [-0.54512459],
-       [ 2.18164402]])
+       [-3.68057734],
+       [ 2.62284587],
+       [-0.94773301]])
 
 >>> dqXdd2
 array([[ 0.        ],
-       [ 1.87259918],
-       [ 0.56500029],
-       [-2.49545716],
+       [-1.41937091],
+       [-2.36093456],
+       [ 0.17500924],
        [ 0.        ],
-       [ 1.47434751],
-       [-0.54512459],
-       [ 2.18164402]])
+       [-3.68057734],
+       [ 2.62284587],
+       [-0.94773301]])
 ```
 
 You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -1987,36 +2021,36 @@ array([[0.],
        [0.]])
 
 >>> dV[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [-0.16935298]])
+array([[0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.03182287]])
 
 >>> dV[2]
-array([[-0.23049234],
-       [ 0.50468618],
-       [ 0.46734456],
-       [ 0.06969884],
-       [-0.11247016],
-       [-0.16935298]])
+array([[-2.08117708],
+       [ 1.52894714],
+       [ 0.52434241],
+       [ 0.37456409],
+       [ 0.1714968 ],
+       [ 0.03182287]])
 
 >>> dV[3]
-array([[-0.23049234],
-       [ 0.50468618],
-       [ 0.46734456],
-       [ 0.21461712],
-       [-0.02760132],
-       [-0.16935298]])
+array([[-2.08117708],
+       [ 1.52894714],
+       [ 0.52434241],
+       [-1.51067447],
+       [-2.2514123 ],
+       [ 0.03182287]])
 
 >>> dV[4]
-array([[-0.16919013],
-       [ 0.611339  ],
-       [ 0.826206  ],
-       [ 0.75601027],
-       [-1.04775072],
-       [ 0.82919977]])
+array([[-3.68057734],
+       [ 2.62284587],
+       [-0.94773301],
+       [-1.41937091],
+       [-2.36093456],
+       [ 0.17500924]])
 ```
 
 Please notice that initial angular and linear accelerations (```dw0``` and ```dv0```) were set to zero because the base of the robot doesn't move; also the list with the velocities ```V``` has to be sent as a parameter of this function, so [Inertial Velocity Propagation](#inertial-velocity-propagation) has to be computed before calling this function. On the other hand, Python will send all the accelerations inside a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -2067,44 +2101,44 @@ array([[0.],
        [0.]])
 
 >>> dWdq[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [-0.31549224],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ]])
+array([[0.        ],
+       [0.        ],
+       [0.        ],
+       [0.03182287],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ]])
 
 >>> dWdq[2]
 array([[ 0.        ],
-       [ 0.27946512],
-       [ 0.75648682],
-       [-0.31549224],
+       [ 0.37456409],
+       [ 0.1714968 ],
+       [ 0.03182287],
        [ 0.        ],
-       [ 0.01639436],
-       [-1.0222499 ],
-       [ 0.55440588]])
+       [-2.08117708],
+       [ 1.52894714],
+       [ 0.52434241]])
 
 >>> dWdq[3]
 array([[ 0.        ],
-       [-0.05497791],
-       [ 1.54724265],
-       [-0.31549224],
+       [-1.51067447],
+       [-2.2514123 ],
+       [ 0.03182287],
        [ 0.        ],
-       [ 0.01639436],
-       [-1.0222499 ],
-       [ 0.55440588]])
+       [-2.08117708],
+       [ 1.52894714],
+       [ 0.52434241]])
 
 >>> dWdq[4]
 array([[ 0.        ],
-       [-0.1895467 ],
-       [ 1.55232053],
-       [-0.08108125],
+       [-1.41937091],
+       [-2.36093456],
+       [ 0.17500924],
        [ 0.        ],
-       [ 0.90471426],
-       [-1.87330423],
-       [ 0.36473287]])
+       [-3.68057734],
+       [ 2.62284587],
+       [-0.94773301]])
 ```
 
 Please notice that initial acceleration ```dw0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Acceleration Propagation](#inertial-acceleration-propagation) algorithm. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -2136,10 +2170,10 @@ import numpy as np
 JgCOM = geometricJacobianCOM(uRobot, COM = 2, symbolic = False)
 
 # Inertial Velocity (calculated by geometric jacobian to center of mass and joints velocities)
-XdCOM1 = JgCOM.dot(uRobot.jointsVelocities)
+geometricXdCOM1 = JgCOM.dot(uRobot.jointsVelocities)
 
 # Inertial Velocity (calculated by library's module)
-XdCOM2 = geometricCOMStateSpace(uRobot, COM = 2, symbolic = False)
+geometricXdCOM2 = geometricCOMStateSpace(uRobot, COM = 2, symbolic = False)
 ```
 
 So the outputs will be
@@ -2147,28 +2181,28 @@ So the outputs will be
 ```bash
 # NumPy Array
 >>> JgCOM
-array([[ 1.12553059e-01, -2.18694529e-01,  0.00000000e+00, 0.00000000e+00],
-       [-1.21977167e-01, -2.01797917e-01,  0.00000000e+00, 0.00000000e+00],
-       [ 0.00000000e+00, -1.65971745e-01,  0.00000000e+00, 0.00000000e+00],
-       [ 0.00000000e+00,  6.78145901e-01,  0.00000000e+00, 0.00000000e+00],
-       [ 0.00000000e+00, -7.34927300e-01,  0.00000000e+00, 0.00000000e+00],
-       [ 1.00000000e+00,  6.12323400e-17,  0.00000000e+00, 0.00000000e+00]])
+array([[ 0.23070827,  0.11834589,  0.        ,  0.        ],
+       [ 0.35614734, -0.07666314,  0.        ,  0.        ],
+       [ 0.        ,  0.42434329,  0.        ,  0.        ],
+       [ 0.        , -0.54368308,  0.        ,  0.        ],
+       [ 0.        , -0.8392906 ,  0.        ,  0.        ],
+       [ 1.        ,  0.        ,  0.        ,  0.        ]])
 
->>> XdCOM1
-array([[ 0.09348339],
-       [-0.03018717],
-       [ 0.02690157],
-       [-0.10991743],
-       [ 0.11912085],
-       [ 0.51563446]])
+>>> geometricXdCOM1
+array([[-0.2316495 ],
+       [ 0.08446727],
+       [-0.72328762],
+       [ 0.92670074],
+       [ 1.4305599 ],
+       [-0.129733  ]])
 
->>> XdCOM2
-array([[ 0.09348339],
-       [-0.03018717],
-       [ 0.02690157],
-       [-0.10991743],
-       [ 0.11912085],
-       [ 0.51563446]])
+>>> geometricXdCOM2
+array([[-0.2316495 ],
+       [ 0.08446727],
+       [-0.72328762],
+       [ 0.92670074],
+       [ 1.4305599 ],
+       [-0.129733  ]])
 ```
 
 For the case of velocities calculated with dual quaternions, it is possible to use the [Dual Inertial Velcocity Jacobian Matrix](#dual-inertial-jacobian-matrix), because this maps the effect of each joint directly to the end-effector in dual space, so linear and angular velocities can be calculated:
@@ -2204,34 +2238,34 @@ So the outputs will be
 ```bash
 # NumPy Array
 >>> JvdqCOM
-array([[ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
-       [ 0.00000000e+00 -1.96806839e-02  0.00000000e+00  0.00000000e+00]
-       [ 0.00000000e+00 -9.99806317e-01  0.00000000e+00  0.00000000e+00]
-       [ 1.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
-       [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  0.00000000e+00]
-       [ 1.92986700e-04 -5.41920045e-02  0.00000000e+00  0.00000000e+00]
-       [ 9.80399476e-03  1.06674232e-03  0.00000000e+00  0.00000000e+00]
-       [ 0.00000000e+00  9.80589400e-03  0.00000000e+00  0.00000000e+00]])
+array([[ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        , -0.54368308,  0.        ,  0.        ],
+       [ 0.        , -0.8392906 ,  0.        ,  0.        ],
+       [ 1.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  0.        ],
+       [ 0.23070827,  0.11834589,  0.        ,  0.        ],
+       [ 0.35614734, -0.07666314,  0.        ,  0.        ],
+       [ 0.        ,  0.42434329,  0.        ,  0.        ]])
 
 >>> dqXd1COM
 array([[ 0.        ],
-       [-0.10991743],
-       [ 0.11912085],
-       [ 0.51563446],
+       [ 0.92670074],
+       [ 1.4305599 ],
+       [-0.129733  ],
        [ 0.        ],
-       [ 0.09348339],
-       [-0.03018717],
-       [ 0.02690157]])
+       [-0.2316495 ],
+       [ 0.08446727],
+       [-0.72328762]])
 
 >>> dqXd2COM
 array([[ 0.        ],
-       [-0.10991743],
-       [ 0.11912085],
-       [ 0.51563446],
+       [ 0.92670074],
+       [ 1.4305599 ],
+       [-0.129733  ],
        [ 0.        ],
-       [ 0.09348339],
-       [-0.03018717],
-       [ 0.02690157]])
+       [-0.2316495 ],
+       [ 0.08446727],
+       [-0.72328762]])
 ```
 
 Please notice that jacobian matrix is zero in columns two to four because these joints (<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Ctheta_3%2C%20%5Ctheta_4%7D">) don't affect the center of mass number two because they are attached after it. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -2282,28 +2316,28 @@ array([[0.],
        [0.]])
 
 >>> Vcom[1]
-array([[0.        ],
-       [0.        ],
-       [0.        ],
-       [0.        ],
-       [0.        ],
-       [0.35564369]])
+array([[ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [-0.129733]])
 
 >>> Vcom[2]
-array([[-0.36438662],
-       [-0.17051326],
-       [ 0.07442306],
-       [ 0.41686245],
-       [-0.73560853],
-       [ 0.35564369]])
+array([[-0.2316495 ],
+       [ 0.08446727],
+       [-0.72328762],
+       [ 0.92670074],
+       [ 1.4305599 ],
+       [-0.129733  ]])
 
 >>> Vcom[3]
-array([[-0.80875088],
-       [-0.2510647 ],
-       [ 0.37097696],
-       [ 1.06787763],
-       [-0.16632348],
-       [ 0.45184671]])
+array([[-0.55008518],
+       [ 0.26471515],
+       [-1.5330632 ],
+       [ 0.08980563],
+       [-0.46080748],
+       [-0.60043404]])
 ```
 
 Please notice that initial linear and angular velocitis (```vCOM0``` and ```wCOM0```) were set to zero because the base of the robot doesn't move; also it's mandatory to calculate angular velocities to each reference frame ```V``` before using this function, this is because we have to send the results as parameters. On the other hand, Python will send all the angular velocities in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -2354,34 +2388,34 @@ array([[0.],
        [0.]])
 
 >>> WdqCOM[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [-1.05732882],
-       [ 0.        ],
-       [ 0.        ]
-       [ 0.        ]
-       [ 0.        ]])
+array([[ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [-0.129733],
+       [ 0.      ],
+       [ 0.      ],
+       [ 0.      ],
+       [ 0.      ]])
 
 >>> WdqCOM[2]
 array([[ 0.        ],
-       [-0.57402137],
-       [-0.18194517],
-       [-1.05732882],
+       [ 0.92670074],
+       [ 1.4305599 ],
+       [-0.129733  ],
        [ 0.        ],
-       [ 0.4448908 ],
-       [ 0.00526772],
-       [-0.24243665]])
+       [-0.2316495 ],
+       [ 0.08446727],
+       [-0.72328762]])
 
 >>> WdqCOM[3]
 array([[ 0.        ],
-       [-1.30851066],
-       [-0.54050335],
-       [-1.1174245 ],
+       [ 0.08980563],
+       [-0.46080748],
+       [-0.60043404],
        [ 0.        ],
-       [ 1.0190801 ],
-       [ 0.17229587],
-       [-0.71452688]])
+       [-0.55008518],
+       [ 0.26471515],
+       [-1.5330632 ]])
 ```
 
 Please notice that initial velocity ```WdqCOM0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Velocity Propagation to Centers of Mass](#inertial-velocity-propagation-to-centers-of-mass) algorithm. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -2409,21 +2443,54 @@ from lib.kinematics.DifferentialHTM import *
 # NumPy
 import numpy as np
 
-# Inertial Velocity (calculated by library's module)
-XddCOM = geometricCOMDerivativeStateSpace(uRobot, COM = 2, symbolic = False)
+# Geometric Jacobian Matrix (OPTIONAL)
+JgCOM = geometricJacobianCOM(uRobot, COM = 2, symbolic = False)
+  
+# Time Derivative of Geometric Jacobian Matrix (OPTIONAL)
+dJgCOM = geometricJacobianDerivative(uRobot, COM = 2, symbolic = False)
+
+# Total Inertial Acceleration
+geometricXdd1COM = dJgCOM.dot(uRobot.jointsVelocities) + JgCOM.dot(uRobot.jointsAccelerations)
+
+# Total Inertial Acceleration
+geometricXdd2COM = geometricDerivativeStateSpaceCOM(uRobot, COM = 2, symbolic = False)
 ```
 
 So the outputs will be
 
 ```bash
 # NumPy Array
->>> XddCOM
-array([[ 0.00165699],
-       [ 0.00256952],
-       [ 0.00041124],
-       [-0.02991744],
-       [-0.07243607],
-       [ 0.38868741]])
+>>> JgCOM
+array([[ 0.23070827,  0.11834589,  0.        ,  0.        ],
+       [ 0.35614734, -0.07666314,  0.        ,  0.        ],
+       [ 0.        ,  0.42434329,  0.        ,  0.        ],
+       [ 0.        , -0.54368308,  0.        ,  0.        ],
+       [ 0.        , -0.8392906 ,  0.        ,  0.        ],
+       [ 1.        ,  0.        ,  0.        ,  0.        ]])
+
+>>> dJgCOM
+array([[ 0.04620406,  0.58715702,  0.        ,  0.        ],
+       [-0.02993048, -0.42394598,  0.        ,  0.        ],
+       [ 0.        , -0.24034467,  0.        ,  0.        ],
+       [-1.4305599 ,  0.        ,  0.        ,  0.        ],
+       [ 0.92670074,  0.        ,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ,  0.        ]])
+
+>>> geometricXdd1COM
+array([[-1.04058854],
+       [ 0.76447357],
+       [ 0.2621712 ],
+       [ 0.37456409],
+       [ 0.1714968 ],
+       [ 0.03182287]])
+
+>>> geometricXdd2COM
+array([[-1.04058854],
+       [ 0.76447357],
+       [ 0.2621712 ],
+       [ 0.37456409],
+       [ 0.1714968 ],
+       [ 0.03182287]])
 ```
 
 For the case of accelerations calculated with dual quaternions, it is possible to use the [Time Derivative of Dual Inertial Velcocity Jacobian Matrix](#derivative-of-dual-inertial-velocity-jacobian-matrix), because this maps the effect of each joint directly to the end-effector in dual space, so linear and angular accelerations can be calculated:
@@ -2463,43 +2530,43 @@ So the outputs will be
 # NumPy Array
 >>> JvdqCOM
 array([[ 0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.        , -0.6222847 ,  0.        ,  0.        ],
-       [ 0.        , -0.782791  ,  0.        ,  0.        ],
+       [ 0.        , -0.54368308,  0.        ,  0.        ],
+       [ 0.        , -0.8392906 ,  0.        ,  0.        ],
        [ 1.        ,  0.        ,  0.        ,  0.        ],
        [ 0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.19974407,  0.16161249,  0.        ,  0.        ],
-       [ 0.25126419, -0.12847488,  0.        ,  0.        ],
-       [ 0.        ,  0.32098503,  0.        ,  0.        ]])
+       [ 0.23070827,  0.11834589,  0.        ,  0.        ],
+       [ 0.35614734, -0.07666314,  0.        ,  0.        ],
+       [ 0.        ,  0.42434329,  0.        ,  0.        ]])
 
 >>> dJvdqCOM
 array([[ 0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.        , -0.29528491,  0.        ,  0.        ],
-       [ 0.        ,  0.23473862,  0.        ,  0.        ],
+       [ 0.        , -0.10888369,  0.        ,  0.        ],
+       [ 0.        ,  0.07053364,  0.        ,  0.        ],
        [ 0.        ,  0.        ,  0.        ,  0.        ],
        [ 0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.08092925, -0.02137086,  0.        ,  0.        ],
-       [-0.09277342, -0.08250094,  0.        ,  0.        ],
-       [ 0.        , -0.02226117,  0.        ,  0.        ]])
+       [-0.08446727,  0.59710276,  0.        ,  0.        ],
+       [-0.2316495 , -0.40859261,  0.        ,  0.        ],
+       [ 0.        , -0.24034467,  0.        ,  0.        ]])
 
 >>> dqXdd1COM
 array([[ 0.        ],
-       [ 0.56046709],
-       [ 0.63966677],
-       [-1.17746153],
+       [ 0.37456409],
+       [ 0.1714968 ],
+       [ 0.03182287],
        [ 0.        ],
-       [-0.40070392],
-       [-0.14282339],
-       [-0.27027502]])
+       [-1.04058854],
+       [ 0.76447357],
+       [ 0.2621712 ]])
 
 >>> dqXdd2COM
 array([[ 0.        ],
-       [ 0.56046709],
-       [ 0.63966677],
-       [-1.17746153],
+       [ 0.37456409],
+       [ 0.1714968 ],
+       [ 0.03182287],
        [ 0.        ],
-       [-0.40070392],
-       [-0.14282339],
-       [-0.27027502]])
+       [-1.04058854],
+       [ 0.76447357],
+       [ 0.2621712 ]])
 ```
 
 Please notice that jacobian matrix is zero in columns two to four because these joints (<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7BRed%7D%20%5Ctheta_3%2C%20%5Ctheta_4%7D">) don't affect the center of mass number two because they are attached after it. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -2541,29 +2608,37 @@ So the outputs will be
 
 ```bash
 # NumPy Array
+>>> dVcom[0]
+array([[0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.]])
+
 >>> dVcom[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [-1.26499063]])
+array([[0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.03182287]])
 
 >>> dVcom[2]
-array([[-0.29292752],
-       [-0.81547538],
-       [ 0.15702122],
-       [ 0.76685301],
-       [-0.05417907],
-       [-1.26499063]])
+array([[-1.04058854],
+       [ 0.76447357],
+       [ 0.2621712 ],
+       [ 0.37456409],
+       [ 0.1714968 ],
+       [ 0.03182287]])
 
 >>> dVcom[3]
-array([[-0.11168071],
-       [-0.70497229],
-       [ 0.08112837],
-       [ 0.1705765 ],
-       [-0.98633839],
-       [-1.52953533]])
+array([[-2.88087721],
+       [ 2.07589651],
+       [-0.2116953 ],
+       [-1.41937091],
+       [-2.36093456],
+       [ 0.17500924]])
 ```
 
 Please notice that initial angular and linear accelerations (```dWCOM0``` and ```dvCOM0```) were set to zero because the base of the robot doesn't move; also it's mandatory to calculate the velocities to each center of mass ```Vcom``` and the acceleration of each reference frame ```dV``` before using this function, this is because we have to send the results as parameters. On the other hand, Python will send all the accelartions in a list. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -2614,34 +2689,34 @@ array([[0.],
        [0.]])
 
 >>> dWdqCOM[1]
-array([[ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [-0.31549224],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ],
-       [ 0.        ]])
+array([[0.        ],
+       [0.        ],
+       [0.        ],
+       [0.03182287],
+       [0.        ],
+       [0.        ],
+       [0.        ],
+       [0.        ]])
 
 >>> dWdqCOM[2]
 array([[ 0.        ],
-       [ 0.27946512],
-       [ 0.75648682],
-       [-0.31549224],
+       [ 0.37456409],
+       [ 0.1714968 ],
+       [ 0.03182287],
        [ 0.        ],
-       [ 0.00819718],
-       [-0.51112495],
-       [ 0.27720294]])
+       [-1.04058854],
+       [ 0.76447357],
+       [ 0.2621712 ]])
 
 >>> dWdqCOM[3]
 array([[ 0.        ],
-       [-0.1895467 ],
-       [ 1.55232053],
-       [-0.08108125],
+       [-1.41937091],
+       [-2.36093456],
+       [ 0.17500924],
        [ 0.        ],
-       [ 0.46055431],
-       [-1.44777707],
-       [ 0.45956938]])
+       [-2.88087721],
+       [ 2.07589651],
+       [-0.2116953 ]])
 ```
 
 Please notice that initial acceleration ```dWdqCOM0``` was set to zero because the base of the robot doesn't move. To check if the results are correct, you can run [Inertial Angular Acceleration Propagation](#inertial-angular-acceleration-propagation-to-centers-of-mass) and  [Inertial Linear Acceleration Propagation to Centers of Mass](#inertial-linear-acceleration-propagation-to-centers-of-mass) algorithms. You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
@@ -2719,37 +2794,12 @@ K = kineticEnergyCOM(uRobot, symbolic = False)
 So the output will be
 
 ```bash
-# SymPy Matrix
->>> K
-Matrix([[0.5*qd1*(1.73561594321417*qd1 + 1.23248093741685*qd2 + 0.61313663099757*qd3 - 0.777383210893546*qd4) + 0.5*qd2*(1.23248093741685*qd1 + 2.54573557767803*qd2 + 0.91515058225959*qd3 - 0.585217150798144*qd4) + 0.5*qd3*(0.61313663099757*qd1 + 0.91515058225959*qd2 + 0.860255360816805*qd3 - 0.585217150798144*qd4) + 0.5*qd4*(-0.777383210893546*qd1 - 0.585217150798144*qd2 - 0.585217150798144*qd3 + 0.73863435073761*qd4)]])
-```
-
-Please notice that this result is partially numerical because it includes joints velocities <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D_i%7D"> in symbolic form; they are stored in ```uRobot.qdSymbolic```. If you need the numerical value, just use the following modules:
-
-```python
-"""
-  Symbolic Expression evaluation
-"""
-
-# SymPy Library export
-from sympy import *
-
-# Creation of function to evaluate symbolic terms, such as uRobot.qdSymbolic
-K = lambdify([uRobot.qdSymbolic], kineticEnergyCOM(uRobot, symbolic = False))
-
-# Function evaluation
-K(qd)
-```
-
-So the output will be
-
-```bash
 # NumPy Array
->>> K(qd)
-array([[[0.76626615]]])
+>>> K
+array([[0.79503744]])
 ```
 
-You can also calculate the full symbolic expression by setting ```symbolic``` parameter to ```True``` and also evaluate it as shown previously, but don't forget to include both ```uRobot.qSymbolic``` and ```uRobot.qdSymbolic``` in ```lambdify``` function (e.g. ```K = lambdify([uRobot.qSymbolic, uRobot.qdSymbolic], kineticEnergyCOM(uRobot, symbolic = True))```)
+You can also calculate the full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
