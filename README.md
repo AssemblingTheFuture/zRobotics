@@ -507,7 +507,7 @@ Qz = dqRz(z = 0.5, symbolic = False)
 
 ---
 
-## [Dual Quaternions Functionalities](/lib/movements/DQ.py)
+## Dual Quaternions Functionalities
 
 As shown in our [online training](https://bit.ly/RoboticZ), there are multiple operations and operators for dual quaternions. Our library needs some of their functionalities to work correctly, so they are listed below
 
@@ -613,7 +613,7 @@ You can also calculate its symbolic expressions by setting ```symbolic``` parame
 
 ---
 
-### Dual Quaternion Conjugate
+### Dual Quaternions Conjugate
 
 The inverse form of an Homogeneous Transformation Matrix can be calculated easily with ```numpy``` library, however, the inverse form of a dual quaternion is as simple as conjugating its values:
 
@@ -663,7 +663,7 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
-### Dual Quaternion to Euclidian Space
+### Dual Quaternions to Euclidian Space
 
 Sometimes it will be necessary to transform a pose representation as dual quaternion <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Chat%7B%5Cmathrm%7Bq%7D%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BH%7D%20%7D"> into an Euclidian space one <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20%5Cvec%7Br%7D_%7Bi%20/%200%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%201%7D%20%7D">:
 
