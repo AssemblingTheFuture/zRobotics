@@ -196,6 +196,48 @@ def quaternionMultiplication(q1 : np.array, q2 : np.array, symbolic = False):
     
     return Matrix([r, i, j, k]) if symbolic else np.array([r, i, j, k])
 
+def leftOperator(q : np.array, symbolic = False):
+    
+    """Left operator for Quaternions multiplication
+
+    Args:
+        q (np.array  or SymPy Symbol): Quaternion
+        symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+        L (np.array): Left Operator (numeric)
+        L (SymPy Matrix): Left Operator (symbolic)
+    """
+    
+    # First row of the left operator matrix
+    a = Matrix([q[0], -q[1 : , :]]).T if symbolic else np.append(np.array([q[0]]), -q[1 : , :].T, axis = 1)
+    
+    # Second row of the left operator matrix
+    b = q[1 : , :].col_insert(1, (q[0] * eye(3)) + crossOperator(q, symbolic)) if symbolic else np.append(q[1 : , :], (q[0] * np.eye(3)) + crossOperator(q), axis = 1)
+    
+    return a.row_insert(1, b) if symbolic else np.append(a, b, axis = 0)
+
+def rightOperator(q : np.array, symbolic = False):
+    
+    """Right operator for Quaternions multiplication
+
+    Args:
+        q (np.array  or SymPy Symbol): Quaternion
+        symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+        R (np.array): Right Operator (numeric)
+        R (SymPy Matrix): Right Operator (symbolic)
+    """
+    
+    # First row of the right operator matrix
+    a = Matrix([q[0], -q[1 : , :]]).T if symbolic else np.append(np.array([q[0]]), -q[1 : , :].T, axis = 1)
+    
+    # Second row of the right operator matrix
+    b = q[1 : , :].col_insert(1, (q[0] * eye(3)) - crossOperator(q, symbolic)) if symbolic else np.append(q[1 : , :], (q[0] * np.eye(3)) + crossOperator(q), axis = 1)
+    
+    return a.row_insert(1, b) if symbolic else np.append(a, b, axis = 0)
+
 def dqMultiplication(Qa : np.array, Qb : np.array, symbolic = False):
     """Dual Quaternion multiplication: Q = Qa * Qb
 
@@ -220,7 +262,7 @@ def dqMultiplication(Qa : np.array, Qb : np.array, symbolic = False):
     
     return nsimplify(trigsimp(Matrix([[r], [x + y]])).evalf(), tolerance = 1e-10) if symbolic else np.array([r, x + y]).reshape((8, 1))
 
-def leftOperator(Q : np.array, symbolic = False):
+def dualLeftOperator(Q : np.array, symbolic = False):
     """Left operator for Dual Quaternions multiplication
 
     Args:
@@ -232,57 +274,23 @@ def leftOperator(Q : np.array, symbolic = False):
         L (SymPy Matrix): Left Operator (symbolic)
     """
     
-    if symbolic:
-        
-        # 1. Separates real and dual part of Dual Quaternion
-        qr = Q[0 : 4]
-        qd = Q[4 : 8]
-        
-        # 2. Computes Left Operator of Dual Quaternion's real part
-        ar = Matrix([qr[0]]).row_insert(1, Matrix([[-value, ] for value in qr[1 :]])).T
-        br = Matrix(qr[1 :]).col_insert(1, (qr[0] * eye(3)) + crossOperator(qr, symbolic = True))
-        lr = ar.row_insert(1, br)
-        
-        # 3. Computes Left Operator of Dual Quaternion's dual part
-        ad = Matrix([qd[0]]).row_insert(1, Matrix([[-value, ] for value in qd[1 :]])).T
-        bd = Matrix(qd[1 :]).col_insert(1, (qd[0] * eye(3)) + crossOperator(qd, symbolic = True))
-        ld = ad.row_insert(1, bd)
-        
-        # 4. Set zeros matrix
-        z = zeros(4)
-        
-        # 5. Build matrix
-        a = lr.col_insert(4, z)
-        b = ld.col_insert(4, lr)
-        
-        return a.row_insert(4, b)
-        
-    else:
+    # 1. Separates real and dual part of Dual Quaternion
+    qr = Q[0 : 4, :]
+    qd = Q[4 : 8, :]
     
-        # 1. Separates real and dual part of Dual Quaternion
-        qr = Q[0 : 4]
-        qd = Q[4 : 8]
-        
-        # 2. Computes Left Operator of Dual Quaternion's real part
-        ar = np.append(qr[0], np.transpose(-qr[1 :])).reshape((1, 4))
-        br = np.append(qr[1 :], (qr[0] * np.eye(3)) + crossOperator(qr), axis = 1)
-        lr = np.append(ar, br, axis = 0)
-        
-        # 3. Computes Left Operator of Dual Quaternion's dual part
-        ad = np.append(qd[0], np.transpose(-qd[1 :])).reshape((1, 4))
-        bd = np.append(qd[1 :], (qd[0] * np.eye(3)) + crossOperator(qd), axis = 1)
-        ld = np.append(ad, bd, axis = 0)
-        
-        # 4. Set zeros matrix
-        z = np.zeros((4, 4))
-        
-        # 5. Build matrix
-        a = np.append(lr, z, axis = 1)
-        b = np.append(ld, lr, axis = 1)
+    # 2. Computes Left Operator of Dual Quaternion's real part
+    lr = leftOperator(qr, symbolic)
     
-        return np.append(a, b, axis = 0)
+    # 3. Computes Left Operator of Dual Quaternion's dual part
+    ld = leftOperator(qd, symbolic)
+    
+    # 4. Append results
+    a = lr.col_insert(4, zeros(4)) if symbolic else np.append(lr, np.zeros((4, 4)), axis = 1)
+    b = ld.col_insert(4, lr) if symbolic else np.append(ld, lr, axis = 1)
+    
+    return a.row_insert(4, b) if symbolic else np.append(a, b, axis = 0)
 
-def rightOperator(Q : np.array, symbolic = False):
+def dualRightOperator(Q : np.array, symbolic = False):
     """Right operator for Dual Quaternions multiplication
 
     Args:
@@ -294,55 +302,21 @@ def rightOperator(Q : np.array, symbolic = False):
         R (SymPy Matrix): Right Operator (symbolic)
     """
     
-    if symbolic:
-        
-        # 1. Separates real and dual part of Dual Quaternion
-        qr = Q[0 : 4]
-        qd = Q[4 : 8]
-        
-        # 2. Computes Left Operator of Dual Quaternion's real part
-        ar = Matrix([qr[0]]).row_insert(1, Matrix([[-value, ] for value in qr[1 :]])).T
-        br = Matrix(qr[1 :]).col_insert(1, (qr[0] * eye(3)) - crossOperator(qr, symbolic = True))
-        lr = ar.row_insert(1, br)
-        
-        # 3. Computes Left Operator of Dual Quaternion's dual part
-        ad = Matrix([qd[0]]).row_insert(1, Matrix([[-value, ] for value in qd[1 :]])).T
-        bd = Matrix(qd[1 :]).col_insert(1, (qd[0] * eye(3)) - crossOperator(qd, symbolic = True))
-        ld = ad.row_insert(1, bd)
-        
-        # 4. Set zeros matrix
-        z = zeros(4)
-        
-        # 5. Build matrix
-        a = lr.col_insert(4, z)
-        b = ld.col_insert(4, lr)
-        
-        return a.row_insert(4, b)
+    # 1. Separates real and dual part of Dual Quaternion
+    qr = Q[0 : 4, :]
+    qd = Q[4 : 8, :]
     
-    else:
-        
-        # 1. Separates real and dual part of Dual Quaternion
-        qr = Q[0 : 4]
-        qd = Q[4 : 8]
-        
-        # 2. Computes Right Operator of Dual Quaternion's real part
-        ar = np.append(qr[0], np.transpose(-qr[1 :])).reshape((1, 4))
-        br = np.append(qr[1 :], (qr[0] * np.eye(3)) - crossOperator(qr), axis = 1)
-        rr = np.append(ar, br, axis = 0)
-        
-        # 3. Computes Right Operator of Dual Quaternion's dual part
-        ad = np.append(qd[0], np.transpose(-qd[1 :])).reshape((1, 4))
-        bd = np.append(qd[1 :], (qd[0] * np.eye(3)) - crossOperator(qd), axis = 1)
-        rd = np.append(ad, bd, axis = 0)
-        
-        # 4. Set zeros matrix
-        z = np.zeros((4, 4))
-        
-        # 5. Build matrix
-        a = np.append(rr, z, axis = 1)
-        b = np.append(rd, rr, axis = 1)
+    # 2. Computes Right Operator of Dual Quaternion's real part
+    rr = rightOperator(qr, symbolic)
     
-    return np.append(a, b, axis = 0)
+    # 3. Computes Right Operator of Dual Quaternion's dual part
+    rd = rightOperator(qd, symbolic)
+    
+    # 4. Append results
+    a = rr.col_insert(4, zeros(4)) if symbolic else np.append(rr, np.zeros((4, 4)), axis = 1)
+    b = rd.col_insert(4, rr) if symbolic else np.append(rd, rr, axis = 1)
+    
+    return a.row_insert(4, b) if symbolic else np.append(a, b, axis = 0)
 
 def crossOperator(q : np.array, symbolic = False):
     """Cross operator for quaternions' real part
@@ -447,10 +421,10 @@ def dqToR3(Q : np.array, symbolic = False):
     """
     
     # Extract rotation part to a dual quaternion
-    qr = Q[0 : 4, 0].row_insert(4, zeros(4, 1)) if symbolic else np.append(Q[0 : 4, 0].reshape((4, 1)), np.zeros((4, 1)), axis = 0)
+    qr = Matrix([Q[0 : 4, :], zeros(4, 1)]) if symbolic else np.append(Q[0 : 4, 0].reshape((4, 1)), np.zeros((4, 1)), axis = 0)
     
     # Transformation to R3
-    r = 2 * leftOperator(Q, symbolic = True) * conjugateDQ(qr, symbolic = True)  if symbolic else 2 * (leftOperator(Q).dot(conjugateDQ(qr)))
+    r = 2 * dqMultiplication(Q, conjugateDQ(qr), symbolic)
         
     return nsimplify(trigsimp(r[4 : 8, 0]).evalf(), tolerance = 1e-10) if symbolic else r[4 : 8, 0]
 
@@ -461,19 +435,25 @@ if __name__ == '__main__':
   """
   
   # Numeric representation of a rotation
-  Q = leftOperator(dqRz(z = np.pi / 4)).dot(dqTx(x = 0.5))
+  Q = dualLeftOperator(dqRz(z = np.pi / 4)).dot(dqTx(x = 0.5))
   
   # Fast dual quaternion multiplication
   Qmult = dqMultiplication(dqRz(z = np.pi / 4), dqTx(x = 0.5))
   
   # Symbolic representation of a rotation
-  symbolicQ = dqRz(z = 1, symbolic = True)
+  symbolicQ = dqRz(z = Symbol('z'), symbolic = True)
+  
+  # Left Operator
+  l = leftOperator(Q[0 : 4, :])
+  
+  # Right Operator
+  r = rightOperator(symbolicQ[0 : 4, :], symbolic = True)
   
   # Dual Left Operator
-  L = leftOperator(Q)
+  L = dualLeftOperator(Q)
   
   # Symbolic Dual Right Operator
-  R = rightOperator(symbolicQ, symbolic = True)
+  R = dualRightOperator(symbolicQ, symbolic = True)
   
   # Dual Cross Operator
   C = dualCrossOperator(Q)

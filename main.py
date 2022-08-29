@@ -14,10 +14,10 @@ if __name__ == '__main__':
   """
   
   # Number of rigid bodies
-  rb = 3
+  rb = 2
   
   # Number of Generalized Coordinates
-  n = 4
+  n = 2
   
   # Generalized coordinates
   q = np.random.randn(n, 1)

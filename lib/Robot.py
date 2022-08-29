@@ -91,12 +91,12 @@ class Serial(Robot):
     
     if symbolic:
       
-      """
+      
       # Two-link planar robot
       self.symbolicDHParameters = Matrix([[0, 0, 0, 0],
                                           [self.qSymbolic[0, 0], 0, self.symbolicLinks[0], 0],
                                           [self.qSymbolic[1, 0], 0, self.symbolicLinks[1], 0]])
-      """
+      
       
       """
       # Three-link spatial robot
@@ -108,22 +108,22 @@ class Serial(Robot):
                                           [(np.pi / 2) + 0.0000, 0.0000000000000000000, 0.0000000000000000000, np.pi / 2],
                                           [0.000000000000000000, self.symbolicLinks[4], 0.0000000000000000000, 0.0000000]])
       """
-      
+      """
       # 4 degrees-of-freedom robot
       self.symbolicDHParameters = Matrix([[0, 0, 0, 0],
                                           [self.qSymbolic[0, 0], self.symbolicLinks[0], 0.0000000000000000000, np.pi / 2],
                                           [self.qSymbolic[1, 0], 0.0000000000000000000, self.symbolicLinks[1], 0.0000000],
                                           [self.qSymbolic[2, 0], 0.0000000000000000000, 0.0000000000000000000, np.pi / 2],
                                           [self.qSymbolic[3, 0], self.symbolicLinks[2], 0.0000000000000000000, 0.0000000]])
-                                          
+      """                                    
     else:
       
-      """
+      
       # Two-link planar robot
       self.dhParameters = np.array([[0, 0, 0, 0],
                                     [self.jointsPositions[0, 0], 0, self.linksLengths[0], 0],
                                     [self.jointsPositions[1, 0], 0, self.linksLengths[1], 0]])
-      """
+      
       
       """
       # Three-link spatial robot
@@ -135,14 +135,14 @@ class Serial(Robot):
                                     [(np.pi / 2) + 0.0000000000, 0.000000000000000000, 0.000000000000000000, np.pi / 2],
                                     [0.000000000000000000000000, self.linksLengths[4], 0.000000000000000000, 0.0000000]])
       """
-      
+      """
       # 4 degrees-of-freedom robot
       self.dhParameters = np.array([[0, 0, 0, 0],
                                     [self.jointsPositions[0, 0], self.linksLengths[0], 0.000000000000000000, np.pi / 2],
                                     [self.jointsPositions[1, 0], 0.000000000000000000, self.linksLengths[1], 0.0000000],
                                     [self.jointsPositions[2, 0], 0.000000000000000000, 0.000000000000000000, np.pi / 2],
                                     [self.jointsPositions[3, 0], self.linksLengths[2], 0.000000000000000000, 0.0000000]])
-      
+      """
   def denavitHartenbergCOM(self, symbolic = False):
     """Denavit - Hartenberg parameters for j - th rigid body, ordered as follows:
 
@@ -154,12 +154,12 @@ class Serial(Robot):
     
     if symbolic:
       
-      """
+      
       # Two-link planar robot
       self.symbolicDHParametersCOM = Matrix([[0, 0, 0, 0],
                                              [self.qSymbolic[0, 0], 0, self.symbolicCOMs[0], 0],
                                              [self.qSymbolic[1, 0], 0, self.symbolicCOMs[1], 0]])
-      """
+      
       
       """
       # Three-link spatial robot
@@ -171,23 +171,22 @@ class Serial(Robot):
                                              [(np.pi / 2) + 0.0000, 0.000000000000000000, 0.000000000000000000, np.pi / 2],
                                              [0.000000000000000000, self.symbolicCOMs[4], 0.000000000000000000, 0.0000000]])
       """
-      
+      """
       # 4 degrees-of-freedom robot
       self.symbolicDHParametersCOM = Matrix([[0, 0, 0, 0],
                                              [self.qSymbolic[0, 0], self.symbolicCOMs[0], 0.000000000000000000, np.pi / 2],
                                              [self.qSymbolic[1, 0], 0.000000000000000000, self.symbolicCOMs[1], 0.0000000],
                                              [self.qSymbolic[2, 0], 0.000000000000000000, 0.000000000000000000, np.pi / 2],
                                              [self.qSymbolic[3, 0], self.symbolicCOMs[2], 0.000000000000000000, 0.0000000]])
-      
+      """
     else:
      
-      """
+      
       # Two-link planar robot
       self.dhParametersCOM = np.array([[0, 0, 0, 0],
                                        [self.jointsPositions[0, 0], 0, self.COMs[0], 0],
                                        [self.jointsPositions[1, 0], 0, self.COMs[1], 0]])
-      """
-
+      
       """
       # Three-link spatial robot
       self.dhParametersCOM = np.array([[0, 0, 0, 0],
@@ -198,14 +197,14 @@ class Serial(Robot):
                                        [(np.pi / 2) + 0.0000000000, 0.0000000000, 0.0000000000, np.pi / 2],
                                        [0.000000000000000000000000, self.COMs[4], 0.0000000000, 0.0000000]])
       """
-      
+      """
       # 4 degrees-of-freedom robot
       self.dhParametersCOM = np.array([[0, 0, 0, 0],
                                         [self.jointsPositions[0, 0], self.COMs[0], 0.0000000000, np.pi / 2],
                                         [self.jointsPositions[1, 0], 0.0000000000, self.COMs[1], 0.0000000],
                                         [self.jointsPositions[2, 0], 0.0000000000, 0.0000000000, np.pi / 2],
                                         [self.jointsPositions[3, 0], self.COMs[2], 0.0000000000, 0.0000000]])
-
+      """
   def whereIsTheJoint(self, joint : int):
     """This method allows to know in which reference frame is attached any joint based on symbolic Denavit - Hartenberg Parameters Matrix, so this have to be set before calling this method
 
