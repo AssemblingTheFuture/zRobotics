@@ -234,7 +234,7 @@ def rightOperator(q : np.array, symbolic = False):
     a = Matrix([q[0], -q[1 : , :]]).T if symbolic else np.append(np.array([q[0]]), -q[1 : , :].T, axis = 1)
     
     # Second row of the right operator matrix
-    b = q[1 : , :].col_insert(1, (q[0] * eye(3)) - crossOperator(q, symbolic)) if symbolic else np.append(q[1 : , :], (q[0] * np.eye(3)) + crossOperator(q), axis = 1)
+    b = q[1 : , :].col_insert(1, (q[0] * eye(3)) - crossOperator(q, symbolic)) if symbolic else np.append(q[1 : , :], (q[0] * np.eye(3)) - crossOperator(q), axis = 1)
     
     return a.row_insert(1, b) if symbolic else np.append(a, b, axis = 0)
 
@@ -380,6 +380,26 @@ def crossOperatorExtension(q : np.array, symbolic = False):
                                                                          [0, float(+q[3]), 0.0000000000, float(-q[1])],
                                                                          [0, float(-q[2]), float(+q[1]), 0.0000000000]])
 
+def conjugateQ(Q : np.array, symbolic = False):
+    """Conjugate operator for Quaternions
+
+    Args:
+        Q (np.array  or SymPy Symbol): Quaternion
+        symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+        Q* (np.array): Conjugate Quaternion (numeric)
+        Q* (SymPy Matrix): Conjugate Quaternion (symbolic)
+    """
+
+    return Matrix([[+ Q[0, 0]],
+                   [- Q[1, 0]],
+                   [- Q[2, 0]],
+                   [- Q[3, 0]]]) if symbolic else np.array([[+ float(Q[0, 0])],
+                                                            [- float(Q[1, 0])],
+                                                            [- float(Q[2, 0])],
+                                                            [- float(Q[3, 0])]])
+
 def conjugateDQ(Q : np.array, symbolic = False):
     """Conjugate operator for Dual Quaternions
 
@@ -433,7 +453,7 @@ if __name__ == '__main__':
   """
     THIS SECTION IS FOR TESTING PURPOSES ONLY
   """
-  
+   
   # Numeric representation of a rotation
   Q = dualLeftOperator(dqRz(z = np.pi / 4)).dot(dqTx(x = 0.5))
   
