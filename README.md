@@ -13,7 +13,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
     - [Library Content](#library-content-book) :book:
       - [How to import it?](#how-to-import-it-man_technologist) :man_technologist:
       - [(Brief) Libraries' Description](#brief-libraries-description-blue_book) :blue_book:
-    - [Movements](#movements)
+    - [Basic Frame Movements](#basic-frame-movements)
       - [Translation](#translation)
       - [Rotation](#rotation)
     - [Dual Quaternions Functionalities](#dual-quaternions-functionalities)
@@ -91,9 +91,9 @@ You can set your robot attributes and analyze its behavior. To achieve this, all
 - [x] [Differential Kinematics](#differential-kinematics)
   - [x] [Using Homogeneous Transformation Matrices](/lib/kinematics/DifferentialHTM.py) (numerical and symbolic)
   - [x] [Using Dual Quaternions](/lib/kinematics/DifferentialDQ.py) (numerical and symbolic)
-- [ ] Robot Dynamics
-  - [x] [Differential Equation using Homogeneous Transformation Matrices](#dynamics)(numerical and symbolic)
-  - [ ] Differential Equation using Dual Quaternions (numerical and symbolic) (:warning: **UNDER DEVELOPMENT** :warning:)
+- [x] Robot Dynamics
+  - [x] [Differential Equation using Homogeneous Transformation Matrices](#dynamics) (numerical and symbolic)
+  - [x] [Differential Equation using Dual Quaternions](#dynamics) (numerical and symbolic)
 
 Feel free to modify, adjust and extend our work to your necessities :smiley:; this library allows you to get a first approach to robot analysis, synthesis and control, however, we will be adding new interesting features, also, **you can request new features or create new ones!**
 
@@ -111,9 +111,13 @@ We are working, or will start working soon, on the following tasks for future re
 - [x] Acceleration Recursive Algorithms
   - [x] Using Homogeneous Transformation Matrices
   - [x] Using Dual Quaternions
-- [ ] Euler - Lagrange formulation 
-  - [x] Using Homogeneous Transformation Matrices
+- [x] Euler - Lagrange formulation
+  - [ ] Using Homogeneous Transformation Matrices
+    - [x] Dynamic Model in Joints Space
+    - [ ] Dynamic Model in Cartesian Space
   - [ ] Using Dual Quaternions
+    - [x] Dynamic Model in Joints Space
+    - [ ] Dynamic Model in Cartesian Space
 - [ ] Newton - Euler Recursive Algorithm:
   - [ ] Using Homogeneous Transformation Matrices
   - [ ] Using Dual Quaternions
@@ -204,15 +208,16 @@ zRobotics
 ├── lib                 # Python source files
 |   ├── Robot.py        # Robot constructor
 |   ├── movements
-|   |   ├── DQ.py       # Rotations and translations using Dual Quaternios
-|   |   └── HTM.py      # Rotations and translations using Homogeneous Transformation Matrices
+|   |   ├── DQ.py       # Rotations, translations and other functionalities for Dual Quaternios
+|   |   └── HTM.py      # Rotations, translations and other functionalities for Homogeneous Transformation Matrices
 |   ├── kinematics
 |   |   ├── DQ.py                   # Forward and Inverse Kinematics functions using Dual Quaternios
 |   |   ├── HTM.py                  # Forward and Inverse Kinematics functions using Homogeneous Transformation Matrices
-|   |   ├── DifferentialDQ.py       # Velocities and accelerations using Dual Quaternions (UNDER DEVELOPMENT)
-|   |   └── DifferentialHTM.py      # Velocities and accelerations using Homogeneous Transformation Matrices (UNDER DEVELOPMENT)
+|   |   ├── DifferentialDQ.py       # Velocities and accelerations using Dual Quaternions
+|   |   └── DifferentialHTM.py      # Velocities and accelerations using Homogeneous Transformation Matrices
 |   ├── dynamics
-|   |   ├── DynamicsHTM.py          # Dynamics equations using Homogeneous Transformation Matrices 
+|   |   ├── DynamicsHTM.py          # Dynamic equations using Homogeneous Transformation Matrices 
+|   |   ├── DynamicsDQ.py           # Dynamic equations using Dual Quaternions
 |   |   └── Solver.py               # Numerical solvers for multiple purposes (UNDER DEVELOPMENT)
 |   ├── plot
 |   └── └── Plot.py     # For function plotting (UNDER DEVELOPMENT)
@@ -271,7 +276,7 @@ Please take a look at [main.py](main.py) to know more about the commands, their 
 
 ---
 
-## [Movements](/lib/movements/HTM.py)
+## Basic Frame Movements
 
 You can compute translational or rotational movements with Homogeneous Transformation Matrices and Dual Quaternions
 
@@ -2757,23 +2762,25 @@ To calculate each term, [Forward Kinematics](#forward-kinematics) and [Different
 
 This is a form of energy that a rigid body has by its motion. If a rigid body is affected by an external force, it speeds up and thereby gains kinetic energy, so the one of the *i* - th element, with respect to its center of mass, is defined as
 
-<img src="https://latex.codecogs.com/svg.images?%7B%5Ccolor%7Bred%7DK_%7Bcom_j%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20m_j%20v_%7Bcom_j%7D%5E%7BT%7D%20v_%7Bcom_j%7D%20+%20%5Cfrac%7B1%7D%7B2%7D%20%5Comega_%7Bcom_j%7D%5E%7BT%7D%20%5Cleft%28%20I_%7Bcom_j%7D%20%5Cright%29%20%5Comega_%7Bcom_j%7D%7D">, with <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom_j%7D%20%5Cin%20%5Cmathbb%7BR%7D%7D">
+<img src="https://latex.codecogs.com/svg.image?%5Cnormal%20%7B%5Ccolor%7Bred%7DK_%7Bcom_j%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20m_j%20v_%7Bcom_j%7D%5E%7BT%7D%20v_%7Bcom_j%7D%20+%20%5Cfrac%7B1%7D%7B2%7D%20%5Comega_%7Bcom_j%7D%5E%7BT%7D%20%5Cleft%28%20I_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cright%29%20%5Comega_%7Bcom_j%7D%7D">, with <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom_j%7D%20%5Cin%20%5Cmathbb%7BR%7D%7D">
 
-where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dv_%7Bcom_j%7D%2C%20%5Comega_%7Bcom_j%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> that can be obtained as shown [here](#inertial-velocity-for-centers-of-mass):
+where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dv_%7Bcom_j%7D%2C%20%5Comega_%7Bcom_j%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> that can be obtained as shown [here](#inertial-velocity-for-centers-of-mass) or [here](#inertial-velocity-propagation-to-centers-of-mass-using-dual-quaternions):
 
-<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathrm%7Bv%7D_%7Bcom_j%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bcom_j%7D%20%5C%5C%20%5Comega_%7Bcom_j%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BI%7D%20%5C%5C%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">,
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathrm%7Bv%7D_%7Bcom_j%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20v_%7Bcom_j%7D%20%5C%5C%20%5Comega_%7Bcom_j%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BI%7D%20%5C%5C%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">, or
+
+<img src="https://latex.codecogs.com/svg.image?%5Cnormal%20%7B%5Ccolor%7Bred%7D%5Chat%7B%5Cmathcal%7BV%7D%7D_%7Bcom_j%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20%5Comega_%7Bcom_j%7D%20%5C%5C%20v_%7Bcom_j%7D%20%5Cend%7Bbmatrix%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BI%7D%20%5C%5C%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BI%7D%20%5Cend%7Bbmatrix%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">, where
 
 <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dv_%7Bcom_j%7D%20%3D%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BI%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D"> and <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Comega_%7Bcom_j%7D%20%3D%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BI%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">
 
 therefore, first equation can be rewriten as follows:
 
-<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom_j%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20m_j%20%5Cleft%28%20J_%7Bv_%7Bcom_j%7D%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%5E%7BT%7D%20%5Cleft%28%20J_%7Bv_%7Bcom_j%7D%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%20+%20%5Cfrac%7B1%7D%7B2%7D%20%5Cleft%28%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%5E%7BT%7D%20I_%7Bcom_j%7D%20%5Cleft%28%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%7D">
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom_j%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20m_j%20%5Cleft%28%20J_%7Bv_%7Bcom_j%7D%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%5E%7BT%7D%20%5Cleft%28%20J_%7Bv_%7Bcom_j%7D%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%20+%20%5Cfrac%7B1%7D%7B2%7D%20%5Cleft%28%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%5E%7BT%7D%20I_%7Bcom_j%20/%200%7D%5E%7B0%7D%20%5Cleft%28%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%7D">
 
-<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom_j%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20m_j%20%5Ccdot%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BT%7D%20J_%7Bv_%7Bcom_j%7D%7D%20+%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BT%7D%20I_%7Bcom_j%7D%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cright%20%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">.
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom_j%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%28%20m_j%20%5Ccdot%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BT%7D%20J_%7Bv_%7Bcom_j%7D%7D%20+%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BT%7D%20I_%7Bcom_j%20/%200%7D%5E%7B0%7D%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cright%20%29%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">.
 
 Then, total kinetic energy is the sum of all energies, this is:
 
-<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%5B%20%5Csum_%7Bj%20%3D%201%7D%5E%7Br_b%7D%20%5Cleft%28%20m_j%20%5Ccdot%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BT%7D%20J_%7Bv_%7Bcom_j%7D%7D%20+%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BT%7D%20I_%7Bcom_j%7D%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cright%29%20%5Cright%5D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%5B%20%5Csum_%7Bj%20%3D%201%7D%5E%7Br_b%7D%20%5Cleft%28%20m_j%20%5Ccdot%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BT%7D%20J_%7Bv_%7Bcom_j%7D%7D%20+%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BT%7D%20I_%7Bcom_j%20/%200%7D%5E%7B0%7D%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cright%29%20%5Cright%5D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">
 
 <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DK_%7Bcom%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%5B%20%5Cmathrm%7BD%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cright%5D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D">,
 
@@ -2786,20 +2793,24 @@ where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmath
 
 # Dynamics library
 from lib.dynamics.DynamicsHTM import *
+from lib.dynamics.DynamicsDQ import *
 
 # Kinetic Energy of the robot in the Centers of Mass: 0.5 * q'(t)^T * D * q'(t)
 K = kineticEnergyCOM(uRobot, symbolic = False)
+Kdq = dqKineticEnergyCOM(uRobot, symbolic = False)
 ```
 
 So the output will be
 
 ```bash
-# NumPy Array
+# NumPy Arrays
 >>> K
+array([[0.79503744]])
+>>> Kdq
 array([[0.79503744]])
 ```
 
-You can also calculate the full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+You can also calculate the full symbolic expression by setting ```symbolic``` parameters to ```True```, but this may be slow
 
 [*Return to top*](#zrobotics-02)
 
@@ -2809,9 +2820,9 @@ You can also calculate the full symbolic expression by setting ```symbolic``` pa
 
 Basically, this is a representation of the sum of linear and angular momentums in the robot, this leads to a symmetric matrix. As shown in previous sections, this matrix can be calculated as
 
-<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathrm%7BD%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%3D%20%5Csum_%7Bj%20%3D%201%7D%5E%7Br_b%7D%20%5Cleft%28%20m_j%20%5Ccdot%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BT%7D%20J_%7Bv_%7Bcom_j%7D%7D%20+%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BT%7D%20I_%7Bcom_j%7D%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cright%29%7D">
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathrm%7BD%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%3D%20%5Csum_%7Bj%20%3D%201%7D%5E%7Br_b%7D%20%5Cleft%28%20m_j%20%5Ccdot%20J_%7Bv_%7Bcom_j%7D%7D%5E%7BT%7D%20J_%7Bv_%7Bcom_j%7D%7D%20+%20J_%7B%5Comega_%7Bcom_j%7D%7D%5E%7BT%7D%20I_%7Bcom_j%20/%200%7D%5E%7B0%7D%20J_%7B%5Comega_%7Bcom_j%7D%7D%20%5Cright%29%7D">
 
-The algorithms in this library requires the calculation of [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass) and Jacobian Matrix to Center of Mass that we discussed in [this section](#inertial-velocity-to-centers-of-mass). Also, given each inertia tensor <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DI_%7Bj%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D"> on the [attributes section](#attributes), this algorithm will transformate it into <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DI_%7Bcom_j%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D"> automatically :wink:
+The algorithms in this library requires the calculation of [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass) and Jacobian Matrix to Center of Mass that was discussed in [this](#inertial-velocity-to-centers-of-mass) and [this](#dual-inertial-jacobian-matrix) sections. Also, given each inertia tensor <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DI_%7Bj%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D"> on the [attributes section](#attributes), this algorithm will transform it into <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DI_%7Bcom_j%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%203%7D%7D"> automatically :wink: (or its equivalent in quaternion space)
 
 ```python
 """
@@ -2820,9 +2831,11 @@ The algorithms in this library requires the calculation of [Forward Kinematics t
 
 # Dynamics library
 from lib.dynamics.DynamicsHTM import *
+from lib.dynamics.DynamicsDQ import *
 
 # Inertia Matrix for Kinetic Energy equation: D(q)
 D = inertiaMatrixCOM(uRobot, symbolic = False)
+Ddq = dqInertiaMatrixCOM(uRobot, symbolic = False)
 ```
 
 So the output will be
@@ -2830,6 +2843,11 @@ So the output will be
 ```bash
 # NumPy Array
 >>> D
+array([[ 1.73561594,  1.23248094,  0.61313663, -0.77738321],
+       [ 1.23248094,  2.54573558,  0.91515058, -0.58521715],
+       [ 0.61313663,  0.91515058,  0.86025536, -0.58521715],
+       [-0.77738321, -0.58521715, -0.58521715,  0.73863435]])
+>>> Ddq
 array([[ 1.73561594,  1.23248094,  0.61313663, -0.77738321],
        [ 1.23248094,  2.54573558,  0.91515058, -0.58521715],
        [ 0.61313663,  0.91515058,  0.86025536, -0.58521715],
@@ -2848,7 +2866,7 @@ This is the energy stored in an object due to its position relative to the inert
 
 <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DP_%7Bcom_j%7D%20%3D%20m_j%20g%5ET%20r_%7Bcom_%7Bj%7D/0%7D%5E%7B0%7D%7D">, <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DP_%7Bcom_j%7D%20%5Cin%20%5Cmathbb%7BR%7D%7D">
 
-where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dg%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> is the gravity acceleration with respect to inertial frame, usually defined as <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dg%5E%7BT%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%200%20%26%200%20%26%20-9.80665%20%5Cend%7Bbmatrix%7D%5E%7BT%7D%7D">; it is constant and have to be defined depending on the orientation of your inertial frame. Moreover <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dr_%7Bcom_%7Bj%7D/0%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> is the position of the *i* - th center of mass that can be obtained as shown [here](#forward-kinematics-to-centers-of-mass). The total potential energy can be calculated as follows:
+where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dg%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> is the gravity acceleration with respect to inertial frame, usually defined as <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dg%5E%7BT%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%200%20%26%200%20%26%20-9.80665%20%5Cend%7Bbmatrix%7D%5E%7BT%7D%7D"> or <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dg%5E%7BT%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%200%20%260%20%26%200%20%26%20-9.80665%20%5Cend%7Bbmatrix%7D%5E%7BT%7D%7D"> if this energy is calculated using dual quaternions. Gravitational acceleration is constant and have to be defined depending on the orientation of your inertial frame. Moreover <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7Dr_%7Bcom_%7Bj%7D/0%7D%5E%7B0%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%201%7D%7D"> is the position of the *i* - th center of mass that can be obtained as shown [here](#forward-kinematics-to-centers-of-mass) or [here](#dual-quaternions-to-euclidian-space). The total potential energy can be calculated as follows:
 
 <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7DP_%7Bcom_j%7D%20%3D%20%5Csum_%7Bj%20%3D%201%7D%5E%7Br_b%7D%20%5Cleft%28m_j%20g%5ET%20r_%7Bcom_%7Bj%7D/0%7D%5E%7B0%7D%20%5Cright%29%7D">
 
@@ -2861,9 +2879,11 @@ You can do this task with the library as shown below:
 
 # Dynamics library
 from lib.dynamics.DynamicsHTM import *
+from lib.dynamics.DynamicsDQ import *
 
 # Potential Energy of the robot in the Centers of Mass: m * g^T * r (OPTIONAL)
 P = potentialEnergyCOM(uRobot, symbolic = False)
+PDQ = dqPotentialEnergyCOM(uRobot, symbolic = False)
 ```
 
 So the output will be
@@ -2871,6 +2891,8 @@ So the output will be
 ```bash
 # NumPy Array
 >>> P
+array([-1.60453458])
+>>> Pdq
 array([-1.60453458])
 ```
 
@@ -2906,7 +2928,7 @@ Using the equation shown in [this section](#euler---lagrange-formulation), is po
 
 <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cfrac%7Bd%7D%7Bdt%7D%20%5Cleft%28%20%5Cfrac%7B%5Cpartial%20L_%7Bcom%7D%7D%7B%5Cpartial%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%7D%20%5Cright%29%5ET%20-%20%5Cfrac%7B1%7D%7B2%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%5E%7BT%7D%20%5Cleft%5B%20%5Cfrac%7B%5Cpartial%20%5Cmathrm%7BD%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%5D%5E%7BT%7D%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20+%20%5Cmathrm%7BG%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%3D%20%5Ctau%7D">
 
-where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathrm%7BG%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D"> is the vector with the gravitational effects, that is the derivative of potential energy with respect to each joint <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cbar%7B%5Ctheta%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D">, who is defined as <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cfrac%7B%5Cpartial%20r_%7Bcom_%7Bj%7D/0%7D%5E%7B0%7D%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%20n%7D%7D">, that is a rectangular matrix with the derivatives of the centers of mass' positions. The rest of the terms will be discussed in the next section, but in the meantime, calculation of gravitational effects can be performed with this library as follows:
+where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathrm%7BG%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D"> is the vector with the gravitational effects, that is the derivative of potential energy with respect to each joint <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cbar%7B%5Ctheta%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D%7D">, who is defined as <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cfrac%7B%5Cpartial%20r_%7Bcom_%7Bj%7D/0%7D%5E%7B0%7D%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B3%20%5Ctimes%20n%7D%7D"> or <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cfrac%7B%5Cpartial%20r_%7Bcom_%7Bj%7D/0%7D%5E%7B0%7D%7D%7B%5Cpartial%20%5Cbar%7B%5Ctheta%7D%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B4%20%5Ctimes%20n%7D%7D"> if you're using dual quaternions. This is a rectangular matrix with the derivatives of the centers of mass' positions. The rest of the terms will be discussed in the next section, but in the meantime, calculation of gravitational effects can be performed with this library as follows:
 
 ```python
 """
@@ -2915,9 +2937,11 @@ where <img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmath
 
 # Dynamics library
 from lib.dynamics.DynamicsHTM import *
+from lib.dynamics.DynamicsDQ import *
 
 # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
 G = gravitationalCOM(robot, g = np.array([[0], [0], [-9.80665]]), symbolic = False)
+Gdq = dqGravitationalCOM(robot, g = np.array([[0], [0], [0], [-9.80665]]), symbolic = False)
 ```
 
 So the output will be
@@ -2925,6 +2949,11 @@ So the output will be
 ```bash
 # NumPy Array
 >>> G
+array([[ 0.        ],
+       [-5.26452724],
+       [ 0.41728099],
+       [ 0.        ]])
+>>> Gdq
 array([[ 0.        ],
        [-5.26452724],
        [ 0.41728099],
@@ -2998,9 +3027,11 @@ that is easier to calculate compared with the original result. It can be perform
 
 # Dynamics library
 from lib.dynamics.DynamicsHTM import *
+from lib.dynamics.DynamicsDQ import *
 
 # Centrifugal and Coriolis Matrix: C(q, q')
 C = centrifugalCoriolisCOM(uRobot, symbolic = False)
+Cdq = dqCentrifugalCoriolisCOM(uRobot, symbolic = False)
 ```
 
 So the output will be
@@ -3008,6 +3039,11 @@ So the output will be
 ```bash
 # NumPy Array
 >>> C
+array([[-0.0956919 ,  1.02659223,  0.41980575, -0.11168224],
+       [-0.78420819, -0.1879901 , -0.12435985,  0.58833922],
+       [ 0.0373449 ,  0.00698386, -0.06573144,  0.58833922],
+       [-0.18311305, -0.303166  , -0.303166  , -0.08189253]])
+>>> Cdq
 array([[-0.0956919 ,  1.02659223,  0.41980575, -0.11168224],
        [-0.78420819, -0.1879901 , -0.12435985,  0.58833922],
        [ 0.0373449 ,  0.00698386, -0.06573144,  0.58833922],
@@ -3035,18 +3071,23 @@ it is possible to build the robot dynamic model by calculating each term individ
 
 # Dynamics library
 from lib.dynamics.DynamicsHTM import *
+from lib.dynamics.DynamicsDQ import *
 
 # Inertia Matrix for Kinetic Energy equation: D(q)
 D = inertiaMatrixCOM(uRobot, symbolic = False)
+Ddq = dqInertiaMatrixCOM(uRobot, symbolic = False)
  
 # Centrifugal and Coriolis Matrix: C(q, q')
 C = centrifugalCoriolisCOM(uRobot, symbolic = False)
+Cdq = dqCentrifugalCoriolisCOM(uRobot, symbolic = False)
   
 # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
-G = dPdqCOM(uRobot, g = np.array([[0], [0], [-9.80665]]), symbolic = False)
+G = gravitationalCOM(uRobot, g = np.array([[0], [0], [-9.80665]]), symbolic = False)
+Gdq = dqGravitationalCOM(uRobot, g = np.array([[0], [0], [0], [-9.80665]]), symbolic = False)
 
 # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
 T = (D * uRobot.qddSymbolic) + (C * uRobot.jointsVelocities) + G
+Tdq = (Ddq * uRobot.qddSymbolic) + (Cdq * uRobot.jointsVelocities) + Gdq
 ```
 
 So the output will be
@@ -3054,6 +3095,11 @@ So the output will be
 ```bash
 # NumPy Array
 >>> T
+Matrix([[2.19614724949073*qdd1 - 0.529809692293813*qdd2 - 0.361583479510541*qdd3 - 0.940364805482366*qdd4 - 0.501577443586108],
+        [ -0.529809692293813*qdd1 + 1.16842748717723*qdd2 + 0.391926283358894*qdd3 + 0.18369710671051*qdd4 - 8.16954552618308],
+        [-0.361583479510541*qdd1 + 0.391926283358894*qdd2 + 0.583065553244191*qdd3 + 0.18369710671051*qdd4 + 2.41913184137719],
+        [-0.940364805482366*qdd1 + 0.18369710671051*qdd2 + 0.18369710671051*qdd3 + 0.670906731541869*qdd4 - 0.160951111845721]])
+>>> Tdq
 Matrix([[2.19614724949073*qdd1 - 0.529809692293813*qdd2 - 0.361583479510541*qdd3 - 0.940364805482366*qdd4 - 0.501577443586108],
         [ -0.529809692293813*qdd1 + 1.16842748717723*qdd2 + 0.391926283358894*qdd3 + 0.18369710671051*qdd4 - 8.16954552618308],
         [-0.361583479510541*qdd1 + 0.391926283358894*qdd2 + 0.583065553244191*qdd3 + 0.18369710671051*qdd4 + 2.41913184137719],

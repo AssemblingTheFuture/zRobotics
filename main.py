@@ -1,9 +1,10 @@
 import numpy as np
-from lib.dynamics.DynamicsHTM import *
 from lib.kinematics.HTM import *
 from lib.kinematics.DifferentialHTM import *
+from lib.dynamics.DynamicsHTM import *
 from lib.kinematics.DQ import *
 from lib.kinematics.DifferentialDQ import *
+from lib.dynamics.DynamicsDQ import *
 from lib.Robot import *
 from sympy import *
 
@@ -248,8 +249,8 @@ if __name__ == '__main__':
   # symbolicK = kineticEnergyCOM(uRobot, symbolic = True)
   
   # Potential Energy of the robot in the Centers of Mass: m * g^T * r (OPTIONAL)
-  P = potentialEnergyCOM(uRobot)
-  # symbolicP = potentialEnergyCOM(uRobot, symbolic = True)
+  P = potentialEnergyCOM(uRobot, g = np.array([[0], [0], [-9.80665]]))
+  # symbolicP = potentialEnergyCOM(uRobot, g = np.array([[0], [0], [-9.80665]]), symbolic = True)
   
   # Inertia Matrix for Kinetic Energy equation: D(q)
   D = inertiaMatrixCOM(uRobot)
@@ -266,6 +267,34 @@ if __name__ == '__main__':
   # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
   T = (D * uRobot.qddSymbolic) + (C.dot(uRobot.jointsVelocities)) + G
   # symbolicT = (symbolicD * uRobot.qddSymbolic) + (symbolicC * uRobot.qdSymbolic) + symbolicG
+  
+  """
+    6. DYNAMICS USING DUAL QUATERNIONS
+  """
+   
+  # Kinetic Energy of the robot in the Centers of Mass: 0.5 * q'(t)^T * D * q'(t) (OPTIONAL)
+  Kdq = dqKineticEnergyCOM(uRobot)
+  # symbolicKdq = dqKineticEnergyCOM(uRobot, symbolic = True)
+  
+  # Potential Energy of the robot in the Centers of Mass: m * g^T * r (OPTIONAL)
+  Pdq = dqPotentialEnergyCOM(uRobot, g = np.array([[0], [0], [0], [-9.80665]]))
+  # symbolicPdq = dqPotentialEnergyCOM(uRobot, g = np.array([[0], [0], [0], ['g']]), symbolic = True)
+  
+  # Inertia Matrix for Kinetic Energy equation: D(q)
+  Ddq = dqInertiaMatrixCOM(uRobot)
+  # symbolicDdq = dqInertiaMatrixCOM(uRobot, symbolic = True)
+  
+  # Centrifugal and Coriolis Matrix: C(q, q')
+  Cdq = dqCentrifugalCoriolisCOM(uRobot)
+  # symbolicCdq = dqCentrifugalCoriolisCOM(uRobot, symbolic = True)
+  
+  # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
+  Gdq = dqGravitationalCOM(uRobot, g = np.array([[0], [0], [0], [-9.80665]]))
+  # symbolicGdq = dqGravitationalCOM(uRobot, g = Matrix([[0], [0], [0], ['-g']]), symbolic = True)
+  
+  # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
+  Tdq = (Ddq * uRobot.qddSymbolic) + (Cdq.dot(uRobot.jointsVelocities)) + Gdq
+  # symbolicTdq = (symbolicDq * uRobot.qddSymbolic) + (symbolicCdq * uRobot.qdSymbolic) + symbolicGdq
   
   print("Z")
   # END

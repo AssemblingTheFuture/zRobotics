@@ -4,11 +4,11 @@ sys.path.append(sys.path[0].replace(r'/lib/dynamics', r''))
 
 # Libraries
 import numpy as np
-from lib.kinematics.HTM import *
+from lib.kinematics.DQ import *
 from lib.dynamics.Solver import *
 from sympy import *
 
-def inertiaMatrixCOM(robot : object, symbolic = False):
+def dqInertiaMatrixCOM(robot : object, symbolic = False):
     """This function calculates the inertia matrix, with respect to each center of mass, given joints positions for dynamic model D(q) * q''(t) + C(q, q') * q'(t) + g(q) = τ
 
     Args:
@@ -21,7 +21,7 @@ def inertiaMatrixCOM(robot : object, symbolic = False):
     """
     
     # Calculate forward kinematics to each center of mass
-    fkCOMHTM = forwardCOMHTM(robot, symbolic = symbolic)
+    fkCOMDQ = forwardCOMDQ(robot, symbolic)
     
     # Inertia matrix initialization
     D = zeros(robot.jointsPositions.shape[0]) if symbolic else np.zeros((robot.jointsPositions.shape[0], robot.jointsPositions.shape[0]))
@@ -30,26 +30,26 @@ def inertiaMatrixCOM(robot : object, symbolic = False):
     for j in range(len(robot.COMs)):
         
         # Velocity of each Center of Mass using Geometric Jacobian Matrix
-        JgCOM = geometricJacobianCOM(robot, COM = j + 1, symbolic = symbolic)
+        JdqCOM = jacobianVelocityDQCOM(robot, COM = j + 1, symbolic = symbolic)
 
         # Linear velocity mapping of current center of mass
-        Jv = JgCOM[0 : 3, :]
+        Jv = JdqCOM[4 : , :]
         
         # Angular velocity mapping of current center of mass
-        Jw = JgCOM[3 : 6, :]
+        Jw = JdqCOM[0 : 4, :]
         
-        # Rotation matrix of the current Center of Mass (the sum is because of the way Python indexes)
-        R = fkCOMHTM[j + 1][0 : 3, 0 : 3]
+        # Extended rotation matrix of the current Center of Mass (the sum is because of the way Python indexes)
+        R = leftOperator(fkCOMDQ[j + 1][0 : 4, :], symbolic) * rightOperator(conjugateDQ(fkCOMDQ[j + 1][0 : 4, :], symbolic), symbolic) if symbolic else leftOperator(fkCOMDQ[j + 1][0 : 4, :]).dot(rightOperator(conjugateQ(fkCOMDQ[j + 1][0 : 4, :])))
         
         # Inertia with respect to center of mass: Icom = R^T * I * R
-        Icom = R.T * robot.symbolicInertia[j] * R if symbolic else R.T.dot(robot.inertia[j]).dot(R)
+        Icom = R.T * robot.symbolicQuaternionInertia[j] * R if symbolic else R.T.dot(robot.quaternionInertia[j]).dot(R)
         
         # (m * Jv^T * JV) + (m * Jw^T * Icom * Jw)
-        D += (robot.symbolicMass[j] * (Jv.T * Jv) )+ ((Jw.T * Icom * Jw)) if symbolic else (robot.mass[j] * (Jv.T.dot(Jv))) + ((Jw.T.dot(Icom).dot(Jw)))
+        D += (robot.symbolicMass[j] * (Jv.T * Jv)) + ((Jw.T * Icom * Jw)) if symbolic else (robot.mass[j] * (Jv.T.dot(Jv))) + ((Jw.T.dot(Icom).dot(Jw)))
         
     return nsimplify(trigsimp(D).evalf(), tolerance = 1e-10) if symbolic else D
 
-def kineticEnergyCOM(robot : object, symbolic = False):
+def dqKineticEnergyCOM(robot : object, symbolic = False):
     """This function calculates the total kinetic energy, with respect to each center of mass, given linear and angular velocities
 
     Args:
@@ -61,16 +61,16 @@ def kineticEnergyCOM(robot : object, symbolic = False):
     """
     
     # Kinetic Matrix calculation
-    D = inertiaMatrixCOM(robot, symbolic)
+    D = dqInertiaMatrixCOM(robot, symbolic)
     
     return nsimplify(trigsimp(0.5 * (robot.qdSymbolic.T * D * robot.qdSymbolic)).evalf(), tolerance = 1e-10) if symbolic else 0.5 * (robot.jointsVelocities.T.dot(D).dot(robot.jointsVelocities))
 
-def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
+def dqPotentialEnergyCOM(robot : object, g = np.array([[0], [0], [0], [-9.80665]]), symbolic = False):
     """This function calculates the potential energy, with respect to each center of mass, given linear and angular velocities
 
     Args:
         robot (object): serial robot (this won't work with other type of robots)
-        g (np.array, optional): gravity acceleration in Euclidian Space (R3)
+        g (np.array, optional): gravity acceleration as pure quaternion (its real part equals zero). Defaults to np.array([[0], [0], [0], [-9.80665]]).
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
@@ -79,7 +79,7 @@ def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), sym
     """
     
     # Pose of each Center of Mass
-    fkCOMHTM = forwardCOMHTM(robot, symbolic)
+    fkCOMDQ = forwardCOMDQ(robot, symbolic)
     
     # Potential energy initialization
     P = zeros(1) if symbolic else 0
@@ -88,19 +88,19 @@ def potentialEnergyCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), sym
     for j in range(len(robot.COMs)):
         
         # Position of current Center of Mass (the sum is because of the way Python indexes)
-        r = fkCOMHTM[j + 1][0 : 3, -1]
+        r = dqToR3(fkCOMDQ[j + 1], symbolic)
         
         # m * g^T * r
         P += robot.symbolicMass[j] * ((g.T) * r) if symbolic else robot.mass[j] * ((g.T).dot(r))
 
     return nsimplify(trigsimp(P).evalf(), tolerance = 1e-10) if symbolic else P
 
-def gravitationalCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
+def dqGravitationalCOM(robot : object, g = np.array([[0], [0], [0], [-9.80665]]), symbolic = False):
     """This function calculates the derivative of COMs' potential energy with respect to joints positions for dynamic model D(q) * q''(t) + C(q, q') * q'(t) + g(q) = τ
 
     Args:
         robot (object): serial robot (this won't work with other type of robots)
-        g (np.array, optional): gravity acceleration in Euclidian Space (R3). Defaults to np.array([[0], [0], [-9.80665]]).
+        g (np.array, optional): gravity acceleration as pure quaternion (its real part equals zero). Defaults to np.array([[0], [0], [0], [-9.80665]])
         symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
 
     Returns:
@@ -118,14 +118,14 @@ def gravitationalCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbo
     for j in range(len(robot.COMs)):
             
         # Jacobian matrix to current center of mass
-        JgCOM = geometricJacobianCOM(robot, COM = j + 1, symbolic = symbolic)
+        JdqCOM = jacobianVelocityDQCOM(robot, COM = j + 1, symbolic = symbolic)
             
-        # m * (JvCOM)^T * g
-        G += robot.symbolicMass[j] * JgCOM[0 : 3, :].T * g if symbolic else robot.mass[j] * (JgCOM[0 : 3, :].T).dot(g)
+        # m * (JdqCOM)^T * g
+        G += robot.symbolicMass[j] * JdqCOM[4 : , :].T * g if symbolic else robot.mass[j] * (JdqCOM[4 : , :].T).dot(g)
         
     return nsimplify(trigsimp(G).evalf(), tolerance = 1e-10) if symbolic else G
 
-def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
+def dqCentrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
     """This function calculates the Centrifugal and Coriolis matrix for dynamic model
 
     Args:
@@ -138,7 +138,7 @@ def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
     """
     
     # Inertia Matrix
-    d = inertiaMatrixCOM(robot, symbolic)
+    d = dqInertiaMatrixCOM(robot, symbolic)
     
     # Get number of joints (generalized coordinates)
     n = robot.jointsPositions.shape[0]
@@ -171,7 +171,7 @@ def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
                 robot.jointsPositions[k] += dq
                     
                 # Calculate inertia matrix with current step size
-                D = inertiaMatrixCOM(robot)
+                D = dqInertiaMatrixCOM(robot)
                     
                 # Calculate derivative: [D[:, j](q + dq) - d[:, j](q)] / dq
                 V[:, k] = ((D[:, j] - d[:, j]) / dq)
