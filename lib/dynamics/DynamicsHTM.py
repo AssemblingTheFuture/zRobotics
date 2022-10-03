@@ -49,6 +49,32 @@ def inertiaMatrixCOM(robot : object, symbolic = False):
         
     return nsimplify(trigsimp(D).evalf(), tolerance = 1e-10) if symbolic else D
 
+def inertiaMatrixCartesian(robot : object, symbolic = False):
+    """This function calculates the inertia matrix, in cartesian space, given joints positions for dynamic model M(q) * x''(t) + N(q, q') * x'(t) + G(q) = τ
+
+    Args:
+        robot (object): serial robot (this won't work with other type of robots)
+        symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+        M (NumPy Matrix): inertia matrix in cartesian space (numerical)
+        M (SymPy Matrix): inertia matrix in cartesian space (symbolical)
+    """
+    
+    # Inertia matrix calculation
+    D = inertiaMatrixCOM(robot, symbolic)
+    
+    # Geometric Jacobian Matrix of the end - effector
+    Jg = geometricJacobian(robot, symbolic)
+    
+    # Pseudo inverse of Geometric Jacobian Matrix
+    Jinv = Jg.pinv() if symbolic else np.linalg.pinv(Jg)
+    
+    # Calculation of Inertia Matrix in Cartesian Space
+    M = Jinv.T * D * Jinv if symbolic else (Jinv.T).dot(D).dot(Jinv)
+        
+    return nsimplify(trigsimp(M).evalf(), tolerance = 1e-10) if symbolic else M
+
 def kineticEnergyCOM(robot : object, symbolic = False):
     """This function calculates the total kinetic energy, with respect to each center of mass, given linear and angular velocities
 
@@ -125,6 +151,30 @@ def gravitationalCOM(robot : object, g = np.array([[0], [0], [-9.80665]]), symbo
         
     return nsimplify(trigsimp(G).evalf(), tolerance = 1e-10) if symbolic else G
 
+def gravitationalCartesian(robot : object, g = np.array([[0], [0], [-9.80665]]), symbolic = False):
+    """This function calculates the gravitational effects that affect joints for the dynamic model M(q) * x''(t) + N(q, q') * x'(t) + G(q) = f
+
+    Args:
+        robot (object): serial robot (this won't work with other type of robots)
+        g (np.array, optional): gravity acceleration in Euclidian Space (R3). Defaults to np.array([[0], [0], [-9.80665]]).
+        symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+        G (NumPy Array): Gravitational effects' vector
+        G (SymPy Matrix): Gravitational effects' vector
+    """
+    
+    # Gravitational effects in joints space
+    G = gravitationalCOM(robot, g, symbolic)
+    
+    # Geometric Jacobian Matrix of the end - effector
+    Jg = geometricJacobian(robot, symbolic)
+    
+    # Calculation of Gravitational Effects in Cartesian Space
+    G = Jg.inv().T * G if symbolic else np.linalg.pinv(Jg).T.dot(G)
+    
+    return nsimplify(trigsimp(G).evalf(), tolerance = 1e-10) if symbolic else G
+
 def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
     """This function calculates the Centrifugal and Coriolis matrix for dynamic model
 
@@ -183,6 +233,38 @@ def centrifugalCoriolisCOM(robot : object, dq = 0.001, symbolic = False):
         C += (V - (0.5 * V.T)) * robot.qdSymbolic[j] if symbolic else (V - (0.5 * V.T)) * robot.jointsVelocities[j]
             
     return nsimplify(trigsimp(C).evalf(), tolerance = 1e-10) if symbolic else C
+
+def centrifugalCoriolisCartesian(robot : object, dq = 0.001, symbolic = False):
+    """This function calculates the Centrifugal and Coriolis matrix in Cartesian Space
+
+    Args:
+        robot (object): serial robot (this won't work with other type of robots)
+        dq (float, optional): step size for numeric derivative calculation. Defaults to 0.001
+        symbolic (bool, optional): used to calculate symbolic equations. Defaults to False.
+
+    Returns:
+        N(q, q') (SymPy Matrix): Centrifugal and Coriolis Matrix in Cartesian Space
+    """
+    
+    # Inertia Matrix in Cartesian Space
+    M = inertiaMatrixCartesian(robot, symbolic)
+    
+    # Centrifugal and Coriolis Effects
+    C = centrifugalCoriolisCOM(robot, dq, symbolic)
+    
+    # Geometric Jacobian Matrix of the end - effector
+    Jg = geometricJacobian(robot, symbolic)
+    
+    # Time Derivative of Geometric Jacobian Matrix of the end - effector
+    dJg = geometricJacobianDerivative(robot, symbolic)
+    
+    # Pseudo inverse of Geometric Jacobian Matrix
+    Jinv = Jg.pinv() if symbolic else np.linalg.pinv(Jg)
+    
+    # Calculation of Coriolis Effects in Cartesian Space
+    N = (Jinv.T * C - M * dJg) * Jinv if symbolic else (Jinv.T.dot(C) - M.dot(dJg)).dot(Jinv)
+            
+    return nsimplify(trigsimp(N).evalf(), tolerance = 1e-10) if symbolic else N
 
 if __name__ == '__main__':
     

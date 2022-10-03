@@ -256,20 +256,36 @@ if __name__ == '__main__':
   D = inertiaMatrixCOM(uRobot)
   # symbolicD = inertiaMatrixCOM(uRobot, symbolic = True)
   
+  # Inertia Matrix in Cartesian Space: M(q)
+  M = inertiaMatrixCartesian(uRobot)
+  # symbolicM = inertiaMatrixCartesian(uRobot, symbolic = True)
+  
   # Centrifugal and Coriolis Matrix: C(q, q')
   C = centrifugalCoriolisCOM(uRobot)
   # symbolicC = centrifugalCoriolisCOM(uRobot, symbolic = True)
   
-  # Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
+  # Centrifugal and Coriolis Matrix in Cartesian Space: N(q, q')
+  N = centrifugalCoriolisCartesian(uRobot)
+  # symbolicN = centrifugalCoriolisCartesian(uRobot, symbolic = True)
+  
+  # Gravitational Effects (with respect to "q" or joints positions): G(q)
   G = gravitationalCOM(uRobot, g = np.array([[0], [0], [-9.80665]]))
   # symbolicG = gravitationalCOM(uRobot, g = Matrix([[0], [0], ['-g']]), symbolic = True)
   
+  # Gravitational Effects in Cartesian Space: G(q)
+  G_c = gravitationalCartesian(uRobot, g = np.array([[0], [0], [-9.80665]]))
+  # symbolicG_c = gravitationalCartesian(uRobot, g = Matrix([[0], [0], ['-g']]), symbolic = True)
+  
   # Robot Dynamic Equation: D(q) * q''(t) + C(q, q') * q'(t) + G(q) = T
-  T = (D * uRobot.qddSymbolic) + (C.dot(uRobot.jointsVelocities)) + G
+  T = D.dot(uRobot.jointsAccelerations) + C.dot(uRobot.jointsVelocities) + G
   # symbolicT = (symbolicD * uRobot.qddSymbolic) + (symbolicC * uRobot.qdSymbolic) + symbolicG
   
+  # Robot Dynamic Equation: M(q) * x''(t) + N(q, q') * x'(t) + G(q) = F
+  F = (M * Matrix([['a_x'], ['a_y'], ['a_z'], ['dw_x'], ['dw_y'], ['dw_z']])) + (N * Matrix([['v_x'], ['v_y'], ['v_z'], ['w_x'], ['w_y'], ['w_z']])) + G_c
+  # symbolicF = (M * uRobot.qddSymbolic) + (N.dot(uRobot.jointsVelocities)) + G
+  
   """
-    6. DYNAMICS USING DUAL QUATERNIONS
+    6.1 DYNAMICS USING DUAL QUATERNIONS
   """
    
   # Kinetic Energy of the robot in the Centers of Mass: 0.5 * q'(t)^T * D * q'(t) (OPTIONAL)

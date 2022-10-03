@@ -29,7 +29,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Forward Kinematics](#forward-kinematics)
       - [Forward Kinematics to Center of Mass](#forward-kinematics-to-centers-of-mass)
       - [Axis - Angle Vector](#axis---angle-vector)
-      - [Inertial Jacobian Matrix](#inertial-jacobian-matrix)
+      - [Inertial Geometric Jacobian Matrix](#inertial-geometric-jacobian-matrix)
         - [Derivative of Geometric Jacobian Matrix](#derivative-of-geometric-jacobian-matrix)
         - [Derivative of Geometric Jacobian Matrix of a Center of Mass](#derivative-of-geometric-jacobian-matrix-of-a-center-of-mass)
       - [Dual Inertial Jacobian Matrix](#dual-inertial-jacobian-matrix)
@@ -54,12 +54,14 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
       - [Euler - Lagrange Formulation](#euler---lagrange-formulation)
         - [Kinetic Energy](#kinetic-energy)
         - [Inertia Matrix](#inertia-matrix)
+          - [Inertia Matrix in Cartesian Space](#inertia-matrix-in-cartesian-space)
         - [Potential Energy](#potential-energy)
         - [Lagrangian](#lagrangian)
         - [Gravitational Effects](#gravitational-effects)
+          - [Gravitational Effects in Cartesian Space](#gravitational-effects-in-cartesian-space)
         - [Centrifugal and Coriolis Effects](#centrifugal-and-coriolis-effects)
-        - [Robot Model](#robot-model)
-
+        - [Robot Dynamic Model in Joints Space](#robot-dynamic-model-in-joints-space)
+        - [Robot Dynamic Model in Cartesian Space](#robot-dynamic-model-in-cartesian-space)
 ---
 
 ## Introduction :books:
@@ -112,9 +114,9 @@ We are working, or will start working soon, on the following tasks for future re
   - [x] Using Homogeneous Transformation Matrices
   - [x] Using Dual Quaternions
 - [x] Euler - Lagrange formulation
-  - [ ] Using Homogeneous Transformation Matrices
+  - [x] Using Homogeneous Transformation Matrices
     - [x] Dynamic Model in Joints Space
-    - [ ] Dynamic Model in Cartesian Space
+    - [x] Dynamic Model in Cartesian Space
   - [ ] Using Dual Quaternions
     - [x] Dynamic Model in Joints Space
     - [ ] Dynamic Model in Cartesian Space
@@ -1126,7 +1128,7 @@ Matrix([[                                                                       
 
 ---
 
-### Inertial Jacobian Matrix
+### Inertial Geometric Jacobian Matrix
 
 This is **OPTIONAL**, because each function that needs an Inertial Jacobian Matrix <img src="https://latex.codecogs.com/svg.image?%5Cinline%20%5Clarge%20%7B%5Ccolor%7BRed%7D%20J%5EI%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%20n%7D%7D"> can call and process it automatically :wink: but you can calculate its geometrical or analytical form as follows:
 
@@ -2860,6 +2862,45 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
+##### Inertia Matrix in Cartesian Space
+
+This is only a linear transformation of the matrix shown in the previous section. To calculate it, is necessary to calculate the [Geometric Jacobian Matrix](#inertial-jacobian-matrix) of the robot and then multiply it as follows
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathcal%7BM%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%3D%20%5Cleft%5B%20J%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Bn%7D%2C%20%5Cvec%7Br%7D%20%5Cright%29%5E%7B%5Cdagger%7D%20%5Cright%5D%5E%7BT%7D%20%5Cmathrm%7BD%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20J%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Bn%7D%2C%20%5Cvec%7Br%7D%20%5Cright%29%5E%7B%5Cdagger%7D%7D">
+
+The algorithm in this library calculates the [Inertia Matrix in Joints Space](#inertia-matrix) automatically when you call it :wink:
+
+```python
+"""
+  Robot's Inertia Matrix in Cartesian Space (not the same as Inertia Tensor)
+"""
+
+# Dynamics library
+from lib.dynamics.DynamicsHTM import *
+
+# Inertia Matrix in Cartesian Space: M(q)
+D = inertiaMatrixCartesian(uRobot, symbolic = False)
+```
+
+So the output will be
+
+```bash
+# NumPy Array
+>>> M
+array([[ 1.67620328e+02,  1.68648740e+02, -2.36731217e+02, -4.34024667e+00,  2.63005237e+00, -1.07386275e+00],
+       [ 1.68648740e+02,  1.70134621e+02, -2.38434092e+02, -4.06495761e+00,  2.82298081e+00, -6.05471808e-01],
+       [-2.36731217e+02, -2.38434092e+02,  3.34940579e+02,  6.31943441e+00, -4.38037279e+00,  1.41511316e+00],
+       [-4.34024667e+00, -4.06495761e+00,  6.31943441e+00,  5.18404749e-01, -4.58143258e-01,  5.76949173e-01],
+       [ 2.63005237e+00,  2.82298081e+00, -4.38037279e+00, -4.58143258e-01,  7.31741764e-01,  7.91485515e-02],
+       [-1.07386275e+00, -6.05471808e-01,  1.41511316e+00,  5.76949173e-01,  7.91485515e-02,  4.02976991e-01]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
 #### Potential Energy
 
 This is the energy stored in an object due to its position relative to the inertial one. This is described as
@@ -2966,6 +3007,45 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
+##### Gravitational Effects in Cartesian Space
+
+This is only a linear transformation of the matrix shown in the previous section. To calculate it, is necessary to calculate the [Geometric Jacobian Matrix](#inertial-jacobian-matrix) of the robot and then multiply it as follows
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathcal%7BG%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%3D%20%5Cleft%5B%20J%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Bn%7D%2C%20%5Cvec%7Br%7D%20%5Cright%29%5E%7B%5Cdagger%7D%20%5Cright%5D%5E%7BT%7D%20%5Cmathrm%7BG%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%7D">
+
+The algorithm in this library calculates the [Gravitational Effects in Joints Space](#gravitational-effects) automatically when you call it :wink:
+
+```python
+"""
+  Robot's Gravitational Effects in Cartesian Space
+"""
+
+# Dynamics library
+from lib.dynamics.DynamicsHTM import *
+
+# Gravitational Effects in Cartesian Space: G_c(q)
+G_c = gravitationalCartesian(uRobot, symbolic = False)
+```
+
+So the output will be
+
+```bash
+# NumPy Array
+>>> G_c
+array([[ 2.41440980],
+       [ 2.44731763],
+       [-3.96818515],
+       [-0.59666383],
+       [ 0.58864080],
+       [ 0.        ]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
 #### Centrifugal and Coriolis Effects
 
 As part of the Euler - Lagrange formulation, it is mandatory to calculate the rate of change of the lagrangian with respect to the joints velocities, so this leads to
@@ -3056,7 +3136,46 @@ You can also calculate its symbolic expression by setting ```symbolic``` paramet
 
 ---
 
-#### Robot Model
+##### Centrifugal and Coriolis Effects in Cartesian Space
+
+This is only a linear transformation of the matrix shown in the previous section. To calculate it, is necessary to calculate the [Geometric Jacobian Matrix](#inertial-jacobian-matrix) of the robot and [its time derivative](#derivative-of-geometric-jacobian-matrix), and then multiply it as follows
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathcal%7BN%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%2C%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%20%3D%20%5Cleft%28%20%5Cleft%5B%20J%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Bn%7D%2C%20%5Cvec%7Br%7D%20%5Cright%29%5E%7B%5Cdagger%7D%20%5Cright%5D%5E%7BT%7D%20%5Cmathrm%7BC%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%2C%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%20-%20%5Cmathcal%7BM%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cdot%7BJ%7D%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Bn%7D%2C%20%5Cvec%7Br%7D%20%5Cright%29%20%5Cright%20%29%20J%5E%7BI%7D%20%5Cleft%28%20%5Cvec%7Bn%7D%2C%20%5Cvec%7Br%7D%20%5Cright%29%5E%7B%5Cdagger%7D%7D">
+
+The algorithm in this library calculates the [Centrifugal and Coriolis Effects in Joints Space](#centrifugal-and-coriolis-effects) automatically when you call it :wink:
+
+```python
+"""
+  Robot's Centrifugal and Coriolis Effects in Cartesian Space
+"""
+
+# Dynamics library
+from lib.dynamics.DynamicsHTM import *
+
+# Centrifugal and Coriolis Effects in Cartesian Space: N(q, q')
+N = centrifugalCoriolisCartesian(uRobot, symbolic = False)
+```
+
+So the output will be
+
+```bash
+# NumPy Array
+>>> N
+array([[-1.71740759e+02, -1.28111703e+02,  6.25778875e+01, -1.15033719e+02,  1.73976636e+02,  3.92648627e+01],
+       [-1.81816062e+02, -1.37677613e+02,  7.48725450e+01, -1.15854383e+02,  1.75796505e+02,  3.96973201e+01],
+       [ 2.49125285e+02,  1.87702765e+02, -9.69125713e+01,  1.63257299e+02, -2.46348927e+02, -5.53672285e+01],
+       [-1.29239467e+00, -1.50100120e+00,  6.05246596e+00,  4.27684942e+00, -3.89963402e+00, -5.93160320e-01],
+       [-9.06390051e+00, -8.17392809e+00,  9.19365695e+00, -1.91862554e+00,  3.57394877e+00,  6.03999742e-01],
+       [-6.48484237e+00, -7.15739185e+00,  9.69076188e+00, -3.53936516e-01, -8.11586830e-01, -2.03684464e-01]])
+```
+
+You can also calculate its symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+#### Robot Dynamic Model in Joints Space
 
 Given the equation
 
@@ -3066,7 +3185,7 @@ it is possible to build the robot dynamic model by calculating each term individ
 
 ```python
 """
-  Centrifugal and Coriolis Effects that affect the robot
+  Robot Dynamic Model in Joints Space
 """
 
 # Dynamics library
@@ -3081,7 +3200,7 @@ Ddq = dqInertiaMatrixCOM(uRobot, symbolic = False)
 C = centrifugalCoriolisCOM(uRobot, symbolic = False)
 Cdq = dqCentrifugalCoriolisCOM(uRobot, symbolic = False)
   
-# Derivative of Potential Energy (with respect to "q" or joints positions): G(q)
+# Gravitational Effects: G(q)
 G = gravitationalCOM(uRobot, g = np.array([[0], [0], [-9.80665]]), symbolic = False)
 Gdq = dqGravitationalCOM(uRobot, g = np.array([[0], [0], [0], [-9.80665]]), symbolic = False)
 
@@ -3112,7 +3231,55 @@ Please notice that this result is partially numerical because it includes joints
 
 ---
 
-**We hope this can be useful for you. Thanks!**
+#### Robot Dynamic Model in Cartesian Space
 
+Given the equation
+
+<img src="https://latex.codecogs.com/svg.image?%7B%5Ccolor%7Bred%7D%5Cmathcal%7BM%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%5Cddot%7B%5Cmathrm%7Bx%7D%7D%20+%20%5Cmathcal%7BN%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%2C%20%5Cdot%7B%5Cbar%7B%5Ctheta%7D%7D%20%5Cright%29%20%5Cdot%7B%5Cmathrm%7Bx%7D%7D%20+%20%5Cmathcal%7BG%7D%20%5Cleft%28%20%5Cbar%7B%5Ctheta%7D%20%5Cright%29%20%3D%20%5Cmathfrak%7Bf%7D%7D">,
+
+it is possible to build the robot dynamic model in cartesian space by calculating each term individually and then build the complete model. This can be done as follows:
+
+```python
+"""
+  Robot Dynamic Model in Cartesian Space
+"""
+
+# Dynamics library
+from lib.dynamics.DynamicsHTM import *
+
+# Inertia Matrix in Cartesian Space: M(q)
+M = inertiaMatrixCartesian(uRobot, symbolic = False)
+ 
+# Centrifugal and Coriolis Effects in Cartesian Space: N(q, q')
+N = centrifugalCoriolisCartesian(uRobot, symbolic = False)
+  
+# Gravitational Effects in Cartesian Space: G_c(q)
+G_c = gravitationalCOM(uRobot, g = np.array([[0], [0], [-9.80665]]), symbolic = False)
+
+# Robot Dynamic Equation: M(q) * x''(t) + N(q, q') * x'(t) + G(q) = F
+F = (M * Matrix([['a_x'], ['a_y'], ['a_z'], ['dw_x'], ['dw_y'], ['dw_z']])) + (N * Matrix([['v_x'], ['v_y'], ['v_z'], ['w_x'], ['w_y'], ['w_z']])) + G_c
+```
+
+So the output will be
+
+```bash
+# NumPy Array
+>>> F
+Matrix([
+[            167.620328127733*a_x + 168.648739921281*a_y - 236.731217222324*a_z - 4.34024667414663*dw_x + 2.63005237014219*dw_y - 1.07386274939554*dw_z - 171.740759388159*v_x - 128.111702592246*v_y + 62.5778875499351*v_z - 115.033718691954*w_x + 173.976636371066*w_y + 39.2648627245533*w_z + 2.4144097975442],
+[           168.648739921281*a_x + 170.134620835683*a_y - 238.434092345566*a_z - 4.06495760517949*dw_x + 2.82298081033543*dw_y - 0.605471807570683*dw_z - 181.816061859663*v_x - 137.677613034654*v_y + 74.8725449524934*v_z - 115.854382542843*w_x + 175.796505187782*w_y + 39.6973200899513*w_z + 2.4473176251882],
+[           -236.731217222324*a_x - 238.434092345566*a_y + 334.940578914865*a_z + 6.31943440887373*dw_x - 4.38037279321474*dw_y + 1.41511316050212*dw_z + 249.125285114767*v_x + 187.702765424408*v_y - 96.9125712754837*v_z + 163.257299237812*w_x - 246.34892664877*w_y - 55.3672285344599*w_z - 3.96818514532819],
+[       -4.34024667414663*a_x - 4.06495760517949*a_y + 6.31943440887373*a_z + 0.518404749066483*dw_x - 0.458143257658009*dw_y + 0.576949172526721*dw_z - 1.29239467035411*v_x - 1.50100120452344*v_y + 6.0524659577958*v_z + 4.27684941977111*w_x - 3.89963402228553*w_y - 0.59316031983742*w_z - 0.596663833680832],
+[       2.63005237014219*a_x + 2.82298081033543*a_y - 4.38037279321473*a_z - 0.458143257658009*dw_x + 0.731741764371893*dw_y + 0.0791485515271751*dw_z - 9.06390051266166*v_x - 8.173928088836*v_y + 9.19365694823961*v_z - 1.91862554118406*w_x + 3.57394876644568*w_y + 0.603999741698912*w_z + 0.588640800463524],
+[-1.07386274939555*a_x - 0.605471807570684*a_y + 1.41511316050213*a_z + 0.576949172526721*dw_x + 0.0791485515271751*dw_y + 0.402976991115265*dw_z - 6.48484236632503*v_x - 7.15739184563156*v_y + 9.69076188147293*v_z - 0.35393651566526*w_x - 0.811586829789977*w_y - 0.20368446392022*w_z - 2.63872720826792e-15]])
+```
+
+Please notice that this result is partially numerical because it includes velocities and accelerations of the end - effector (<img src="https://latex.codecogs.com/svg.image?%5Cinline%20%7B%5Ccolor%7Bred%7D%5Cdot%7B%5Cmathrm%7Bx%7D%7D%2C%20%5Cddot%7B%5Cmathrm%7Bx%7D%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7B6%20%5Ctimes%201%7D%7D">) in symbolic form; they are stored in ```Matrix([['a_x'], ['a_y'], ['a_z'], ['dw_x'], ['dw_y'], ['dw_z']])``` and ```Matrix([['v_x'], ['v_y'], ['v_z'], ['w_x'], ['w_y'], ['w_z']])```, these are the variables that have to be solved. If you need the numerical value, you can check [this section](#kinetic-energy) to know how to do so. You can also calculate its full symbolic expression by setting ```symbolic``` parameter to ```True```, but this may be slow
+
+[*Return to top*](#zrobotics-02)
+
+---
+
+**We hope this can be useful for you. Thanks!**
     
 ![Z Dynamics](img/icon.png "The Future is ROBOTICS")
