@@ -60,6 +60,7 @@ A powerful library for robotics analysis :mechanical_arm: :robot:
         - [Gravitational Effects](#gravitational-effects)
           - [Gravitational Effects in Cartesian Space](#gravitational-effects-in-cartesian-space)
         - [Centrifugal and Coriolis Effects](#centrifugal-and-coriolis-effects)
+          - [Centrifugal and Coriolis Effects in Cartesian Space](#centrifugal-and-coriolis-effects-in-cartesian-space)
         - [Robot Dynamic Model in Joints Space](#robot-dynamic-model-in-joints-space)
         - [Robot Dynamic Model in Cartesian Space](#robot-dynamic-model-in-cartesian-space)
 ---
