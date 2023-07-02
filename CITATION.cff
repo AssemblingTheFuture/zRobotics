@@ -1,0 +1,23 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: zRobotics 0.2
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: David
+    family-names: Zenteno-Lara
+    email: contact@zdynamics.org
+repository-code: 'https://github.com/AssemblingTheFuture/zRobotics'
+url: 'https://github.com/AssemblingTheFuture/zRobotics'
+abstract: "A powerful library for robotics analysis \U0001F9BE \U0001F916"
+keywords:
+  - robotics
+  - quaternions
+  - dual quaternions
+license: MIT
+version: '0.2'
+date-released: '2022-10-03'
